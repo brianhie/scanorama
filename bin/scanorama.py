@@ -58,14 +58,16 @@ def plot_clusters(coords, clusters, s=1):
                 c=colors[clusters], s=s)
 
 # Do batch correction on the data.
-def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE):
+def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,
+            sigma=SIGMA, ds_names=None):
     datasets, genes = merge_datasets(datasets_full, genes_list)
     datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
     
     datasets_dimred = assemble(
         datasets_dimred, # Assemble in low dimensional space.
         expr_datasets=datasets, # Modified in place.
-        verbose=verbose, knn=KNN, sigma=SIGMA, approx=APPROX
+        verbose=verbose, knn=KNN, sigma=sigma, approx=APPROX,
+        ds_names=ds_names
     )
 
     return datasets, genes
@@ -174,9 +176,10 @@ def nn_approx(ds1, ds2, knn=KNN, metric='manhattan', n_trees=10):
     a.build(n_trees)
 
     # Search index.
-    ind = np.zeros((ds1.shape[0], knn), dtype=int)
+    ind = []
     for i in range(ds1.shape[0]):
-        ind[i, :] = a.get_nns_by_vector(ds1[i, :], knn, search_k=-1)
+        ind.append(a.get_nns_by_vector(ds1[i, :], knn, search_k=-1))
+    ind = np.array(ind)
 
     # Match.
     match = set()
@@ -366,7 +369,8 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma):
 # panoramas. "Merges" datasets by correcting gene expression
 # values.
 def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
-             sigma=SIGMA, approx=APPROX, expr_datasets=None):
+             sigma=SIGMA, approx=APPROX, expr_datasets=None,
+             ds_names=None):
     if len(datasets) == 1:
         return datasets
     
@@ -377,7 +381,11 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
     panoramas = []
     for i, j in alignments:
         if verbose:
-            print('Processing datasets {}'.format((i, j)))
+            if ds_names is None:
+                print('Processing datasets {}'.format((i, j)))
+            else:
+                print('Processing datasets {} <=> {}'.
+                      format(ds_names[i], ds_names[j]))
         
         # Only consider a dataset a fixed amount of times.
         if not i in ds_assembled:
