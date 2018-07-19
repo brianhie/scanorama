@@ -25,7 +25,7 @@ And install the required dependencies with the command:
 python -m pip install -r requirements.txt
 ```
 
-Scanorama has been tested with Python 2.7 using the following packages:
+Scanorama has been tested with Python 2.7 and 3.5 using the following packages:
 * [annoy](https://github.com/spotify/annoy) (1.11.5)
 * [intervaltree](https://github.com/chaimleib/intervaltree) (2.1.0)
 * [numpy](http://www.numpy.org/) (1.11.2)
