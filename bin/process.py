@@ -6,6 +6,18 @@ import os.path
 from sklearn.preprocessing import normalize
 import sys
 
+data_names = [
+    'data/macrophage/gmcsf_day6_1.txt.gz',
+    'data/macrophage/gmcsf_day6_2.txt.gz',
+    'data/macrophage/mcsf_day3_1.txt.gz',
+    'data/macrophage/mcsf_day3_2.txt.gz',
+    'data/macrophage/mcsf_day6_1.txt.gz',
+    'data/macrophage/monocytes_1.txt.gz',
+    'data/macrophage/monocytes_2.txt.gz',
+    'data/macrophage/monocytes_3.txt.gz',
+    'data/macrophage/monocytes_4.txt.gz',
+]
+
 def load_tab(fname, max_genes=40000):
     if fname.endswith('.gz'):
         opener = gzip.open
@@ -143,7 +155,10 @@ def merge_datasets(datasets, genes, verbose=True):
         gene_idx = [ idx for idx in gene_sort_idx
                      if uniq_genes[idx] in keep_genes ]
         ret_datasets[i] = ret_datasets[i][:, gene_idx]
-        assert(np.array_equal(uniq_genes[gene_idx], ret_genes))
+
+        assert(len(uniq_genes[gene_idx]) == len(ret_genes))
+        for rt in range(len(ret_genes)):
+            assert(uniq_genes[gene_idx][rt] == ret_genes[rt])
 
     return ret_datasets, ret_genes
 
@@ -159,4 +174,7 @@ if __name__ == '__main__':
             process_tab(name + '.txt.gz')
         else:
             sys.stderr.write('Warning: Could not find {}\n'.format(name))
+            exit(1)
         print('Successfully processed {}'.format(name))
+
+            
