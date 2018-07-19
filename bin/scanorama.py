@@ -70,7 +70,7 @@ def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE):
 
     return datasets, genes
 
-# Randomized SV
+# Randomized SVD.
 def dimensionality_reduce(datasets, dimred=DIMRED):
     X = np.concatenate(datasets)
     X = reduce_dimensionality(X, dim_red_k=dimred)
@@ -365,7 +365,7 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma):
 # Finds alignments between datasets and uses them to construct
 # panoramas. "Merges" datasets by correcting gene expression
 # values.
-def assemble(datasets, verbose=VERBOSE, view_match=0, knn=KNN,
+def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
              sigma=SIGMA, approx=APPROX, expr_datasets=None):
     if len(datasets) == 1:
         return datasets
@@ -528,7 +528,7 @@ def assemble(datasets, verbose=VERBOSE, view_match=0, knn=KNN,
                 panoramas.remove(panoramas_j[0])
 
         # Visualize.
-        if view_match > i:
+        if view_match:
             plot_mapping(curr_ds, curr_ref, ds_ind, ref_ind)
 
     return datasets
