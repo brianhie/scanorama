@@ -1,5 +1,3 @@
-from config import data_names
-
 from process import load_names, merge_datasets
 from scanorama import *
 
@@ -25,6 +23,8 @@ def panorama(datasets_full, genes_list):
     return panoramas
 
 if __name__ == '__main__':
+    from config import data_names
+    
     # Load raw data from files.
     datasets, genes_list, n_cells = load_names(data_names)
     

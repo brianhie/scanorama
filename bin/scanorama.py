@@ -128,7 +128,7 @@ def visualize(assembled, labels, namespace, data_names,
         random.shuffle(list(rand_idx))
         embedding = embedding[rand_idx, :]
         labels = labels[rand_idx]
-    
+
     # Plot clusters together.
     plot_clusters(embedding, labels, s=size)
     plt.title(('Panorama ({} iter, perplexity: {}, sigma: {}, ' +
@@ -154,7 +154,7 @@ def visualize(assembled, labels, namespace, data_names,
             visualize_expr(gene_expr, embedding,
                            genes, gene_name, size=size,
                            viz_prefix=namespace)
-    
+
     return embedding
 
 # Exact nearest neighbors search.
@@ -271,9 +271,9 @@ def fill_table(table, i, curr_ds, datasets, base_ds=0,
         table[(i, j)].add((d, r - base))
         assert(r - base >= 0)
 
-# Find the matching pairs of cells between datasets.
-def find_alignments(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
-                    prenormalized=False):
+# Fill table of alignment scores.
+def find_alignments_table(datasets, knn=KNN, approx=APPROX,
+                          verbose=VERBOSE, prenormalized=False):
     if not prenormalized:
         datasets = [ normalize(ds, axis=1) for ds in datasets ]
     
@@ -308,7 +308,17 @@ def find_alignments(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
             table_print[i, j] += table1[(i, j)]
     if verbose > 1:
         print(table_print)
+
+    return table1, table_print
     
+# Find the matching pairs of cells between datasets.
+def find_alignments(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
+                    prenormalized=False):
+    table1, _ = find_alignments_table(
+        datasets, knn=knn, approx=approx, verbose=verbose,
+        prenormalized=prenormalized
+    )
+
     alignments = [ (i, j) for (i, j), val in reversed(
         sorted(table1.items(), key=operator.itemgetter(1))
     ) if val > ALPHA ]

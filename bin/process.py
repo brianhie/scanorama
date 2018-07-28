@@ -1,5 +1,3 @@
-from config import data_names
-
 import gzip
 import numpy as np
 import os.path
@@ -170,6 +168,8 @@ def save_datasets(datasets, genes, data_names, verbose=True,
                 ) + '\n')
 
 if __name__ == '__main__':
+    from config import data_names
+
     for name in data_names:
         if os.path.isdir(name):
             process_mtx(name)
