@@ -30,7 +30,7 @@ if __name__ == '__main__':
     datasets, genes = merge_datasets(datasets, genes_list)
     datasets_dimred, genes = process_data(datasets, genes)
 
-    _, A = find_alignments_table(datasets_dimred)
+    _, A, _ = find_alignments_table(datasets_dimred)
     
     time = np.array([ 0, 0, 3, 3, 6, 6 ]).reshape(-1, 1)
     time_align_correlate(A, time)

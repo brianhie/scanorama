@@ -309,12 +309,12 @@ def find_alignments_table(datasets, knn=KNN, approx=APPROX,
     if verbose > 1:
         print(table_print)
 
-    return table1, table_print
+    return table1, table_print, matches
     
 # Find the matching pairs of cells between datasets.
 def find_alignments(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
                     prenormalized=False):
-    table1, _ = find_alignments_table(
+    table1, _, matches = find_alignments_table(
         datasets, knn=knn, approx=approx, verbose=verbose,
         prenormalized=prenormalized
     )
