@@ -53,7 +53,7 @@ The second is a sparse matrix format used by 10X Genomics (example [here](http:/
 
 To ensure a consistent data format, Scanorama first processes these raw files and saves them in numpy archive files. To generate these files, run the command:
 ```
-cat conf/panorama.txt | python bin/process.py
+python bin/process.py conf/panorama.txt
 ```
 The corresponding `.npz` files will be saved in the `data/` directory.
 
@@ -75,9 +75,9 @@ By default, this prints a log reporting the alignments the algorithm has found b
 
 We can also stitch a much larger number of cells from many more datsets. To do this, run:
 ```
-python bin/panorama.py
+python bin/panorama.py conf/panorama.txt
 ```
-The collection of datasets to be integrated is specified in the `data_names` variable in `bin/config.py`. Default parameters are listed at the top of `bin/scanorama.py`.
+The collection of datasets to be integrated is specified in the config file `conf/panorama.txt`. Default parameters are listed at the top of `bin/scanorama.py`.
 
 By default, this script will output a verbose log as it finds alignments and applies batch correction. At the end, it will automatically save t-SNE visualized images of the integrated result. The numpy matrices containing the batch-corrected data sets are also available (in memory) to integrate with other single cell pipelines and packages.
 
