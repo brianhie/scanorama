@@ -112,7 +112,8 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED):
 def visualize(assembled, labels, namespace, data_names,
               gene_names=None, gene_expr=None, genes=None,
               n_iter=N_ITER, perplexity=PERPLEXITY, verbose=VERBOSE,
-              learn_rate=200., early_exag=12., embedding=None, size=1):
+              learn_rate=200., early_exag=12., embedding=None,
+              shuffle_ds=False, size=1):
     # Fit t-SNE.
     if embedding is None:
         tsne = TSNEApprox(n_iter=n_iter, perplexity=perplexity,
@@ -122,10 +123,11 @@ def visualize(assembled, labels, namespace, data_names,
         tsne.fit(np.concatenate(assembled))
         embedding = tsne.embedding_
 
-    rand_idx = range(embedding.shape[0])
-    random.shuffle(rand_idx)
-    embedding = embedding[rand_idx, :]
-    labels = labels[rand_idx]
+    if shuffle_ds:
+        rand_idx = range(embedding.shape[0])
+        random.shuffle(list(rand_idx))
+        embedding = embedding[rand_idx, :]
+        labels = labels[rand_idx]
     
     # Plot clusters together.
     plot_clusters(embedding, labels, s=size)
@@ -145,7 +147,8 @@ def visualize(assembled, labels, namespace, data_names,
     if (not gene_names is None) and \
        (not gene_expr is None) and \
        (not genes is None):
-        gene_expr = gene_expr[rand_idx, :]
+        if shuffle_ds:
+            gene_expr = gene_expr[rand_idx, :]
         for gene_name in gene_names:
             visualize_expr(gene_expr, embedding,
                            genes, gene_name, size=size,
