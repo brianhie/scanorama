@@ -53,11 +53,11 @@ The second is a sparse matrix format used by 10X Genomics (example [here](http:/
 
 To ensure a consistent data format, Scanorama first processes these raw files and saves them in numpy archive files. To generate these files, run the command:
 ```
-python bin/process.py
+cat conf/panorama.txt | python bin/process.py
 ```
 The corresponding `.npz` files will be saved in the `data/` directory.
 
-New files can be processed by modifying the `data_names` variables at the top of `bin/process.py`.
+New files can be processed by feeding them into `bin/process.py` via the command line or a configuration file, or by modifying the `data_names` variables at the top of `bin/config.py`.
 
 Currently, Scanorama uses a relatively low-level data representation (for Python at least) where a list of numpy arrays holds the gene expression values for each data set.
 

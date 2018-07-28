@@ -138,10 +138,11 @@ def visualize(assembled, labels, namespace, data_names,
     plt.savefig(namespace + '.svg', dpi=500)
 
     # Plot clusters individually.
-    for i in range(len(data_names)):
-        visualize_cluster(embedding, i, labels,
-                          cluster_name=data_names[i], size=size,
-                          viz_prefix=namespace)
+    if not shuffle_ds:
+        for i in range(len(data_names)):
+            visualize_cluster(embedding, i, labels,
+                              cluster_name=data_names[i], size=size,
+                              viz_prefix=namespace)
 
     # Plot gene expression levels.
     if (not gene_names is None) and \

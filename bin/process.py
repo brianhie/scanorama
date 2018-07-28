@@ -147,6 +147,28 @@ def merge_datasets(datasets, genes, verbose=True):
 
     return ret_datasets, ret_genes
 
+def save_datasets(datasets, genes, data_names, verbose=True,
+                  truncate_neg=False):
+    for i in range(len(datasets)):
+        dataset = datasets[i]
+        name = data_names[i]
+
+        if truncate_neg:
+            dataset[dataset < 0] = 0
+
+        with open(name + '.scanorama_corrected.txt', 'w') as of:
+            # Save header.
+            of.write('Genes\t')
+            of.write('\t'.join(
+                [ 'cell' + str(cell) for cell in range(dataset.shape[0]) ]
+            ) + '\n')
+
+            for g in range(dataset.shape[1]):
+                of.write(genes[g] + '\t')
+                of.write('\t'.join(
+                    [ str(expr) for expr in dataset[:, g] ]
+                ) + '\n')
+
 if __name__ == '__main__':
     for name in data_names:
         if os.path.isdir(name):
