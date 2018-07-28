@@ -1,17 +1,28 @@
-import fileinput
-import sys
-
-data_names = None
-
-if data_names is None:
-    if len(sys.argv) == 1:
-        print('Enter data names followed by EOF/Ctrl-D:')
-    
-    data_names = []
-    for line in fileinput.input():
-        fields = line.rstrip().split(',')
-        for f in fields:
-            if f.strip() == '':
-                continue
-            data_names.append(f)
-    print('Data names loaded')
+data_names = [
+    'data/293t_jurkat/293t',
+    'data/293t_jurkat/jurkat',
+    'data/293t_jurkat/jurkat_293t_50_50',
+    'data/293t_jurkat/jurkat_293t_99_1',
+    'data/brain/neuron_9k',
+    'data/macrophage/infected',
+    'data/macrophage/mixed_infected',
+    'data/macrophage/uninfected',
+    'data/macrophage/uninfected_donor2',
+    'data/hsc/hsc_mars',
+    'data/hsc/hsc_ss2',
+    'data/pancreas/pancreas_inDrop',
+    'data/pancreas/pancreas_multi_celseq2_expression_matrix',
+    'data/pancreas/pancreas_multi_celseq_expression_matrix',
+    'data/pancreas/pancreas_multi_fluidigmc1_expression_matrix',
+    'data/pancreas/pancreas_multi_smartseq2_expression_matrix',
+    'data/pbmc/10x/68k_pbmc',
+    'data/pbmc/10x/b_cells',
+    'data/pbmc/10x/cd14_monocytes',
+    'data/pbmc/10x/cd4_t_helper',
+    'data/pbmc/10x/cd56_nk',
+    'data/pbmc/10x/cytotoxic_t',
+    'data/pbmc/10x/memory_t',
+    'data/pbmc/10x/regulatory_t',
+    'data/pbmc/pbmc_kang',
+    'data/pbmc/pbmc_10X',
+]

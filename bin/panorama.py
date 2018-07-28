@@ -1,7 +1,7 @@
 from config import data_names
 
-from process import load_names, merge_datasets
 from scanorama import *
+from process import load_names, merge_datasets
 
 from time import time
 import numpy as np

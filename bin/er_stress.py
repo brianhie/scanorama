@@ -38,6 +38,9 @@ if __name__ == '__main__':
     gadd_idx = list(genes).index('GADD45A')
     herp_idx = list(genes).index('HERPUD1')
 
+    print(len(er_idx))
+    print(len(beta_idx))
+    
     plt.figure()
     plt.boxplot([ X[er_idx, gadd_idx], X[beta_idx, gadd_idx] ],
                 showmeans=True)

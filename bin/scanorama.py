@@ -112,8 +112,7 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED):
 def visualize(assembled, labels, namespace, data_names,
               gene_names=None, gene_expr=None, genes=None,
               n_iter=N_ITER, perplexity=PERPLEXITY, verbose=VERBOSE,
-              learn_rate=200., early_exag=12., embedding=None,
-              shuffle_ds=False, size=1):
+              learn_rate=200., early_exag=12., embedding=None, size=1):
     # Fit t-SNE.
     if embedding is None:
         tsne = TSNEApprox(n_iter=n_iter, perplexity=perplexity,
@@ -123,11 +122,10 @@ def visualize(assembled, labels, namespace, data_names,
         tsne.fit(np.concatenate(assembled))
         embedding = tsne.embedding_
 
-    if shuffle_ds:
-        rand_idx = range(embedding.shape[0])
-        random.shuffle(list(rand_idx))
-        embedding = embedding[rand_idx, :]
-        labels = labels[rand_idx]
+    rand_idx = range(embedding.shape[0])
+    random.shuffle(rand_idx)
+    embedding = embedding[rand_idx, :]
+    labels = labels[rand_idx]
     
     # Plot clusters together.
     plot_clusters(embedding, labels, s=size)
@@ -138,18 +136,16 @@ def visualize(assembled, labels, namespace, data_names,
     plt.savefig(namespace + '.svg', dpi=500)
 
     # Plot clusters individually.
-    if not shuffle_ds:
-        for i in range(len(data_names)):
-            visualize_cluster(embedding, i, labels,
-                              cluster_name=data_names[i], size=size,
-                              viz_prefix=namespace)
+    for i in range(len(data_names)):
+        visualize_cluster(embedding, i, labels,
+                          cluster_name=data_names[i], size=size,
+                          viz_prefix=namespace)
 
     # Plot gene expression levels.
     if (not gene_names is None) and \
        (not gene_expr is None) and \
        (not genes is None):
-        if shuffle_ds:
-            gene_expr = gene_expr[rand_idx, :]
+        gene_expr = gene_expr[rand_idx, :]
         for gene_name in gene_names:
             visualize_expr(gene_expr, embedding,
                            genes, gene_name, size=size,
@@ -271,9 +267,9 @@ def fill_table(table, i, curr_ds, datasets, base_ds=0,
         table[(i, j)].add((d, r - base))
         assert(r - base >= 0)
 
-# Find the matching pairs of cells between datasets.
-def find_alignments(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
-                    prenormalized=False):
+# Fill table of alignment scores.
+def find_alignments_table(datasets, knn=KNN, approx=APPROX,
+                          verbose=VERBOSE, prenormalized=False):
     if not prenormalized:
         datasets = [ normalize(ds, axis=1) for ds in datasets ]
     
@@ -308,7 +304,17 @@ def find_alignments(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
             table_print[i, j] += table1[(i, j)]
     if verbose > 1:
         print(table_print)
+
+    return table1, table_print
     
+# Find the matching pairs of cells between datasets.
+def find_alignments(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
+                    prenormalized=False):
+    table1, _ = find_alignments_table(
+        datasets, knn=knn, approx=approx, verbose=verbose,
+        prenormalized=prenormalized
+    )
+
     alignments = [ (i, j) for (i, j), val in reversed(
         sorted(table1.items(), key=operator.itemgetter(1))
     ) if val > ALPHA ]
