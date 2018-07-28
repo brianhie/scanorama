@@ -4,18 +4,6 @@ import os.path
 from sklearn.preprocessing import normalize
 import sys
 
-data_names = [
-    'data/macrophage/gmcsf_day6_1',
-    'data/macrophage/gmcsf_day6_2',
-    'data/macrophage/mcsf_day3_1',
-    'data/macrophage/mcsf_day3_2',
-    'data/macrophage/mcsf_day6_1',
-    'data/macrophage/monocytes_1',
-    'data/macrophage/monocytes_2',
-    'data/macrophage/monocytes_3',
-    'data/macrophage/monocytes_4',
-]
-
 def load_tab(fname, max_genes=40000):
     if fname.endswith('.gz'):
         opener = gzip.open
@@ -157,7 +145,31 @@ def merge_datasets(datasets, genes, verbose=True):
 
     return ret_datasets, ret_genes
 
+def save_datasets(datasets, genes, data_names, verbose=True,
+                  truncate_neg=False):
+    for i in range(len(datasets)):
+        dataset = datasets[i]
+        name = data_names[i]
+
+        if truncate_neg:
+            dataset[dataset < 0] = 0
+
+        with open(name + '.scanorama_corrected.txt', 'w') as of:
+            # Save header.
+            of.write('Genes\t')
+            of.write('\t'.join(
+                [ 'cell' + str(cell) for cell in range(dataset.shape[0]) ]
+            ) + '\n')
+
+            for g in range(dataset.shape[1]):
+                of.write(genes[g] + '\t')
+                of.write('\t'.join(
+                    [ str(expr) for expr in dataset[:, g] ]
+                ) + '\n')
+
 if __name__ == '__main__':
+    from config import data_names
+
     for name in data_names:
         if os.path.isdir(name):
             process_mtx(name)
