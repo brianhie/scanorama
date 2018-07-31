@@ -4,6 +4,8 @@ import os.path
 from sklearn.preprocessing import normalize
 import sys
 
+MIN_TRANSCRIPTS = 600
+
 def load_tab(fname, max_genes=40000):
     if fname.endswith('.gz'):
         opener = gzip.open
@@ -49,7 +51,7 @@ def load_mtx(dname):
 
     return X, np.array(genes)
 
-def process_tab(fname, min_trans=600):
+def process_tab(fname, min_trans=MIN_TRANSCRIPTS):
     X, cells, genes = load_tab(fname)
 
     gt_idx = [ i for i, s in enumerate(np.sum(X != 0, axis=1))
@@ -67,7 +69,7 @@ def process_tab(fname, min_trans=600):
 
     return X, cells, genes
 
-def process_mtx(dname, min_trans=600):
+def process_mtx(dname, min_trans=MIN_TRANSCRIPTS):
     X, genes = load_mtx(dname)
 
     gt_idx = [ i for i, s in enumerate(np.sum(X != 0, axis=1))
