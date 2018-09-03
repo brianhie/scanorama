@@ -106,7 +106,7 @@ The script `bin/simulation.py` tests the integrative performance of the method o
 
 #### Scanorama implementation
 
-For those interested in the real meaty bit of the code, look in `bin/scanorama.py` which handles the mutual nearest neighbors-based matching, batch correction, and panorama assembly.
+For those interested in the algorithm implementation, `scanorama/scanorama.py` is the main file that handles the mutual nearest neighbors-based matching, batch correction, and panorama assembly.
 
 ## Questions
 
