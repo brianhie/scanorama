@@ -2,6 +2,8 @@ import numpy as np
 from scipy.stats import ttest_ind
 from unsupervised import silhouette_samples as sil
 
+from scanorama import plt
+
 if __name__ == '__main__':
     labels = np.array(
         open('data/cell_labels/all.txt').read().rstrip().split()

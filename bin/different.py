@@ -14,7 +14,7 @@ data_names = [
     'data/brain/neuron_9k',
     'data/hsc/hsc_mars',
     'data/macrophage/uninfected',
-    'data/pancreas/pancreas_human',
+    'data/pancreas/pancreas_inDrop',
     'data/pbmc/10x/68k_pbmc',
 ]
 
