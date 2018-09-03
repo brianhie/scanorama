@@ -1,11 +1,12 @@
-from scanorama import assemble, connect, plot_clusters
-from process import load_names, merge_datasets
-
 import numpy as np
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import normalize
 import sys
 from time import time
+
+from process import load_names
+from scanorama import correct, visualize, process_data
+from scanorama import dimensionality_reduce, merge_datasets
 
 NAMESPACE = 'different'
 
