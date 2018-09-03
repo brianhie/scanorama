@@ -1,11 +1,3 @@
-data/macrophage/monocytes_1
-data/macrophage/monocytes_2
-data/macrophage/monocytes_3
-data/macrophage/monocytes_4
-data/macrophage/mcsf_day3_1
-data/macrophage/mcsf_day3_2
-data/macrophage/mcsf_day6_1
-data/macrophage/mcsf_day6_2
 data/293t_jurkat/293t
 data/293t_jurkat/jurkat
 data/293t_jurkat/jurkat_293t_50_50
