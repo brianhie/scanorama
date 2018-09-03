@@ -3,8 +3,7 @@ import random
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import normalize
 
-from scanorama import plot_clusters, assemble
-from utils import plt
+from scanorama import plot_clusters, assemble, plt
 
 np.random.seed(0)
 random.seed(0)

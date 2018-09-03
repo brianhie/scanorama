@@ -10,7 +10,6 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import normalize
 import sys
 
-from process import merge_datasets
 from t_sne_approx import TSNEApprox
 from utils import plt, dispersion, reduce_dimensionality
 from utils import visualize_cluster, visualize_expr
@@ -56,6 +55,36 @@ def plot_clusters(coords, clusters, s=1):
     plt.figure()
     plt.scatter(coords[:, 0], coords[:, 1],
                 c=colors[clusters], s=s)
+
+# Put datasets into a single matrix with the intersection of all genes.
+def merge_datasets(datasets, genes, verbose=True):
+    # Find genes in common.
+    keep_genes = set()
+    for gene_list in genes:
+        if len(keep_genes) == 0:
+            keep_genes = set(gene_list)
+        else:
+            keep_genes &= set(gene_list)
+    if verbose:
+        print('Found {} genes among all datasets'
+              .format(len(keep_genes)))
+
+    # Only keep genes in common.
+    ret_datasets = []
+    ret_genes = np.array(sorted(keep_genes))
+    for i in range(len(datasets)):
+        # Remove duplicate genes.
+        uniq_genes, uniq_idx = np.unique(genes[i], return_index=True)
+        ret_datasets.append(datasets[i][:, uniq_idx])
+
+        # Do gene filtering.
+        gene_sort_idx = np.argsort(uniq_genes)
+        gene_idx = [ idx for idx in gene_sort_idx
+                     if uniq_genes[idx] in keep_genes ]
+        ret_datasets[i] = ret_datasets[i][:, gene_idx]
+        assert(np.array_equal(uniq_genes[gene_idx], ret_genes))
+
+    return ret_datasets, ret_genes
 
 # Do batch correction on the data.
 def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,

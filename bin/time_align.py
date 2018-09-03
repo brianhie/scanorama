@@ -5,7 +5,7 @@ import seaborn as sns
 from sklearn.metrics.pairwise import euclidean_distances
 import sys
 
-from scrna import plt
+from scanorama import plt
 
 def time_align_visualize(alignments, time, y, namespace='time_align'):
     plt.figure()

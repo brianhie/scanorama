@@ -1,5 +1,8 @@
-*.pyc
-temp*
-data*
-*.svg
+*.egg-info
 *.log
+*.pyc
+*.svg
+build*
+data*
+dist*
+temp*
