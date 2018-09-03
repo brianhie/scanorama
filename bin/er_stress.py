@@ -6,7 +6,6 @@ import sys
 from process import load_names
 from scanorama import correct, visualize, process_data
 from scanorama import dimensionality_reduce, merge_datasets
-from utils import plt
 
 NAMESPACE = 'er_stress'
 

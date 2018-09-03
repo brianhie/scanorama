@@ -4,6 +4,8 @@ import os.path
 from sklearn.preprocessing import normalize
 import sys
 
+from scanorama import merge_datasets
+
 MIN_TRANSCRIPTS = 600
 
 def load_tab(fname, max_genes=40000):
@@ -117,35 +119,6 @@ def load_names(data_names, norm=True, log1p=False, verbose=True):
               .format(n_cells))
 
     return datasets, genes_list, n_cells
-
-def merge_datasets(datasets, genes, verbose=True):
-    # Find genes in common.
-    keep_genes = set()
-    for gene_list in genes:
-        if len(keep_genes) == 0:
-            keep_genes = set(gene_list)
-        else:
-            keep_genes &= set(gene_list)
-    if verbose:
-        print('Found {} genes among all datasets'
-              .format(len(keep_genes)))
-
-    # Only keep genes in common.
-    ret_datasets = []
-    ret_genes = np.array(sorted(keep_genes))
-    for i in range(len(datasets)):
-        # Remove duplicate genes.
-        uniq_genes, uniq_idx = np.unique(genes[i], return_index=True)
-        ret_datasets.append(datasets[i][:, uniq_idx])
-
-        # Do gene filtering.
-        gene_sort_idx = np.argsort(uniq_genes)
-        gene_idx = [ idx for idx in gene_sort_idx
-                     if uniq_genes[idx] in keep_genes ]
-        ret_datasets[i] = ret_datasets[i][:, gene_idx]
-        assert(np.array_equal(uniq_genes[gene_idx], ret_genes))
-
-    return ret_datasets, ret_genes
 
 def save_datasets(datasets, genes, data_names, verbose=True,
                   truncate_neg=False):

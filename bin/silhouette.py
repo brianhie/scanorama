@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.stats import ttest_ind
 from unsupervised import silhouette_samples as sil
-from utils import plt
 
 if __name__ == '__main__':
     labels = np.array(

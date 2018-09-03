@@ -20,13 +20,14 @@ Change into the repository directory:
 cd scanorama/
 ```
 
-And install the required dependencies with the command:
+And install Scanorama with the following command
 ```
-python -m pip install -r requirements.txt
+python setup.py install --user
 ```
 
 Scanorama has been tested with Python 2.7 and 3.5 using the following packages:
 * [annoy](https://github.com/spotify/annoy) (1.11.5)
+* [fbpca](https://fbpca.readthedocs.io/en/latest/) (1.0)
 * [intervaltree](https://github.com/chaimleib/intervaltree) (2.1.0)
 * [numpy](http://www.numpy.org/) (1.11.2)
 * [scipy](https://www.scipy.org/) (1.0.0)
