@@ -1,1 +1,1 @@
-from scanorama import *
+from .scanorama import *
