@@ -10,9 +10,9 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import normalize
 import sys
 
-from t_sne_approx import TSNEApprox
-from utils import plt, dispersion, reduce_dimensionality
-from utils import visualize_cluster, visualize_expr
+from .t_sne_approx import TSNEApprox
+from .utils import plt, dispersion, reduce_dimensionality
+from .utils import visualize_cluster, visualize_expr
 
 np.random.seed(0)
 random.seed(0)
