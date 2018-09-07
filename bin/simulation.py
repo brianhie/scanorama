@@ -2,6 +2,7 @@ import numpy as np
 import random
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import normalize
+from time import time
 
 from scanorama import plot_clusters, assemble, plt
 
@@ -59,64 +60,68 @@ if __name__ == '__main__':
     ], dtype='float')
     sg = SampleGaussian(4, means)
 
+    n_genes = 2000
+    n_cells = 1000000
+
     # Sample clusters in 2D.
     samples0, clusters0 = sg.sample_N(
-        1000, np.array([ 1, 1, 1, 1], dtype='float')
+        n_cells, np.array([ 1, 0, 0, 1], dtype='float')
     )
     plot_clusters(samples0, clusters0)
     samples1, clusters1 = sg.sample_N(
-        1001, np.array([ 1, 2, 0, 0], dtype='float')
+        n_cells, np.array([ 1, 2, 0, 0], dtype='float')
     )
     samples2, clusters2 = sg.sample_N(
-        1002, np.array([ 0, 0, 1, 2], dtype='float')
+        n_cells, np.array([ 0, 0, 1, 2], dtype='float')
     )
     samples3, clusters3 = sg.sample_N(
-        500, np.array([ 0, 1, 1, 0], dtype='float')
+        n_cells, np.array([ 0, 1, 1, 0], dtype='float')
     )
 
     clusters = [ clusters0, clusters1, clusters2, clusters3 ]
     samples = [ samples0, samples1, samples2, samples3 ]
 
     # Project to higher dimension.
-    Z = np.absolute(np.random.randn(2, 100))
+    Z = np.absolute(np.random.randn(2, n_genes))
     datasets = [ np.dot(s, Z) for s in samples ]
 
     # Add batch effect "noise."
-    datasets = [ ds + np.random.randn(1, 100) for ds in datasets ]
+    datasets = [ ds + np.random.randn(1, n_genes) for ds in datasets ]
 
     # Normalize datasets.
     datasets = [ normalize(ds, axis=1) for ds in datasets ]
 
     tsne = TSNE(n_iter=400, perplexity=100, verbose=2, random_state=69)
-
-    tsne.fit(np.concatenate(datasets[1:]))
-    plot_clusters(tsne.embedding_, np.concatenate(clusters[1:]), s=500)
-    plt.title('Uncorrected data')
-    plt.savefig('simulation_uncorrected.svg')
+    #tsne.fit(np.concatenate(datasets[1:]))
+    #plot_clusters(tsne.embedding_, np.concatenate(clusters[1:]), s=500)
+    #plt.title('Uncorrected data')
+    #plt.savefig('simulation_uncorrected.svg')
     
     # Assemble datasets.
-    assembled = assemble(datasets[1:], verbose=1, sigma=1, knn=10,
-                         approx=True)
-    tsne.fit(datasets[1])
-    plot_clusters(tsne.embedding_, clusters[1], s=500)
-    plt.title('Dataset 1')
-    plt.xlabel('t-SNE 1')
-    plt.ylabel('t-SNE 2')
-    plt.savefig('simulation_ds1.svg')
-    
-    tsne.fit(datasets[2])
-    plot_clusters(tsne.embedding_, clusters[2], s=500)
-    plt.title('Dataset 2')
-    plt.xlabel('t-SNE 1')
-    plt.ylabel('t-SNE 2')
-    plt.savefig('simulation_ds2.svg')
-    
-    tsne.fit(datasets[3])
-    plot_clusters(tsne.embedding_, clusters[3], s=500)
-    plt.title('Dataset 3')
-    plt.xlabel('t-SNE 1')
-    plt.ylabel('t-SNE 2')
-    plt.savefig('simulation_ds3.svg')
+    t0 = time()
+    print('Start...')
+    assembled = assemble(datasets[1:], verbose=1, sigma=1, approx=True)
+    print('End, took {}s'.format(time() - t0))
+    #tsne.fit(datasets[1])
+    #plot_clusters(tsne.embedding_, clusters[1], s=500)
+    #plt.title('Dataset 1')
+    #plt.xlabel('t-SNE 1')
+    #plt.ylabel('t-SNE 2')
+    #plt.savefig('simulation_ds1.svg')
+    #
+    #tsne.fit(datasets[2])
+    #plot_clusters(tsne.embedding_, clusters[2], s=500)
+    #plt.title('Dataset 2')
+    #plt.xlabel('t-SNE 1')
+    #plt.ylabel('t-SNE 2')
+    #plt.savefig('simulation_ds2.svg')
+    #
+    #tsne.fit(datasets[3])
+    #plot_clusters(tsne.embedding_, clusters[3], s=500)
+    #plt.title('Dataset 3')
+    #plt.xlabel('t-SNE 1')
+    #plt.ylabel('t-SNE 2')
+    #plt.savefig('simulation_ds3.svg')
 
     tsne.fit(np.concatenate(assembled))
     plot_clusters(tsne.embedding_, np.concatenate(clusters[1:]), s=500)

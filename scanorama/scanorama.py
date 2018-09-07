@@ -4,8 +4,9 @@ from itertools import cycle, islice
 import numpy as np
 import operator
 import random
+from scipy.sparse import csr_matrix, vstack
 from sklearn.manifold import TSNE
-from sklearn.metrics.pairwise import rbf_kernel
+from sklearn.metrics.pairwise import rbf_kernel, euclidean_distances
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import normalize
 import sys
@@ -88,7 +89,7 @@ def merge_datasets(datasets, genes, verbose=True):
 
 # Do batch correction on the data.
 def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,
-            sigma=SIGMA, ds_names=None):
+            sigma=SIGMA, ds_names=None, return_dimred=False):
     datasets, genes = merge_datasets(datasets_full, genes_list)
     datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
     
@@ -99,11 +100,14 @@ def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,
         ds_names=ds_names
     )
 
+    if return_dimred:
+        return datasets_dimred, datasets, genes
+
     return datasets, genes
 
 # Randomized SVD.
 def dimensionality_reduce(datasets, dimred=DIMRED):
-    X = np.concatenate(datasets)
+    X = vstack(datasets)
     X = reduce_dimensionality(X, dim_red_k=dimred)
     datasets_dimred = []
     base = 0
@@ -116,7 +120,7 @@ def dimensionality_reduce(datasets, dimred=DIMRED):
 def process_data(datasets, genes, hvg=HVG, dimred=DIMRED):
     # Only keep highly variable genes
     if hvg > 0:
-        X = np.concatenate(datasets)
+        X = vstack(datasets)
         disp = dispersion(X)
         top_genes = set(genes[
             list(reversed(np.argsort(disp)))[:HVG]
@@ -397,15 +401,23 @@ def connect(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE):
 
 # Compute nonlinear translation vectors between dataset
 # and a reference.
-def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma):
+def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=False):
     # Compute the matching.
     match_ds = curr_ds[ds_ind, :]
     match_ref = curr_ref[ref_ind, :]
     bias = match_ref - match_ds
+    if cn:
+        match_ds = match_ds.toarray()
+        curr_ds = curr_ds.toarray()
+        bias = bias.toarray()
+
     weights = rbf_kernel(curr_ds, match_ds, gamma=0.5*sigma)
     avg_bias = np.dot(weights, bias) / \
                np.tile(np.sum(weights, axis=1),
                        (curr_ds.shape[1], 1)).T
+    if cn:
+        avg_bias = csr_matrix(avg_bias)
+    
     return avg_bias
     
 # Finds alignments between datasets and uses them to construct
@@ -476,9 +488,9 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
             
             if expr_datasets:
                 curr_ds = expr_datasets[i]
-                curr_ref = np.concatenate([ expr_datasets[p]
-                                            for p in panoramas_j[0] ])
-                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma)
+                curr_ref = vstack([ expr_datasets[p]
+                                    for p in panoramas_j[0] ])
+                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=True)
                 expr_datasets[i] = curr_ds + bias
             
             panoramas_j[0].append(i)
@@ -505,9 +517,9 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
             
             if expr_datasets:
                 curr_ds = expr_datasets[j]
-                curr_ref = np.concatenate([ expr_datasets[p]
-                                            for p in panoramas_i[0] ])
-                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma)
+                curr_ref = vstack([ expr_datasets[p]
+                                    for p in panoramas_i[0] ])
+                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=True)
                 expr_datasets[j] = curr_ds + bias
                 
             panoramas_i[0].append(j)
@@ -560,12 +572,12 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
                 datasets[p] = curr_ds[base:(base + n_cells), :]
                 base += n_cells
             
-            if expr_datasets:
-                curr_ds = np.concatenate([ expr_datasets[p]
-                                           for p in panoramas_i[0] ])
-                curr_ref = np.concatenate([ expr_datasets[p]
-                                            for p in panoramas_j[0] ])
-                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma)
+            if False and expr_datasets: # DEBUG
+                curr_ds = vstack([ expr_datasets[p]
+                                   for p in panoramas_i[0] ])
+                curr_ref = vstack([ expr_datasets[p]
+                                    for p in panoramas_j[0] ])
+                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=True)
                 curr_ds += bias
                 base = 0
                 for p in panoramas_i[0]:

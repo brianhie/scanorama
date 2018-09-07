@@ -10,12 +10,14 @@ import sys
 np.random.seed(0)
 
 def dispersion(X):
-    mean = np.mean(X, axis=0)
+    mean = X.mean(0)
     dispersion = np.zeros(mean.shape)
-    dispersion[mean > 1e-10] = (
-        np.var(X[:, mean > 1e-10], axis=0) / \
-        np.mean(X[:, mean > 1e-10], axis=0)
-    )
+    nonzero_idx = np.nonzero(mean > 1e-10)[1]
+    X_nonzero = X[:, nonzero_idx]
+    nonzero_mean = X_nonzero.mean(0)
+    nonzero_var = (X_nonzero.multiply(X_nonzero)).mean(0)
+    temp = (nonzero_var / nonzero_mean)
+    dispersion[mean > 1e-10] = temp.A1
     dispersion[mean <= 1e-10] = float('-inf')
     return dispersion
         

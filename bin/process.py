@@ -98,6 +98,8 @@ def load_data(name):
     return X, genes
 
 def load_names(data_names, norm=True, log1p=False, verbose=True):
+    from scipy import sparse
+    
     # Load datasets.
     datasets = []
     genes_list = []
@@ -108,6 +110,8 @@ def load_names(data_names, norm=True, log1p=False, verbose=True):
             X_i = normalize(X_i, axis=1)
         if log1p:
             X_i = np.log1p(X_i)
+        X_i = sparse.csr_matrix(X_i)
+            
         datasets.append(X_i)
         genes_list.append(genes_i)
         n_cells += X_i.shape[0]

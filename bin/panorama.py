@@ -4,7 +4,7 @@ from scanorama import *
 from time import time
 import numpy as np
 
-NAMESPACE = 'panorama'
+NAMESPACE = 'panorama_intersectgenes'
 
 # Find the panoramas in the data.
 def panorama(datasets_full, genes_list):
