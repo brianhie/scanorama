@@ -24,9 +24,11 @@ data_names = [
 
 if __name__ == '__main__':
     datasets, genes_list, n_cells = load_names(data_names)
-    datasets, genes = correct(datasets, genes_list)
-    datasets = [ normalize(ds, axis=1) for ds in datasets ]
-    datasets_dimred = dimensionality_reduce(datasets)
+
+    datasets_dimred, datasets, genes = correct(
+        datasets, genes_list, ds_names=data_names,
+        return_dimred=True
+    )
     
     labels = []
     names = []

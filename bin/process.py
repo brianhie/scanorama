@@ -9,7 +9,7 @@ import tables
 
 from scanorama import merge_datasets
 
-MIN_TRANSCRIPTS = 0
+MIN_TRANSCRIPTS = 600
 
 def load_tab(fname, max_genes=40000):
     if fname.endswith('.gz'):

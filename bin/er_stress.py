@@ -41,8 +41,8 @@ if __name__ == '__main__':
     plt.figure()
     plt.boxplot([ X[er_idx, gadd_idx], X[beta_idx, gadd_idx] ],
                 showmeans=True)
-    plt.title('GADD45A (p < {})'.format(ttest_ind(
-        X[er_idx, gadd_idx], X[beta_idx, gadd_idx]
+    plt.title('GADD45A (p = {})'.format(ttest_ind(
+        X[er_idx, gadd_idx], X[beta_idx, gadd_idx], equal_var=False
     )[1]))
     plt.xticks([1, 2], ['beta_er', 'beta'])
     plt.ylabel('Scaled gene expression')
@@ -51,8 +51,8 @@ if __name__ == '__main__':
     plt.figure()
     plt.boxplot([ X[er_idx, herp_idx], X[beta_idx, herp_idx] ],
                 showmeans=True)
-    plt.title('HERPUD1 (p < {})'.format(ttest_ind(
-        X[er_idx, herp_idx], X[beta_idx, herp_idx]
+    plt.title('HERPUD1 (p = {})'.format(ttest_ind(
+        X[er_idx, herp_idx], X[beta_idx, herp_idx], equal_var=False
     )[1]))
     plt.xticks([1, 2], ['beta_er', 'beta'])
     plt.ylabel('Scaled gene expression')

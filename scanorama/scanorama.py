@@ -572,7 +572,7 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
                 datasets[p] = curr_ds[base:(base + n_cells), :]
                 base += n_cells
             
-            if False and expr_datasets: # DEBUG
+            if False and expr_datasets: #DEBUG
                 curr_ds = vstack([ expr_datasets[p]
                                    for p in panoramas_i[0] ])
                 curr_ref = vstack([ expr_datasets[p]
