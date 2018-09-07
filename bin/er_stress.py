@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.sparse import vstack
 from scipy.stats import ttest_ind
 from sklearn.preprocessing import normalize, LabelEncoder
 import sys
@@ -22,7 +23,7 @@ if __name__ == '__main__':
     #datasets, genes = merge_datasets(datasets, genes_list)
     #datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
     datasets, genes = correct(datasets, genes_list)
-    X = np.concatenate(datasets)
+    X = vstack(datasets).toarray()
     X[X < 0] = 0
 
     cell_labels = (

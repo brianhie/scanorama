@@ -1,10 +1,11 @@
 import numpy as np
+from scanorama import correct, visualize, process_data
+from scanorama import dimensionality_reduce, merge_datasets
+from scipy.sparse import vstack
 from sklearn.preprocessing import normalize, LabelEncoder
 import sys
 
 from process import load_names
-from scanorama import correct, visualize, process_data
-from scanorama import dimensionality_reduce, merge_datasets
 
 NAMESPACE = 'hsc'
 
@@ -35,7 +36,7 @@ if __name__ == '__main__':
     # Visualize with PCA.
     visualize(None, labels, NAMESPACE + '_ds', names,
               gene_names=hsc_genes, genes=genes,
-              gene_expr=np.concatenate(datasets),
+              gene_expr=vstack(datasets),
               embedding=np.concatenate(datasets_dimred),
               size=4)
 

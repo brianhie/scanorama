@@ -1,10 +1,11 @@
 import numpy as np
+from scanorama import correct, visualize, process_data
+from scanorama import dimensionality_reduce, merge_datasets
+from scipy.sparse import vstack
 from sklearn.preprocessing import normalize, LabelEncoder
 import sys
 
 from process import load_names
-from scanorama import correct, visualize, process_data
-from scanorama import dimensionality_reduce, merge_datasets
 
 NAMESPACE = 'pbmc'
 
@@ -49,7 +50,7 @@ if __name__ == '__main__':
     embedding = visualize(datasets_dimred,
                           labels, NAMESPACE + '_ds', names,
                           gene_names=pbmc_genes,
-                          gene_expr=np.concatenate(datasets),
+                          gene_expr=vstack(datasets),
                           genes=genes, perplexity=500, n_iter=400)
 
     cell_labels = (
