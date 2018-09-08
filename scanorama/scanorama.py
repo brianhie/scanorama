@@ -149,10 +149,23 @@ def visualize(assembled, labels, namespace, data_names,
               shuffle_ds=False, size=1):
     # Fit t-SNE.
     if embedding is None:
-        tsne = TSNEApprox(n_iter=n_iter, perplexity=perplexity,
-                          verbose=verbose, random_state=69,
-                          learning_rate=learn_rate,
-                          early_exaggeration=early_exag)
+        try:
+            from MulticoreTSNE import MulticoreTSNE
+            tsne = MulticoreTSNE(
+                n_iter=n_iter, perplexity=perplexity,
+                verbose=verbose, random_state=69,
+                learning_rate=learn_rate,
+                early_exaggeration=early_exag,
+                n_jobs=40
+            )
+        except ImportError:
+            tsne = TSNEApprox(
+                n_iter=n_iter, perplexity=perplexity,
+                verbose=verbose, random_state=69,
+                learning_rate=learn_rate,
+                early_exaggeration=early_exag
+            )
+
         tsne.fit(np.concatenate(assembled))
         embedding = tsne.embedding_
 
