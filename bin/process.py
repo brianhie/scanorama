@@ -9,7 +9,7 @@ import tables
 
 from scanorama import merge_datasets
 
-MIN_TRANSCRIPTS = 600
+MIN_TRANSCRIPTS = 0
 
 def load_tab(fname, max_genes=40000):
     if fname.endswith('.gz'):
@@ -130,10 +130,10 @@ def process_h5(fname, min_trans=MIN_TRANSCRIPTS):
     return X, genes
 
 def load_data(name):
-    if os.path.isfile(name + 'h5.npz'):
-        X = scipy.sparse.load_npz(name + 'h5.npz')
-        with open(name + 'h5.genes.txt') as f:
-            genes = f.read().split()
+    if os.path.isfile(name + '.h5.npz'):
+        X = scipy.sparse.load_npz(name + '.h5.npz')
+        with open(name + '.h5.genes.txt') as f:
+            genes = np.array(f.read().split())
     elif os.path.isfile(name + '.npz'):
         data = np.load(name + '.npz')
         X = data['X']
@@ -212,4 +212,5 @@ if __name__ == '__main__':
             process_tab(name + '.txt.gz')
         else:
             sys.stderr.write('Warning: Could not find {}\n'.format(name))
+            continue
         print('Successfully processed {}'.format(name))
