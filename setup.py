@@ -14,7 +14,7 @@ setup(
         'networkx>=2.1',
         'numpy>=1.12.0',
         'scipy>=1.0.0',
-        'scikit-learn>=0.19.0',
+        'scikit-learn>=0.20rc1',
         'statsmodels>=0.8.0rc1',
         'tables>=3.3.0'
     ],

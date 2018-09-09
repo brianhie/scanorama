@@ -58,14 +58,16 @@ def plot_clusters(coords, clusters, s=1):
                 c=colors[clusters], s=s)
 
 # Put datasets into a single matrix with the intersection of all genes.
-def merge_datasets(datasets, genes, verbose=True):
+def merge_datasets(datasets, genes, ds_names=None, verbose=True):
     # Find genes in common.
     keep_genes = set()
-    for gene_list in genes:
+    for idx, gene_list in enumerate(genes):
         if len(keep_genes) == 0:
             keep_genes = set(gene_list)
         else:
             keep_genes &= set(gene_list)
+        if not ds_names is None:
+            print('After {}: {} genes'.format(ds_names[idx], len(keep_genes)))
     if verbose:
         print('Found {} genes among all datasets'
               .format(len(keep_genes)))
@@ -90,7 +92,8 @@ def merge_datasets(datasets, genes, verbose=True):
 # Do batch correction on the data.
 def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,
             sigma=SIGMA, ds_names=None, return_dimred=False):
-    datasets, genes = merge_datasets(datasets_full, genes_list)
+    datasets, genes = merge_datasets(datasets_full, genes_list,
+                                     ds_names=ds_names)
     datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
     
     datasets_dimred = assemble(

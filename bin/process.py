@@ -88,6 +88,8 @@ def process_tab(fname, min_trans=MIN_TRANSCRIPTS):
                if s >= min_trans ]
     X = X[gt_idx, :]
     cells = cells[gt_idx]
+    if len(gt_idx) == 0:
+        print('Warning: 0 cells passed QC in {}'.format(fname))
 
     if fname.endswith('.txt'):
         cache_prefix = '.'.join(fname.split('.')[:-1])
@@ -105,6 +107,8 @@ def process_mtx(dname, min_trans=MIN_TRANSCRIPTS):
     gt_idx = [ i for i, s in enumerate(np.sum(X != 0, axis=1))
                if s >= min_trans ]
     X = X[gt_idx, :]
+    if len(gt_idx) == 0:
+        print('Warning: 0 cells passed QC in {}'.format(dname))
     
     cache_fname = dname + '/tab.npz'
     np.savez(cache_fname, X=X, genes=genes)
@@ -117,6 +121,8 @@ def process_h5(fname, min_trans=MIN_TRANSCRIPTS):
     gt_idx = [ i for i, s in enumerate(np.sum(X != 0, axis=1))
                if s >= min_trans ]
     X = X[gt_idx, :]
+    if len(gt_idx) == 0:
+        print('Warning: 0 cells passed QC in {}'.format(fname))
     
     if fname.endswith('.h5'):
         cache_prefix = '.'.join(fname.split('.')[:-1])

@@ -87,7 +87,6 @@ data/murine_atlases/mca/TrophoblastStemCells
 data/murine_atlases/mca/Uterus1
 data/murine_atlases/mca/Uterus2
 data/murine_atlases/mca/mES.CJ7
-data/murine_atlases/neuron_1M/neuron_1M
 data/murine_atlases/tabula_10x/Bladder-10X_P4_3
 data/murine_atlases/tabula_10x/Bladder-10X_P4_4
 data/murine_atlases/tabula_10x/Bladder-10X_P7_7
