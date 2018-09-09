@@ -66,8 +66,6 @@ def merge_datasets(datasets, genes, ds_names=None, verbose=True):
             keep_genes = set(gene_list)
         else:
             keep_genes &= set(gene_list)
-        if not ds_names is None:
-            print('After {}: {} genes'.format(ds_names[idx], len(keep_genes)))
     if verbose:
         print('Found {} genes among all datasets'
               .format(len(keep_genes)))

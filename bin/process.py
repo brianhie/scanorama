@@ -32,7 +32,7 @@ def load_tab(fname, max_genes=40000):
             if fname.endswith('.gz'):
                 line = line.decode('utf-8')
             fields = line.rstrip().split('\t')
-            genes.append(fields[0])
+            genes.append(fields[0].upper())
             X[:, i] = [ float(f) for f in fields[1:] ]
     return X[:, range(len(genes))], np.array(cells), np.array(genes)
 
@@ -72,7 +72,7 @@ def load_h5(fname, min_trans=MIN_TRANSCRIPTS, genome='mm10'):
 
             X = csr_matrix((data, dsets['indices'], dsets['indptr']),
                            shape=(n_cells, n_genes))
-            genes = dsets['genes'].astype(str)
+            genes = [ gene.upper() for gene in dsets['genes'].astype(str) ]
             
         except tables.NoSuchNodeError:
             raise Exception('Genome %s does not exist in this file.' % genome)
