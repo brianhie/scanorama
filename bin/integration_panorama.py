@@ -1,4 +1,4 @@
-from process import load_names, merge_datasets
+from process import load_names
 from scanorama import *
 
 from time import time
@@ -21,6 +21,32 @@ if __name__ == '__main__':
         curr_label += 1
     labels = np.array(labels, dtype=int)
     
+    ########################
+    ## Scanorama Assembly ##
+    ########################
+
+    datasets_dimred, genes = process_data(datasets, genes)
+    
+    # Put each of the datasets into a panorama.
+    t0 = time()
+    datasets_dimred = assemble(
+        datasets_dimred, ds_names=data_names
+    )
+    if VERBOSE:
+        print('Integrated panoramas in {:.3f}s'.format(time() - t0))
+
+    np.savetxt('../assemble-sc/data/corrected_scanorama.txt',
+               np.concatenate(datasets_dimred), delimiter='\t')
+
+    embedding = visualize(
+        datasets_dimred, labels, NAMESPACE, data_names
+    )
+
+    np.savetxt('data/{}_embedding.txt'.format(NAMESPACE),
+               embedding, delimiter='\t')
+
+    exit()
+    
     #########################
     ## Naive MNN Algorithm ##
     #########################
@@ -39,25 +65,3 @@ if __name__ == '__main__':
     np.savetxt('data/mnn_embedding.txt',
                embedding, delimiter='\t')
 
-    exit()
-    
-    ########################
-    ## Scanorama Assembly ##
-    ########################
-
-    datasets_dimred, genes = process_data(datasets, genes)
-    
-    # Put each of the datasets into a panorama.
-    t0 = time()
-    datasets_dimred = assemble(
-        datasets_dimred, ds_names=data_names
-    )
-    if VERBOSE:
-        print('Integrated panoramas in {:.3f}s'.format(time() - t0))
-
-    embedding = visualize(
-        datasets_dimred, labels, NAMESPACE, data_names
-    )
-
-    np.savetxt('data/{}_embedding.txt'.format(NAMESPACE),
-               datasets_dimred, delimiter='\t')

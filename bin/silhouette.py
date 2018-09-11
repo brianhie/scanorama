@@ -8,22 +8,20 @@ if __name__ == '__main__':
     labels = np.array(
         open('data/cell_labels/all.txt').read().rstrip().split()
     )
+    idx = np.random.choice(102923, size=20000, replace=False)
     
     # Scanorama.
-    X = np.loadtxt('data/panorama_embedding.txt')
-    idx = np.random.choice(X.shape[0], size=20000, replace=False)
+    X = np.loadtxt('../assemble-sc/data/corrected_scanorama.txt')
     sil_pan = sil(X[idx, :], labels[idx])
     print(np.median(sil_pan))
 
     # scran MNN.
-    X = np.loadtxt('data/mnn_embedding.txt')
-    idx = np.random.choice(X.shape[0], size=20000, replace=False)
+    X = np.loadtxt('../assemble-sc/data/corrected_mnn.txt')
     sil_mnn = sil(X[idx, :], labels[idx])
     print(np.median(sil_mnn))
 
     # Seurat CCA.
     X = np.loadtxt('data/cca_embedding.txt')
-    idx = np.random.choice(X.shape[0], size=20000, replace=False)
     sil_cca = sil(X[idx, :], labels[idx])
     print(np.median(sil_cca))
 
@@ -32,8 +30,8 @@ if __name__ == '__main__':
     print(ttest_ind(sil_pan, sil_cca))
     
     plt.figure()
-    plt.boxplot([ sil_pan, sil_mnn, sil_cca ], showmeans=True)
+    plt.boxplot([ sil_mnn, sil_cca, sil_pan ], showmeans=True)
     plt.title('Distributions of Silhouette Coefficients')
-    plt.xticks([ 1, 2, 3 ], [ 'Scanorama', 'scran MNN', 'Seurat CCA' ])
+    plt.xticks([ 1, 2, 3 ], [ 'scran MNN', 'Seurat CCA', 'Scanorama' ])
     plt.ylabel('Silhouette Coefficient')
     plt.savefig('silhouette.svg')

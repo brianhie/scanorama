@@ -1,7 +1,7 @@
 import numpy as np
-from scanorama import assemble, correct, visualize, process_data
-from scanorama import dimensionality_reduce, merge_datasets
+from scanorama import *
 from scipy.sparse import vstack
+import seaborn as sns
 from sklearn.preprocessing import normalize, LabelEncoder
 import sys
 
@@ -15,9 +15,20 @@ with open('conf/murine_atlases.txt') as dn_file:
 if __name__ == '__main__':
     datasets, genes_list, n_cells = load_names(data_names)
     
-    datasets_dimred, datasets, genes = correct(
-        datasets, genes_list, ds_names=data_names,
-        return_dimred=True, sigma=50
+    datasets, genes = merge_datasets(datasets, genes_list)
+    datasets_dimred, genes = process_data(datasets, genes)
+    
+    _, table, _ = find_alignments_table(datasets_dimred, prenormalized=True)
+    plt.figure()
+    sns.heatmap(table, xticklabels=data_names, yticklabels=data_names)
+    plt.tight_layout()
+    plt.savefig('murine_heatmap.svg')
+
+    print(connect(datasets_dimred))
+    sys.stdout.flush()
+
+    datasets_dimred = assemble(
+        datasets_dimred, ds_names=data_names, sigma=50
     )
 
     labels = []

@@ -71,25 +71,25 @@ def merge_datasets(datasets, genes, ds_names=None, verbose=True):
               .format(len(keep_genes)))
 
     # Only keep genes in common.
-    ret_datasets = []
     ret_genes = np.array(sorted(keep_genes))
     for i in range(len(datasets)):
         # Remove duplicate genes.
         uniq_genes, uniq_idx = np.unique(genes[i], return_index=True)
-        ret_datasets.append(datasets[i][:, uniq_idx])
+        datasets[i] = datasets[i][:, uniq_idx]
 
         # Do gene filtering.
         gene_sort_idx = np.argsort(uniq_genes)
         gene_idx = [ idx for idx in gene_sort_idx
                      if uniq_genes[idx] in keep_genes ]
-        ret_datasets[i] = ret_datasets[i][:, gene_idx]
+        datasets[i] = datasets[i][:, gene_idx]
         assert(np.array_equal(uniq_genes[gene_idx], ret_genes))
 
-    return ret_datasets, ret_genes
+    return datasets, ret_genes
 
 # Do batch correction on the data.
 def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,
-            sigma=SIGMA, ds_names=None, return_dimred=False):
+            sigma=SIGMA, approx=APPROX, alpha=ALPHA, ds_names=None,
+            return_dimred=False):
     datasets, genes = merge_datasets(datasets_full, genes_list,
                                      ds_names=ds_names)
     datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
@@ -97,8 +97,8 @@ def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,
     datasets_dimred = assemble(
         datasets_dimred, # Assemble in low dimensional space.
         expr_datasets=datasets, # Modified in place.
-        verbose=verbose, knn=KNN, sigma=sigma, approx=APPROX,
-        ds_names=ds_names
+        verbose=verbose, knn=KNN, sigma=sigma, approx=approx,
+        alpha=alpha, ds_names=ds_names
     )
 
     if return_dimred:
@@ -120,7 +120,7 @@ def dimensionality_reduce(datasets, dimred=DIMRED):
 # Normalize and reduce dimensionality.
 def process_data(datasets, genes, hvg=HVG, dimred=DIMRED):
     # Only keep highly variable genes
-    if hvg > 0:
+    if hvg > 0 and hvg < len(genes):
         X = vstack(datasets)
         disp = dispersion(X)
         top_genes = set(genes[
@@ -360,7 +360,7 @@ def find_alignments_table(datasets, knn=KNN, approx=APPROX,
     
 # Find the matching pairs of cells between datasets.
 def find_alignments(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
-                    prenormalized=False):
+                    alpha=ALPHA, prenormalized=False):
     table1, _, matches = find_alignments_table(
         datasets, knn=knn, approx=approx, verbose=verbose,
         prenormalized=prenormalized
@@ -368,15 +368,17 @@ def find_alignments(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
 
     alignments = [ (i, j) for (i, j), val in reversed(
         sorted(table1.items(), key=operator.itemgetter(1))
-    ) if val > ALPHA ]
+    ) if val > alpha ]
 
     return alignments, matches
 
 # Find connections between datasets to identify panoramas.
-def connect(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE):
+def connect(datasets, knn=KNN, approx=APPROX, alpha=ALPHA,
+            verbose=VERBOSE):
     # Find alignments.
     alignments, _ = find_alignments(
-        datasets, knn=knn, approx=approx, verbose=verbose
+        datasets, knn=knn, approx=approx, alpha=alpha,
+        verbose=verbose
     )
     if verbose:
         print(alignments)
@@ -438,13 +440,13 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=False):
 # panoramas. "Merges" datasets by correcting gene expression
 # values.
 def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
-             sigma=SIGMA, approx=APPROX, expr_datasets=None,
+             sigma=SIGMA, approx=APPROX, alpha=ALPHA, expr_datasets=None,
              ds_names=None):
     if len(datasets) == 1:
         return datasets
     
     alignments, matches = find_alignments(datasets, knn=knn, approx=approx,
-                                          verbose=verbose)
+                                          alpha=alpha, verbose=verbose)
     
     ds_assembled = {}
     panoramas = []
@@ -637,12 +639,12 @@ def assemble_accum(datasets, verbose=VERBOSE, knn=KNN, sigma=SIGMA,
 
 def interpret_alignments(datasets, expr_datasets, genes,
                          verbose=VERBOSE, knn=KNN, approx=APPROX,
-                         n_permutations=None):
+                         alpha=ALPHA, n_permutations=None):
     if n_permutations is None:
         n_permutations = float(len(genes) * 30)
     
     alignments, matches = find_alignments(
-        datasets, knn=knn, approx=approx, verbose=verbose
+        datasets, knn=knn, approx=approx, alpha=alpha, verbose=verbose
     )
 
     for i, j in alignments:
