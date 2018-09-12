@@ -48,7 +48,10 @@ def visualize_cluster(coords, cluster, cluster_labels,
         
 def visualize_expr(X, coords, genes, viz_gene,
                    new_fig=True, size=1, viz_prefix='ve'):
-    if not viz_gene in genes:
+    genes = [ gene.upper() for gene in genes ]
+    viz_gene = viz_gene.upper()
+    
+    if not viz_gene.upper() in genes:
         sys.stderr.write('Warning: Could not find gene {}\n'.format(viz_gene))
         return
     

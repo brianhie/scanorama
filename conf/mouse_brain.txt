@@ -1,0 +1,10 @@
+data/murine_atlases/dropviz/Cerebellum_ALT
+data/murine_atlases/dropviz/Cortex_noRep5_FRONTALonly
+data/murine_atlases/dropviz/Cortex_noRep5_POSTERIORonly
+data/murine_atlases/dropviz/EntoPeduncular
+data/murine_atlases/dropviz/GlobusPallidus
+data/murine_atlases/dropviz/Hippocampus
+data/murine_atlases/dropviz/Striatum
+data/murine_atlases/dropviz/SubstantiaNigra
+data/murine_atlases/dropviz/Thalamus
+data/murine_atlases/neuron_1M/neuron_1M

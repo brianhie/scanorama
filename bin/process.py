@@ -9,7 +9,7 @@ import tables
 
 from scanorama import merge_datasets
 
-MIN_TRANSCRIPTS = 0
+MIN_TRANSCRIPTS = 600
 
 def load_tab(fname, max_genes=40000):
     if fname.endswith('.gz'):
@@ -32,26 +32,32 @@ def load_tab(fname, max_genes=40000):
             if fname.endswith('.gz'):
                 line = line.decode('utf-8')
             fields = line.rstrip().split('\t')
-            genes.append(fields[0].upper())
+            genes.append(fields[0])
             X[:, i] = [ float(f) for f in fields[1:] ]
     return X[:, range(len(genes))], np.array(cells), np.array(genes)
 
 def load_mtx(dname):
     with open(dname + '/matrix.mtx', 'r') as f:
-        f.readline(); f.readline()
-        header = f.readline().rstrip().split()
+        while True:
+            header = f.readline()
+            if not header.startswith('%'):
+                break
+        header = header.rstrip().split()
         n_genes, n_cells = int(header[0]), int(header[1])
 
-        X = np.zeros((n_cells, n_genes))
+        data, i, j = [], [], []
         for line in f:
             fields = line.rstrip().split()
-            X[int(fields[1])-1, int(fields[0])-1] = float(fields[2])
+            data.append(float(fields[2]))
+            i.append(int(fields[1])-1)
+            j.append(int(fields[0])-1)
+        X = csr_matrix((data, (i, j)), shape=(n_cells, n_genes))
 
     genes = []
     with open(dname + '/genes.tsv', 'r') as f:
         for line in f:
             fields = line.rstrip().split()
-            genes.append(fields[1].upper())
+            genes.append(fields[1])
     assert(len(genes) == n_genes)
 
     return X, np.array(genes)
@@ -72,14 +78,14 @@ def load_h5(fname, min_trans=MIN_TRANSCRIPTS, genome='mm10'):
 
             X = csr_matrix((data, dsets['indices'], dsets['indptr']),
                            shape=(n_cells, n_genes))
-            genes = [ gene.upper() for gene in dsets['genes'].astype(str) ]
+            genes = [ gene for gene in dsets['genes'].astype(str) ]
             
         except tables.NoSuchNodeError:
             raise Exception('Genome %s does not exist in this file.' % genome)
         except KeyError:
             raise Exception('File is missing one or more required datasets.')    
 
-    return X, genes
+    return X, np.array(genes)
         
 def process_tab(fname, min_trans=MIN_TRANSCRIPTS):
     X, cells, genes = load_tab(fname)
@@ -90,7 +96,6 @@ def process_tab(fname, min_trans=MIN_TRANSCRIPTS):
     cells = cells[gt_idx]
     if len(gt_idx) == 0:
         print('Warning: 0 cells passed QC in {}'.format(fname))
-
     if fname.endswith('.txt'):
         cache_prefix = '.'.join(fname.split('.')[:-1])
     elif fname.endswith('.txt.gz'):
@@ -111,7 +116,10 @@ def process_mtx(dname, min_trans=MIN_TRANSCRIPTS):
         print('Warning: 0 cells passed QC in {}'.format(dname))
     
     cache_fname = dname + '/tab.npz'
-    np.savez(cache_fname, X=X, genes=genes)
+    scipy.sparse.save_npz(cache_fname, X, compressed=False)
+
+    with open(dname + '/tab.genes.txt', 'w') as of:
+        of.write('\n'.join(genes) + '\n')
 
     return X, genes
 
@@ -131,7 +139,7 @@ def process_h5(fname, min_trans=MIN_TRANSCRIPTS):
     scipy.sparse.save_npz(cache_fname, X, compressed=False)
 
     with open(cache_prefix + '.h5.genes.txt', 'w') as of:
-        of.write('\n'.join(genes))
+        of.write('\n'.join(genes) + '\n')
 
     return X, genes
 
@@ -139,18 +147,19 @@ def load_data(name):
     if os.path.isfile(name + '.h5.npz'):
         X = scipy.sparse.load_npz(name + '.h5.npz')
         with open(name + '.h5.genes.txt') as f:
-            genes = np.array(f.read().split())
+            genes = np.array(f.read().rstrip().split())
     elif os.path.isfile(name + '.npz'):
         data = np.load(name + '.npz')
         X = data['X']
         genes = data['genes']
     elif os.path.isfile(name + '/tab.npz'):
-        data = np.load(name + '/tab.npz')
-        X = data['X']
-        genes = data['genes']
+        X = scipy.sparse.load_npz(name + '/tab.npz')
+        with open(name + '/tab.genes.txt') as f:
+            genes = np.array(f.read().rstrip().split())
     else:
         sys.stderr.write('Could not find: {}\n'.format(name))
         exit(1)
+    genes = np.array([ gene.upper() for gene in genes ])
     return X, genes
 
 def load_names(data_names, norm=True, log1p=False, verbose=True):

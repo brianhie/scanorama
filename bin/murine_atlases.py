@@ -18,17 +18,17 @@ if __name__ == '__main__':
     datasets, genes = merge_datasets(datasets, genes_list)
     datasets_dimred, genes = process_data(datasets, genes)
     
-    _, table, _ = find_alignments_table(datasets_dimred, prenormalized=True)
+    _, table, _ = find_alignments_table(datasets_dimred[:], prenormalized=True)
     plt.figure()
     sns.heatmap(table, xticklabels=data_names, yticklabels=data_names)
     plt.tight_layout()
     plt.savefig('murine_heatmap.svg')
 
-    print(connect(datasets_dimred))
+    print(connect(datasets_dimred[:]))
     sys.stdout.flush()
 
     datasets_dimred = assemble(
-        datasets_dimred, ds_names=data_names, sigma=50
+        datasets_dimred[:], ds_names=data_names, sigma=50
     )
 
     labels = []

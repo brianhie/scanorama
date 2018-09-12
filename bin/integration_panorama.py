@@ -12,6 +12,9 @@ if __name__ == '__main__':
     datasets, genes_list, n_cells = load_names(data_names)
     datasets, genes = merge_datasets(datasets, genes_list)
 
+    U, s, Vt = pca(vstack(datasets), k=100) # Automatically centers.
+
+
     labels = []
     names = []
     curr_label = 0

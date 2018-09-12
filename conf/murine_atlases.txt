@@ -36,7 +36,6 @@ data/murine_atlases/mca/MammaryGland.Involution.CD45.1
 data/murine_atlases/mca/MammaryGland.Involution.CD45.2
 data/murine_atlases/mca/MammaryGland.Involution1
 data/murine_atlases/mca/MammaryGland.Involution2
-data/murine_atlases/mca/MammaryGland.Lactation1
 data/murine_atlases/mca/MammaryGland.Lactation2
 data/murine_atlases/mca/MammaryGland.Pregnancy
 data/murine_atlases/mca/MammaryGland.Virgin.CD45.1
