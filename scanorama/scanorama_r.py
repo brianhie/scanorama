@@ -10,10 +10,6 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import normalize
 import sys
 
-from .t_sne_approx import TSNEApprox
-from .utils import plt, dispersion, reduce_dimensionality
-from .utils import visualize_cluster, visualize_expr
-
 np.random.seed(0)
 random.seed(0)
 
@@ -88,9 +84,9 @@ def merge_datasets(datasets, genes, verbose=True):
 
 # Do batch correction on the data.
 def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,
-            sigma=SIGMA, ds_names=None):
+            sigma=SIGMA, ds_names=None, dimred=DIMRED):
     datasets, genes = merge_datasets(datasets_full, genes_list)
-    datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
+    datasets_dimred, genes = process_data(datasets, genes, hvg=hvg, dimred=dimred)
     
     datasets_dimred = assemble(
         datasets_dimred, # Assemble in low dimensional space.
@@ -99,7 +95,7 @@ def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,
         ds_names=ds_names
     )
 
-    return datasets, genes
+    return datasets_dimred, datasets, genes
 
 # Randomized SVD.
 def dimensionality_reduce(datasets, dimred=DIMRED):
@@ -646,7 +642,3 @@ def interpret_alignments(datasets, expr_datasets, genes,
         print('>>>> Stats for alignment {}'.format((i, j)))
         for k in range(len(p)):
             print('{}\t{}'.format(genes[k], p[k]))
-        
-
-if __name__ == '__main__':
-    pass
