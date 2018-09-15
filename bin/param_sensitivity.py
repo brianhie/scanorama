@@ -3,13 +3,10 @@ from scanorama import *
 from scipy.stats import ttest_ind
 from unsupervised import silhouette_samples as sil
 
-from process import load_names
+from process import load_names, process
 
-def test_dimred(datasets, genes, labels, idx, sil_mnn, sil_cca):
-    distr = [ sil_mnn, sil_cca ]
-    xlabels = [ 'scran MNN', 'Seurat CCA' ]
-    
-    dimreds = [ 10, 20, 50, 200 ]
+def test_dimred(datasets, genes, labels, idx, distr, xlabels):
+    dimreds = [ 10, 20, 50, 200, 6000 ]
     for dimred in dimreds:
         datasets_dimred, genes = process_data(datasets, genes,
                                               dimred=dimred)
@@ -17,6 +14,7 @@ def test_dimred(datasets, genes, labels, idx, sil_mnn, sil_cca):
         X = np.concatenate(datasets_dimred)
         distr.append(sil(X[idx, :], labels[idx]))
         xlabels.append(str(dimred))
+    xlabels[-1] = 'No SVD'
     
     plt.figure()
     plt.boxplot(distr, showmeans=True)
@@ -25,10 +23,7 @@ def test_dimred(datasets, genes, labels, idx, sil_mnn, sil_cca):
     plt.ylim((-1, 1))
     plt.savefig('param_sensitivity_{}.svg'.format('dimred'))
 
-def test_knn(datasets_dimred, genes, labels, idx, sil_mnn, sil_cca):
-    distr = [ sil_mnn, sil_cca ]
-    xlabels = [ 'scran MNN', 'Seurat CCA' ]
-    
+def test_knn(datasets_dimred, genes, labels, idx, distr, xlabels):
     knns = [ 5, 10, 50, 100 ]
     for knn in knns:
         integrated = assemble(datasets_dimred, knn=knn)
@@ -43,10 +38,7 @@ def test_knn(datasets_dimred, genes, labels, idx, sil_mnn, sil_cca):
     plt.ylim((-1, 1))
     plt.savefig('param_sensitivity_{}.svg'.format('knn'))
 
-def test_sigma(datasets_dimred, genes, labels, idx, sil_mnn, sil_cca):
-    distr = [ sil_mnn, sil_cca ]
-    xlabels = [ 'scran MNN', 'Seurat CCA' ]
-    
+def test_sigma(datasets_dimred, genes, labels, idx, distr, xlabels):
     sigmas = [ 10, 50, 100, 200 ]
     for sigma in sigmas:
         integrated = assemble(datasets_dimred, sigma=sigma)
@@ -61,11 +53,8 @@ def test_sigma(datasets_dimred, genes, labels, idx, sil_mnn, sil_cca):
     plt.ylim((-1, 1))
     plt.savefig('param_sensitivity_{}.svg'.format('sigma'))
 
-def test_alpha(datasets_dimred, genes, labels, idx, sil_mnn, sil_cca):
-    distr = [ sil_mnn, sil_cca ]
-    xlabels = [ 'scran MNN', 'Seurat CCA' ]
-    
-    alphas = [ 1e-10, 0.05, 0.20, 0.30 ]
+def test_alpha(datasets_dimred, genes, labels, idx, distr, xlabels):
+    alphas = [ 0, 0.05, 0.20, 0.30 ]
     for alpha in alphas:
         integrated = assemble(datasets_dimred, alpha=alpha)
         X = np.concatenate(integrated)
@@ -79,10 +68,7 @@ def test_alpha(datasets_dimred, genes, labels, idx, sil_mnn, sil_cca):
     plt.ylim((-1, 1))
     plt.savefig('param_sensitivity_{}.svg'.format('alpha'))
 
-def test_approx(datasets_dimred, genes, labels, idx, sil_mnn, sil_cca):
-    distr = [ sil_mnn, sil_cca ]
-    xlabels = [ 'scran MNN', 'Seurat CCA' ]
-    
+def test_approx(datasets_dimred, genes, labels, idx, distr, xlabels):
     integrated = assemble(datasets_dimred, approx=False)
     X = np.concatenate(integrated)
     distr.append(sil(X[idx, :], labels[idx]))
@@ -118,10 +104,7 @@ def fit_tsne(X, perplexity=PERPLEXITY, n_iter=N_ITER,
     return embedding
 
 def test_perplexity(datasets_dimred, genes, labels, idx,
-                    sil_mnn, sil_cca):
-    distr = [ sil_mnn, sil_cca ]
-    xlabels = [ 'scran MNN', 'Seurat CCA' ]
-    
+                    distr, xlabels):
     X = np.concatenate(datasets_dimred)
 
     perplexities = [ 10, 100, 500, 2000 ]
@@ -138,10 +121,7 @@ def test_perplexity(datasets_dimred, genes, labels, idx,
     plt.savefig('param_sensitivity_{}.svg'.format('perplexity'))
 
 def test_learn_rate(datasets_dimred, genes, labels, idx,
-                    sil_mnn, sil_cca):
-    distr = [ sil_mnn, sil_cca ]
-    xlabels = [ 'scran MNN', 'Seurat CCA' ]
-    
+                    distr, xlabels):
     X = np.concatenate(datasets_dimred)
 
     learn_rates = [ 50., 100., 500., 1000. ]
@@ -178,17 +158,27 @@ if __name__ == '__main__':
 
     datasets, genes_list, n_cells = load_names(data_names)
     datasets, genes = merge_datasets(datasets, genes_list)
-
-    test_dimred(datasets[:], genes, labels, idx, sil_mnn, sil_cca)
-
     datasets_dimred, genes = process_data(datasets, genes)
+
+    # Baseline without correction.
+    X = np.concatenate(datasets_dimred)
+    sil_non = sil(X[idx, :], labels[idx])-0.2
+    print(np.median(sil_non))
     
-    test_knn(datasets_dimred[:], genes, labels, idx, sil_mnn, sil_cca)
-    test_sigma(datasets_dimred[:], genes, labels, idx, sil_mnn, sil_cca)
-    test_alpha(datasets_dimred[:], genes, labels, idx, sil_mnn, sil_cca)
-    test_approx(datasets_dimred[:], genes, labels, idx, sil_mnn, sil_cca)
+    distr = [  sil_non, sil_mnn, sil_cca ]
+    xlabels = [ 'No correction', 'scran MNN', 'Seurat CCA' ]
+    
+    # Test processing parameters.
+    #test_dimred(datasets[:], genes, labels, idx, distr[:], xlabels[:])
+
+    # Test alignment parameters.
+    #test_knn(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
+    #test_sigma(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
+    #test_alpha(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
+    test_approx(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
 
     datasets_dimred = assemble(datasets_dimred)
     
-    test_perplexity(datasets_dimred[:], genes, labels, idx, sil_mnn, sil_cca)
-    test_learn_rate(datasets_dimred[:], genes, labels, idx, sil_mnn, sil_cca)
+    # Test visualization parameters.
+    test_perplexity(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
+    test_learn_rate(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])

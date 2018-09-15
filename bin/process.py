@@ -62,7 +62,7 @@ def load_mtx(dname):
 
     return X, np.array(genes)
 
-def load_h5(fname, min_trans=MIN_TRANSCRIPTS, genome='mm10'):
+def load_h5(fname, genome='mm10'):
     # Adapted from scanpy's read_10x_h5() method.
     with tables.open_file(str(fname), 'r') as f:
         try:
@@ -152,6 +152,7 @@ def load_data(name):
         data = np.load(name + '.npz')
         X = data['X']
         genes = data['genes']
+        data.close()
     elif os.path.isfile(name + '/tab.npz'):
         X = scipy.sparse.load_npz(name + '/tab.npz')
         with open(name + '/tab.genes.txt') as f:
@@ -209,23 +210,26 @@ def save_datasets(datasets, genes, data_names, verbose=True,
                     [ str(expr) for expr in dataset[:, g] ]
                 ) + '\n')
 
-if __name__ == '__main__':
-    from config import data_names
-
+def process(data_names, min_trans=MIN_TRANSCRIPTS):
     for name in data_names:
         if os.path.isdir(name):
-            process_mtx(name)
+            process_mtx(name, min_trans=min_trans)
         elif os.path.isfile(name) and name.endswith('.h5'):
-            process_h5(name)
+            process_h5(name, min_trans=min_trans)
         elif os.path.isfile(name + '.h5'):
-            process_h5(name + '.h5')
+            process_h5(name + '.h5', min_trans=min_trans)
         elif os.path.isfile(name):
-            process_tab(name)
+            process_tab(name, min_trans=min_trans)
         elif os.path.isfile(name + '.txt'):
-            process_tab(name + '.txt')
+            process_tab(name + '.txt', min_trans=min_trans)
         elif os.path.isfile(name + '.txt.gz'):
-            process_tab(name + '.txt.gz')
+            process_tab(name + '.txt.gz', min_trans=min_trans)
         else:
             sys.stderr.write('Warning: Could not find {}\n'.format(name))
             continue
         print('Successfully processed {}'.format(name))
+
+if __name__ == '__main__':
+    from config import data_names
+
+    process(data_names)

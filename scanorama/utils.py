@@ -59,7 +59,7 @@ def visualize_expr(X, coords, genes, viz_gene,
         viz_prefix, viz_gene
     )
 
-    # Color based on deciles.
+    # Color based on percentiles.
     x_gene = X[:, list(genes).index(viz_gene)].toarray()
     colors = np.zeros(x_gene.shape)
     n_tiles = 100

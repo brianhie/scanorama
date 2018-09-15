@@ -2,9 +2,12 @@ library(methods)
 library(scran)
 
 names = list(
-    "../data/simulation/simulate_nonoverlap/simulate_nonoverlap_A_table.txt",
-    "../data/simulation/simulate_nonoverlap/simulate_nonoverlap_C_table.txt",
-    "../data/simulation/simulate_nonoverlap/simulate_nonoverlap_B_table.txt"
+    "../data/macrophage/monocytes_seqwell_table.txt",
+    "../data/pbmc/10x/cd14_monocytes_table.txt",
+    "../data/macrophage/mcsf_day3_1_table.txt",
+    "../data/macrophage/mcsf_day3_2_table.txt",
+    "../data/macrophage/mcsf_day6_1_table.txt",
+    "../data/macrophage/mcsf_day6_2_table.txt"
 )
 
 data.tables <- list()
@@ -21,10 +24,10 @@ ptm <- proc.time()
 Xmnn <- mnnCorrect(
     data.tables[[1]],
     data.tables[[2]],
-    data.tables[[3]]
-    #data.tables[[4]],
-    #data.tables[[5]],
-    #data.tables[[6]],
+    data.tables[[3]],
+    data.tables[[4]],
+    data.tables[[5]],
+    data.tables[[6]]
     #data.tables[[7]],
     #data.tables[[8]],
     #data.tables[[9]],
@@ -54,5 +57,5 @@ print(proc.time() - ptm)
 corrected.df <- do.call(cbind.data.frame, Xmnn$corrected)
 corrected.mat <- as.matrix(t(corrected.df))
 
-write.table(corrected.mat, file = "../data/mnn_correct_simulate_nonoverlap.txt",
+write.table(corrected.mat, file = "/scratch1/brianhie/data/macrophage/mono_macro_mnn_table.txt",
             quote = FALSE, sep = "\t")

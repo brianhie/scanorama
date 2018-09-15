@@ -34,7 +34,7 @@ def load_data(fname):
     return datasets, genes, names, n_cells
 
 METHOD = 'seurat'
-NAMESPACE = 'simulate_rare'
+NAMESPACE = 'pbmc'
 
 if __name__ == '__main__':
     datasets, genes, names, n_cells = load_data(
@@ -50,6 +50,21 @@ if __name__ == '__main__':
         labels[base:(base + ds.shape[0])] = i
         base += ds.shape[0]
 
-    visualize(datasets_dimred, labels,
-              '{}_{}'.format(METHOD, NAMESPACE), names,
-              perplexity=100, n_iter=400, size=10)
+    embedding = visualize(
+        datasets_dimred, labels,
+        '{}_{}'.format(METHOD, NAMESPACE), names,
+        perplexity=100, n_iter=400
+    )
+
+    cell_labels = (
+        open('data/cell_labels/{}_cluster.txt'.format(NAMESPACE))
+        .read().rstrip().split()
+    )
+    le = LabelEncoder().fit(cell_labels)
+    cell_labels = le.transform(cell_labels)
+    cell_types = le.classes_
+
+    visualize(datasets_dimred,
+              cell_labels, NAMESPACE + '_type', cell_types,
+              embedding=embedding)
+    

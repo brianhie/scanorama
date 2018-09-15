@@ -7,7 +7,7 @@ import sys
 
 from process import load_names
 
-NAMESPACE = 'mouse_brain_large'
+NAMESPACE = 'mouse_brain'
 
 data_names = [
     'data/murine_atlases/dropviz/Cerebellum_ALT',
@@ -26,11 +26,19 @@ if __name__ == '__main__':
     datasets, genes_list, n_cells = load_names(data_names)
     
     datasets, genes = merge_datasets(datasets, genes_list, ds_names=data_names)
-    datasets_dimred, genes = process_data(datasets, genes)
+    datasets_dimred = []
+    for i in range(len(datasets)):
+        data = np.load('{}_dimred_assembled.npz'.format(data_names[i]))
+        datasets_dimred.append(data['ds'])
+        data.close()
+    del datasets
+    #datasets_dimred, genes = process_data(datasets, genes,
+    #                                      hvg=0, verbose=True)
     
-    datasets_dimred = assemble(
-        datasets_dimred[:], ds_names=data_names, sigma=50
-    )
+    #datasets_dimred = assemble(
+    #    datasets_dimred[:], ds_names=data_names, sigma=50,
+    #    batch_size=10000
+    #)
     #datasets_dimred, datasets, genes = correct(
     #    datasets, genes_list, ds_names=data_names,
     #    return_dimred=True
@@ -39,7 +47,7 @@ if __name__ == '__main__':
     labels = []
     names = []
     curr_label = 0
-    for i, a in enumerate(datasets):
+    for i, a in enumerate(datasets_dimred):
         labels += list(np.zeros(a.shape[0]) + curr_label)
         names.append(data_names[i])
         curr_label += 1
@@ -50,6 +58,10 @@ if __name__ == '__main__':
         'Pax2', 'Slc6a3', 'Fn1', 'Tspan18', 'Pde11a', 'Dlx6os1',
         'Gabra1'
     ]
+
+    #for i, ds in enumerate(datasets_dimred):
+    #    np.savez('{}_dimred_assembled.npz'.format(data_names[i]), ds=ds)
+    #print('Saved data')
 
     embedding = visualize(datasets_dimred,
                           labels, NAMESPACE + '_ds', names,
