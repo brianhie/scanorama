@@ -1,10 +1,9 @@
 import numpy as np
+from scanorama import *
 from sklearn.preprocessing import normalize, LabelEncoder
 import sys
 
 from process import load_names, merge_datasets, save_datasets
-from scanorama import correct, visualize, process_data
-from scanorama import dimensionality_reduce
 
 NAMESPACE = '293t_jurkat'
 

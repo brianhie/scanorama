@@ -1,5 +1,6 @@
 import numpy as np
 from scanorama import *
+from scipy.sparse import vstack
 
 from benchmark import write_table
 from process import load_names, merge_datasets, process
@@ -51,24 +52,19 @@ if __name__ == '__main__':
     datasets, genes = merge_datasets(datasets, genes_list)
     datasets_dimred, genes = process_data(datasets, genes)
 
-    for i in range(len(datasets)):
-        print('Writing {}'.format(data_names[i]))
-        write_table(datasets[i].toarray(), genes, data_names[i])
-    exit()
-
     #diff_expr(datasets[0].toarray(), datasets[-1].toarray(), genes)
 
-    #_, A, _ = find_alignments_table(datasets_dimred)
-    
-    #time = np.array([ 0, 0, 3, 3, 6, 6 ]).reshape(-1, 1)
-    #time_align_correlate(A, time)
-    #
-    #x = np.array([ 0, 0, 1, 1, 2, 2 ]).reshape(-1, 1)
-    #y = [ -.1, .1, -.1, .1, -.1, .1 ]
-    #time_align_visualize(A, x, y, namespace=NAMESPACE)
+    _, A, _ = find_alignments_table(datasets_dimred)
 
-    from scipy.sparse import vstack
+    time = np.array([ 0, 0, 3, 3, 6, 6 ]).reshape(-1, 1)
+    time_align_correlate(A, time)
     
+    x = np.array([ 0, 0, 1, 1, 2, 2 ]).reshape(-1, 1)
+    y = [ -.1, .1, -.1, .1, -.1, .1 ]
+    time_align_visualize(A, x, y, namespace=NAMESPACE)
+
+    exit()
+
     X = vstack(datasets).toarray()
     write_table(X, genes, 'data/macrophage/' + NAMESPACE)
 

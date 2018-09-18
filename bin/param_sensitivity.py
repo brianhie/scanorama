@@ -17,7 +17,7 @@ def test_dimred(datasets, genes, labels, idx, distr, xlabels):
     xlabels[-1] = 'No SVD'
     
     plt.figure()
-    plt.boxplot(distr, showmeans=True)
+    plt.boxplot(distr, showmeans=True, whis='range')
     plt.xticks(range(1, len(xlabels) + 1), xlabels)
     plt.ylabel('Silhouette Coefficient')
     plt.ylim((-1, 1))
@@ -32,7 +32,7 @@ def test_knn(datasets_dimred, genes, labels, idx, distr, xlabels):
         xlabels.append(str(knn))
     
     plt.figure()
-    plt.boxplot(distr, showmeans=True)
+    plt.boxplot(distr, showmeans=True, whis='range')
     plt.xticks(range(1, len(xlabels) + 1), xlabels)
     plt.ylabel('Silhouette Coefficient')
     plt.ylim((-1, 1))
@@ -47,7 +47,7 @@ def test_sigma(datasets_dimred, genes, labels, idx, distr, xlabels):
         xlabels.append(str(sigma))
     
     plt.figure()
-    plt.boxplot(distr, showmeans=True)
+    plt.boxplot(distr, showmeans=True, whis='range')
     plt.xticks(range(1, len(xlabels) + 1), xlabels)
     plt.ylabel('Silhouette Coefficient')
     plt.ylim((-1, 1))
@@ -62,7 +62,7 @@ def test_alpha(datasets_dimred, genes, labels, idx, distr, xlabels):
         xlabels.append(str(alpha))
     
     plt.figure()
-    plt.boxplot(distr, showmeans=True)
+    plt.boxplot(distr, showmeans=True, whis='range')
     plt.xticks(range(1, len(xlabels) + 1), xlabels)
     plt.ylabel('Silhouette Coefficient')
     plt.ylim((-1, 1))
@@ -75,7 +75,7 @@ def test_approx(datasets_dimred, genes, labels, idx, distr, xlabels):
     xlabels.append('Exact NN')
     
     plt.figure()
-    plt.boxplot(distr, showmeans=True)
+    plt.boxplot(distr, showmeans=True, whis='range')
     plt.xticks(range(1, len(xlabels) + 1), xlabels)
     plt.ylabel('Silhouette Coefficient')
     plt.ylim((-1, 1))
@@ -114,7 +114,7 @@ def test_perplexity(datasets_dimred, genes, labels, idx,
         xlabels.append(str(perplexity))
     
     plt.figure()
-    plt.boxplot(distr, showmeans=True)
+    plt.boxplot(distr, showmeans=True, whis='range')
     plt.xticks(range(1, len(xlabels) + 1), xlabels)
     plt.ylabel('Silhouette Coefficient')
     plt.ylim((-1, 1))
@@ -131,7 +131,7 @@ def test_learn_rate(datasets_dimred, genes, labels, idx,
         xlabels.append(str(learn_rate))
     
     plt.figure()
-    plt.boxplot(distr, showmeans=True)
+    plt.boxplot(distr, showmeans=True, whis='range')
     plt.xticks(range(1, len(xlabels) + 1), xlabels)
     plt.ylabel('Silhouette Coefficient')
     plt.ylim((-1, 1))
@@ -144,7 +144,7 @@ if __name__ == '__main__':
     labels = np.array(
         open('data/cell_labels/all.txt').read().rstrip().split()
     )
-    idx = np.random.choice(102923, size=20000, replace=False)
+    idx = np.random.choice(labels.shape[0], size=20000, replace=False)
     
     # scran MNN baseline.
     X = np.loadtxt('../assemble-sc/data/corrected_mnn.txt')
@@ -152,7 +152,7 @@ if __name__ == '__main__':
     print(np.median(sil_mnn))
 
     # Seurat CCA baseline.
-    X = np.loadtxt('data/cca_embedding.txt')
+    X = np.loadtxt('data/corrected_seurat.txt')
     sil_cca = sil(X[idx, :], labels[idx])
     print(np.median(sil_cca))
 
@@ -162,19 +162,19 @@ if __name__ == '__main__':
 
     # Baseline without correction.
     X = np.concatenate(datasets_dimred)
-    sil_non = sil(X[idx, :], labels[idx])-0.2
+    sil_non = sil(X[idx, :], labels[idx])
     print(np.median(sil_non))
     
     distr = [  sil_non, sil_mnn, sil_cca ]
     xlabels = [ 'No correction', 'scran MNN', 'Seurat CCA' ]
     
     # Test processing parameters.
-    #test_dimred(datasets[:], genes, labels, idx, distr[:], xlabels[:])
+    test_dimred(datasets[:], genes, labels, idx, distr[:], xlabels[:])
 
     # Test alignment parameters.
-    #test_knn(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
-    #test_sigma(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
-    #test_alpha(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
+    test_knn(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
+    test_sigma(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
+    test_alpha(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
     test_approx(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
 
     datasets_dimred = assemble(datasets_dimred)

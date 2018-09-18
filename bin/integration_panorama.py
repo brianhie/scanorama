@@ -12,9 +12,6 @@ if __name__ == '__main__':
     datasets, genes_list, n_cells = load_names(data_names)
     datasets, genes = merge_datasets(datasets, genes_list)
 
-    U, s, Vt = pca(vstack(datasets), k=100) # Automatically centers.
-
-
     labels = []
     names = []
     curr_label = 0
@@ -38,33 +35,10 @@ if __name__ == '__main__':
     if VERBOSE:
         print('Integrated panoramas in {:.3f}s'.format(time() - t0))
 
-    np.savetxt('../assemble-sc/data/corrected_scanorama.txt',
-               np.concatenate(datasets_dimred), delimiter='\t')
-
     embedding = visualize(
-        datasets_dimred, labels, NAMESPACE, data_names
+        datasets_dimred, labels, NAMESPACE, data_names,
+        multicore_tsne=False
     )
 
     np.savetxt('data/{}_embedding.txt'.format(NAMESPACE),
                embedding, delimiter='\t')
-
-    exit()
-    
-    #########################
-    ## Naive MNN Algorithm ##
-    #########################
-    
-    datasets_dimred, genes = process_data(datasets, genes)
-    
-    datasets_dimred = assemble_accum(datasets_dimred)
-
-    np.savetxt('../assemble-sc/data/corrected_mnn.txt',
-               np.concatenate(datasets_dimred), delimiter='\t')
-    
-    embedding = visualize(
-        datasets_dimred, labels, 'mnn', data_names
-    )
-
-    np.savetxt('data/mnn_embedding.txt',
-               embedding, delimiter='\t')
-

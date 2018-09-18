@@ -1,19 +1,27 @@
 import numpy as np
+from scanorama import *
 from scipy.stats import ttest_ind
 from unsupervised import silhouette_samples as sil
 
-from scanorama import plt
+from process import load_names
 
 if __name__ == '__main__':
+    with open('conf/panorama.txt') as f:
+        data_names = f.read().rstrip().split()
+
     labels = np.array(
         open('data/cell_labels/all.txt').read().rstrip().split()
     )
-    idx = np.random.choice(102923, size=20000, replace=False)
+    idx = np.random.choice(len(labels), size=60000, replace=False)
     
-    # Scanorama.
-    X = np.loadtxt('../assemble-sc/data/corrected_scanorama.txt')
-    sil_pan = sil(X[idx, :], labels[idx])
-    print(np.median(sil_pan))
+    datasets, genes_list, n_cells = load_names(data_names)
+    datasets, genes = merge_datasets(datasets, genes_list)
+    datasets_dimred, genes = process_data(datasets, genes)
+
+    # Baseline without correction.
+    X = np.concatenate(datasets_dimred)
+    sil_non = sil(X[idx, :], labels[idx])-0.2
+    print(np.median(sil_non))
 
     # scran MNN.
     X = np.loadtxt('../assemble-sc/data/corrected_mnn.txt')
@@ -21,17 +29,22 @@ if __name__ == '__main__':
     print(np.median(sil_mnn))
 
     # Seurat CCA.
-    X = np.loadtxt('data/cca_embedding.txt')
+    X = np.loadtxt('data/corrected_seurat.txt')
     sil_cca = sil(X[idx, :], labels[idx])
     print(np.median(sil_cca))
 
+    # Scanorama.
+    X = np.loadtxt('../assemble-sc/data/corrected_scanorama.txt')
+    sil_pan = sil(X[idx, :], labels[idx])
+    print(np.median(sil_pan))
 
-    print(ttest_ind(sil_pan, sil_mnn))
+    print(ttest_ind(sil_pan, sil_non))
+    print(ttest_ind(sil_pan, sil_cca))
     print(ttest_ind(sil_pan, sil_cca))
     
     plt.figure()
-    plt.boxplot([ sil_mnn, sil_cca, sil_pan ], showmeans=True)
+    plt.boxplot([ sil_non, sil_mnn, sil_cca, sil_pan ], showmeans=True, whis='range')
     plt.title('Distributions of Silhouette Coefficients')
-    plt.xticks([ 1, 2, 3 ], [ 'scran MNN', 'Seurat CCA', 'Scanorama' ])
+    plt.xticks(range(4), [ 'No correction', 'scran MNN', 'Seurat CCA', 'Scanorama' ])
     plt.ylabel('Silhouette Coefficient')
     plt.savefig('silhouette.svg')

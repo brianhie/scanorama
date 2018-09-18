@@ -1,6 +1,6 @@
 suppressMessages(library(monocle))
 
-expr.matrix <- as.matrix(read.table("../data/macrophage/mono_macro_mnn_table.txt"))
+expr.matrix <- as.matrix(read.table("../data/macrophage/mono_macro_table.txt"))
 sample.sheet <- read.table("../data/macrophage/mono_macro_hours.txt")
 gene.annotation <- read.delim("../data/macrophage/mono_macro_genes.txt")
 

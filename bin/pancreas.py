@@ -1,6 +1,5 @@
 import numpy as np
-from scanorama import assemble, correct, visualize, process_data
-from scanorama import dimensionality_reduce, merge_datasets
+from scanorama import *
 from scipy.sparse import vstack
 from sklearn.preprocessing import normalize, LabelEncoder
 import sys

@@ -9,6 +9,7 @@ from process import load_names
 NAMESPACE = 'pbmc'
 
 data_names = [
+    'data/pbmc/10x/68k_pbmc',
     'data/pbmc/10x/b_cells',
     'data/pbmc/10x/cd14_monocytes',
     'data/pbmc/10x/cd4_t_helper',
@@ -18,19 +19,15 @@ data_names = [
     'data/pbmc/10x/regulatory_t',
     'data/pbmc/pbmc_kang',
     'data/pbmc/pbmc_10X',
-    'data/pbmc/10x/68k_pbmc',
 ]
 
 if __name__ == '__main__':
     datasets, genes_list, n_cells = load_names(data_names)
 
-    datasets, genes = merge_datasets(datasets, genes_list)
-    datasets_dimred, genes = process_data(datasets, genes)
-    datasets_dimred = assemble_accum(datasets_dimred)
-    #datasets_dimred, datasets, genes = correct(
-    #    datasets, genes_list, ds_names=data_names,
-    #    return_dimred=True
-    #)
+    datasets_dimred, datasets, genes = correct(
+        datasets, genes_list, ds_names=data_names,
+        return_dimred=True
+    )
     
     labels = []
     names = []

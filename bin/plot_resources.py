@@ -12,10 +12,10 @@ n_cells = np.reshape(np.array([
 ]), (4, 1))
 
 pano_memory = np.reshape(np.array([
-    4.9,
-    12.5,
-    25.1,
-    49.8
+    1.1,
+    2.8,
+    6.1,
+    12.9
 ]), (4, 1))
 
 cca_memory = np.reshape(np.array([
@@ -33,10 +33,10 @@ mnn_memory = np.reshape(np.array([
 ]), (4, 1))
 
 pano_runtime = np.reshape(np.array([
-    144.9,
-    177.1,
-    759.5,
-    1413.8
+    40.9,
+    110.1,
+    204.8,
+    469.6,
 ]) / 3600., (4, 1))
 
 cca_runtime = np.reshape(np.array([
@@ -53,8 +53,8 @@ mnn_runtime = np.reshape(np.array([
     157212.6
 ]) / 3600., (4, 1))
 
-line_x = np.reshape(np.array(range(n_cells[-1])),
-                    (n_cells[-1], 1))
+line_x = np.array(range(n_cells[-1]), dtype=int)
+line_x = line_x.reshape(-1, 1)
 
 # Memory plot.
 plt.figure()
@@ -86,7 +86,7 @@ plt.plot(line_x, LinearRegression().fit(n_cells, mnn_runtime)
 mnn = plt.scatter(n_cells, mnn_runtime, marker='s')
 plt.legend((pano, cca, mnn),
            ('Scanorama', 'Seurat CCA', 'scran MNN'))
-#plt.yscale('log')
+plt.yscale('log')
 plt.xlabel('Number of cells')
 plt.ylabel('Runtime (hours)')
 plt.savefig('benchmark_runtime.svg')

@@ -164,7 +164,8 @@ def visualize(assembled, labels, namespace, data_names,
               gene_names=None, gene_expr=None, genes=None,
               n_iter=N_ITER, perplexity=PERPLEXITY, verbose=VERBOSE,
               learn_rate=200., early_exag=12., embedding=None,
-              shuffle_ds=False, size=1, multicore_tsne=True):
+              shuffle_ds=False, size=1, multicore_tsne=True,
+              image_suffix='.svg'):
     # Fit t-SNE.
     if embedding is None:
         try:
@@ -174,7 +175,7 @@ def visualize(assembled, labels, namespace, data_names,
                 verbose=verbose, random_state=69,
                 learning_rate=learn_rate,
                 early_exaggeration=early_exag,
-                n_jobs=60
+                n_jobs=40
             )
         except ImportError:
             multicore_tsne = False
@@ -202,7 +203,7 @@ def visualize(assembled, labels, namespace, data_names,
                'knn: {}, hvg: {}, dimred: {}, approx: {})')
               .format(n_iter, perplexity, SIGMA, KNN, HVG,
                       DIMRED, APPROX))
-    plt.savefig(namespace + '.svg', dpi=500)
+    plt.savefig(namespace + image_suffix, dpi=500)
 
     # Plot clusters individually.
     if not shuffle_ds:

@@ -1,11 +1,11 @@
 import numpy as np
+from scanorama import *
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import normalize
 import sys
 from time import time
 
 from process import load_names
-from scanorama import *
 
 NAMESPACE = 'different'
 

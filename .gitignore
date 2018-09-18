@@ -2,6 +2,7 @@
 *.log
 *.pyc
 *.svg
+*.png
 build*
 data*
 dist*
