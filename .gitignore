@@ -7,3 +7,5 @@ build*
 data*
 dist*
 temp*
+R/*.txt
+R/*.pdf
