@@ -1,6 +1,5 @@
 import numpy as np
-from scanorama import assemble, correct, visualize, process_data
-from scanorama import dimensionality_reduce, merge_datasets
+from scanorama import *
 from scipy.sparse import vstack
 from sklearn.preprocessing import normalize, LabelEncoder
 import sys
@@ -10,11 +9,12 @@ from process import load_names
 
 np.random.seed(0)
 
-NAMESPACE = 'mouse_brain_uncorrected'
+NAMESPACE = 'mouse_brain3'
 BATCH_SIZE = 10000
 
 data_names = [
-    'data/murine_atlases/neuron_1M/neuron_1M',
+    'data/murine_atlases/nuclei',
+    #'data/murine_atlases/neuron_1M/neuron_1M',
     'data/murine_atlases/dropviz/Cerebellum_ALT',
     'data/murine_atlases/dropviz/Cortex_noRep5_FRONTALonly',
     'data/murine_atlases/dropviz/Cortex_noRep5_POSTERIORonly',
@@ -28,24 +28,31 @@ data_names = [
 
 if __name__ == '__main__':
     datasets, genes_list, n_cells = load_names(data_names)
+
+    # Consider DropViz as a single data set.
+    dropviz, genes = merge_datasets(datasets[1:], genes_list[1:], ds_names=data_names)
+    datasets = [ datasets[0], dropviz[0] ]
+    genes_list = [ genes_list[0], genes ]
+    data_names = [ data_names[0], 'data/murine_atlases/dropviz' ]
+
     datasets, genes = merge_datasets(datasets, genes_list, ds_names=data_names)
+    
     datasets_dimred, genes = process_data(datasets, genes,
                                           hvg=0, verbose=True)
     
-    #n_cells = 0
     #datasets_dimred = []
     #for i in range(len(data_names)):
-    #    data = np.load('{}_dimred_assembled.npz'.format(data_names[i]))
+    #    data = np.load('{}_dimred_{}.npz'.format(data_names[i], NAMESPACE))
     #    ds = data['ds']
-    #    rand_idx = np.random.choice(ds.shape[0], size=(ds.shape[0]/10))
+    #    rand_idx = np.random.choice(ds.shape[0], size=(ds.shape[0]/10),
+    #                                replace=False)
     #    datasets_dimred.append(ds[rand_idx, :])
     #    datasets[i] = datasets[i][rand_idx, :]
     #    data.close()
-    #    n_cells += datasets_dimred[-1].shape[0]
 
-    #datasets_dimred = assemble_accum(
-    #    datasets_dimred[:], sigma=50, batch_size=BATCH_SIZE
-    #)
+    datasets_dimred = assemble(
+        datasets_dimred, sigma=50, batch_size=BATCH_SIZE, alpha=0., knn=2000
+    )
     #datasets_dimred, datasets, genes = correct(
     #    datasets, genes_list, ds_names=data_names,
     #    return_dimred=True, batch_size=BATCH_SIZE
@@ -70,18 +77,18 @@ if __name__ == '__main__':
         np.savez('{}_dimred_{}.npz'.format(data_names[i], NAMESPACE), ds=ds)
     print('Saved data')
 
-    #embedding = visualize(datasets_dimred,
-    #                      labels, NAMESPACE + '_ds', names,
-    #                      gene_names=mouse_brain_genes, genes=genes,
-    #                      gene_expr=vstack(datasets),
-    #                      multicore_tsne=True,
-    #                      image_suffix='.png')
-    #np.savetxt('data/mouse_brain_accum_embedding.txt',
-    #           embedding, delimiter='\t')
+    embedding = visualize(datasets_dimred,
+                          labels, NAMESPACE + '_ds', names,
+                          gene_names=mouse_brain_genes, genes=genes,
+                          gene_expr=vstack(datasets),
+                          multicore_tsne=True,
+                          image_suffix='.png')
+    np.savetxt('data/{}_embedding.txt'.format(NAMESPACE),
+               embedding, delimiter='\t')
 
     #embedding = np.loadtxt('data/mouse_brain_embedding.txt')
     #visualize(None, labels, NAMESPACE + '_ds', names,
-    #          #gene_names=mouse_brain_genes, genes=genes,
-    #          #gene_expr=vstack(datasets[:-1]),
+    #          gene_names=mouse_brain_genes, genes=genes,
+    #          gene_expr=vstack(datasets),
     #          multicore_tsne=True, image_suffix='.png',
     #          embedding=embedding)

@@ -27,7 +27,8 @@ def reduce_dimensionality(X, dim_red_k=100):
     return U[:, range(k)] * s[range(k)]
 
 def visualize_cluster(coords, cluster, cluster_labels,
-                      cluster_name=None, size=1, viz_prefix='vc'):
+                      cluster_name=None, size=1, viz_prefix='vc',
+                      image_suffix='.svg'):
     if not cluster_name:
         cluster_name = cluster
     labels = [ 1 if c_i == cluster else 0
@@ -35,8 +36,8 @@ def visualize_cluster(coords, cluster, cluster_labels,
     c_idx = [ i for i in range(len(labels)) if labels[i] == 1 ]
     nc_idx = [ i for i in range(len(labels)) if labels[i] == 0 ]
     colors = np.array([ '#cccccc', '#377eb8' ])
-    image_fname = '{}_cluster{}.svg'.format(
-        viz_prefix, cluster
+    image_fname = '{}_cluster{}{}'.format(
+        viz_prefix, cluster, image_suffix
     )
     plt.figure()
     plt.scatter(coords[nc_idx, 0], coords[nc_idx, 1],
@@ -46,7 +47,7 @@ def visualize_cluster(coords, cluster, cluster_labels,
     plt.title(str(cluster_name))
     plt.savefig(image_fname, dpi=500)
         
-def visualize_expr(X, coords, genes, viz_gene,
+def visualize_expr(X, coords, genes, viz_gene, image_suffix='.svg',
                    new_fig=True, size=1, viz_prefix='ve'):
     genes = [ gene.upper() for gene in genes ]
     viz_gene = viz_gene.upper()
@@ -55,8 +56,8 @@ def visualize_expr(X, coords, genes, viz_gene,
         sys.stderr.write('Warning: Could not find gene {}\n'.format(viz_gene))
         return
     
-    image_fname = '{}_{}.svg'.format(
-        viz_prefix, viz_gene
+    image_fname = '{}_{}{}'.format(
+        viz_prefix, viz_gene, image_suffix
     )
 
     # Color based on percentiles.

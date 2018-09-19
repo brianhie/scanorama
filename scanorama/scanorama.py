@@ -34,10 +34,10 @@ VERBOSE = 2
 def plot_clusters(coords, clusters, s=1):
     if coords.shape[0] != clusters.shape[0]:
         sys.stderr.write(
-            'Mismatch: {} cells, {} labels\n'
+            'Error: mismatch, {} cells, {} labels\n'
             .format(coords.shape[0], clusters.shape[0])
         )
-    assert(coords.shape[0] == clusters.shape[0])
+        exit(1)
 
     colors = np.array(
         list(islice(cycle([
@@ -210,7 +210,8 @@ def visualize(assembled, labels, namespace, data_names,
         for i in range(len(data_names)):
             visualize_cluster(embedding, i, labels,
                               cluster_name=data_names[i], size=size,
-                              viz_prefix=namespace)
+                              viz_prefix=namespace,
+                              image_suffix=image_suffix)
 
     # Plot gene expression levels.
     if (not gene_names is None) and \
@@ -221,7 +222,8 @@ def visualize(assembled, labels, namespace, data_names,
         for gene_name in gene_names:
             visualize_expr(gene_expr, embedding,
                            genes, gene_name, size=size,
-                           viz_prefix=namespace)
+                           viz_prefix=namespace,
+                           image_suffix=image_suffix)
 
     return embedding
 

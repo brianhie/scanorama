@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     # Baseline without correction.
     X = np.concatenate(datasets_dimred)
-    sil_non = sil(X[idx, :], labels[idx])-0.2
+    sil_non = sil(X[idx, :], labels[idx])
     print(np.median(sil_non))
 
     # scran MNN.
@@ -44,7 +44,8 @@ if __name__ == '__main__':
     
     plt.figure()
     plt.boxplot([ sil_non, sil_mnn, sil_cca, sil_pan ], showmeans=True, whis='range')
+    plt.ylim([ -1, 1 ])
     plt.title('Distributions of Silhouette Coefficients')
-    plt.xticks(range(4), [ 'No correction', 'scran MNN', 'Seurat CCA', 'Scanorama' ])
+    plt.xticks(range(1, 5), [ 'No correction', 'scran MNN', 'Seurat CCA', 'Scanorama' ])
     plt.ylabel('Silhouette Coefficient')
     plt.savefig('silhouette.svg')

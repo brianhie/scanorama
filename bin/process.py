@@ -79,6 +79,8 @@ def load_h5(fname, genome='mm10'):
             X = csr_matrix((data, dsets['indices'], dsets['indptr']),
                            shape=(n_cells, n_genes))
             genes = [ gene for gene in dsets['genes'].astype(str) ]
+            assert(len(genes) == n_genes)
+            assert(len(genes) == X.shape[1])
             
         except tables.NoSuchNodeError:
             raise Exception('Genome %s does not exist in this file.' % genome)
@@ -100,7 +102,14 @@ def process_tab(fname, min_trans=MIN_TRANSCRIPTS):
         cache_prefix = '.'.join(fname.split('.')[:-1])
     elif fname.endswith('.txt.gz'):
         cache_prefix = '.'.join(fname.split('.')[:-2])
-    
+    elif fname.endswith('.tsv'):
+        cache_prefix = '.'.join(fname.split('.')[:-1])
+    elif fname.endswith('.tsv.gz'):
+        cache_prefix = '.'.join(fname.split('.')[:-2])
+    else:
+        sys.stderr.write('Tab files should end with ".txt" or ".tsv"\n')
+        exit(1)
+        
     cache_fname = cache_prefix + '.npz'
     np.savez(cache_fname, X=X, genes=genes)
 
@@ -224,6 +233,10 @@ def process(data_names, min_trans=MIN_TRANSCRIPTS):
             process_tab(name + '.txt', min_trans=min_trans)
         elif os.path.isfile(name + '.txt.gz'):
             process_tab(name + '.txt.gz', min_trans=min_trans)
+        elif os.path.isfile(name + '.tsv'):
+            process_tab(name + '.tsv', min_trans=min_trans)
+        elif os.path.isfile(name + '.tsv.gz'):
+            process_tab(name + '.tsv.gz', min_trans=min_trans)
         else:
             sys.stderr.write('Warning: Could not find {}\n'.format(name))
             continue
