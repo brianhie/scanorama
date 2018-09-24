@@ -2,9 +2,32 @@ library(methods)
 library(Seurat)
 
 names = list(
-    "../../assemble-sc/data/brain/neuron_9k_table.txt",
-    "../../assemble-sc/data/macrophage/uninfected_table.txt",
-    "../../assemble-sc/data/marrow/marrow_mars_table.txt"
+    "../data/293t_jurkat/293t_table.txt",
+    "../data/293t_jurkat/jurkat_table.txt",
+    "../data/293t_jurkat/jurkat_293t_50_50_table.txt",
+    "../data/293t_jurkat/jurkat_293t_99_1_table.txt",
+    "../data/brain/neuron_9k_table.txt",
+    "../data/macrophage/gmcsf_table.txt",
+    "../data/macrophage/infected_table.txt",
+    "../data/macrophage/mcsf_table.txt",
+    "../data/macrophage/uninfected_table.txt",
+    "../data/marrow/marrow_mars_table.txt",
+    "../data/marrow/marrow_ss2_table.txt",
+    "../data/pancreas/pancreas_human_table.txt",
+    "../data/pancreas/pancreas_multi_celseq2_expression_matrix_table.txt",
+    "../data/pancreas/pancreas_multi_celseq_expression_matrix_table.txt",
+    "../data/pancreas/pancreas_multi_fluidigmc1_expression_matrix_table.txt",
+    "../data/pancreas/pancreas_multi_smartseq2_expression_matrix_table.txt",
+    "../data/pbmc/10x/68k_pbmc_table.txt",
+    "../data/pbmc/10x/b_cells_table.txt",
+    "../data/pbmc/10x/cd14_monocytes_table.txt",
+    "../data/pbmc/10x/cd4_t_helper_table.txt",
+    "../data/pbmc/10x/cd56_nk_table.txt",
+    "../data/pbmc/10x/cytotoxic_t_table.txt",
+    "../data/pbmc/10x/memory_t_table.txt",
+    "../data/pbmc/10x/regulatory_t_table.txt",
+    "../data/pbmc/immune_control_expression_matrix_table.txt",
+    "../data/pbmc/pbmc_10X_table.txt"
 )
 
 data.tables <- list()
@@ -44,11 +67,11 @@ integrated <- RunMultiCCA(ob.list, genes.use = genes.use, num.ccs = 15)
 print("CCA Done")
 
 # CC Selection
-MetageneBicorPlot(integrated, grouping.var = "tech", dims.eval = 1:15)
+#MetageneBicorPlot(integrated, grouping.var = "tech", dims.eval = 1:15)
 
 # Run rare non-overlapping filtering
-integrated <- CalcVarExpRatio(object = integrated, reduction.type = "pca",
-                                       grouping.var = "tech", dims.use = 1:15)
+#integrated <- CalcVarExpRatio(object = integrated, reduction.type = "pca",
+#                                       grouping.var = "tech", dims.use = 1:15)
 #integrated <- SubsetData(integrated, subset.name = "var.ratio.pca",
 #                         accept.low = 0.5)
 
@@ -61,5 +84,5 @@ integrated <- AlignSubspace(integrated,
 print(proc.time() - ptm)
 
 write.table(integrated@dr$cca@cell.embeddings,
-            file = "../data/corrected_seurat_different3.txt",
+            file = "../data/corrected_seurat.txt",
             quote = FALSE, sep = "\t")
