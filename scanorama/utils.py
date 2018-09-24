@@ -79,6 +79,3 @@ def visualize_expr(X, coords, genes, viz_gene, image_suffix='.svg',
     plt.scatter(coords[:, 0], coords[:, 1],
                 c=colors, cmap=cm.get_cmap('Reds'), s=size)
     plt.savefig(image_fname, dpi=500)
-        
-if __name__ == '__main__':
-    pass

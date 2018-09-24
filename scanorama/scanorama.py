@@ -731,7 +731,3 @@ def interpret_alignments(datasets, expr_datasets, genes,
         print('>>>> Stats for alignment {}'.format((i, j)))
         for k in range(len(p)):
             print('{}\t{}'.format(genes[k], p[k]))
-        
-
-if __name__ == '__main__':
-    pass
