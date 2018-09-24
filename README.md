@@ -27,14 +27,14 @@ python setup.py install --user
 
 ### Data set download
 
-All of the data used in our study can be downloaded from http://scanorama.csail.mit.edu/data.tar.gz. Download and unpack this data with the command:
+All of the data used in our study (around 4 GB) can be downloaded from http://scanorama.csail.mit.edu/data.tar.gz. Download and unpack this data with the command:
 
 ```
 wget http://scanorama.csail.mit.edu/data.tar.gz
 tar xvf data.tar.gz
 ```
 
-A smaller version of the data (including 26 heterogeneous data sets) can be similarly downloaded from http://scanorama.csail.mit.edu/data_light.tar.gz.
+A smaller version of the data (around 720 MB), including 26 heterogeneous data sets, can be similarly downloaded from http://scanorama.csail.mit.edu/data_light.tar.gz.
 
 ### Data processing
 
