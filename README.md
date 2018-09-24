@@ -2,7 +2,7 @@
 
 ## Overview
 
-Scanorama enables batch-correction and integration of heterogeneous scRNA-seq datasets, which is described in the paper ["Panoramic stitching of single-cell transcriptomic data"](https://www.biorxiv.org/content/early/2018/07/17/371179) by Brian Hie, Bryan Bryson, and Bonnie Berger. This repository contains the Scanorama source code as well as scripts necessary for reproducing the results in the paper.
+Scanorama enables batch-correction and integration of heterogeneous scRNA-seq data sets, which is described in the paper ["Panoramic stitching of single-cell transcriptomic data"](https://www.biorxiv.org/content/early/2018/07/17/371179) by Brian Hie, Bryan Bryson, and Bonnie Berger. This repository contains the Scanorama source code as well as scripts necessary for reproducing the results in the paper.
 
 ## Instructions
 
@@ -25,7 +25,7 @@ And install Scanorama with the following command
 python setup.py install --user
 ```
 
-### Dataset download
+### Data set download
 
 All of the data used in our study can be downloaded from http://scanorama.csail.mit.edu/data.tar.gz. Download and unpack this data with the command:
 
@@ -44,7 +44,7 @@ gene	cell_a	cell_b
 gene_1	10	10
 gene_2	20	20
 ```
-The second is a sparse matrix format used by 10X Genomics (example [here](http://cf.10xgenomics.com/samples/cell-exp/1.1.0/293t/293t_filtered_gene_bc_matrices.tar.gz)). This format has a directory where one file has a list of gene names (`genes.tsv`), one file has a list of cells (`barcodes.tsv`), and one file has a list of the nonzero transcript counts at certain gene/cell coordinates (`matrix.mtx`).
+The second is a sparse matrix format used by 10X Genomics (example [here](http://cf.10xgenomics.com/samples/cell-exp/1.1.0/293t/293t_filtered_gene_bc_matrices.tar.gz)). This format has a directory where one file has a list of gene names (`genes.tsv`) and one file has a list of the nonzero transcript counts at certain gene/cell coordinates (`matrix.mtx`).
 
 To ensure a consistent data format, Scanorama first processes these raw files and saves them in numpy archive files. To generate these files, run the command:
 ```
@@ -60,25 +60,25 @@ Currently, Scanorama uses a relatively low-level data representation (for Python
 
 #### Toy data sets
 
-For a good illustration of how Scanorama works, we can integrate three toy datasets: 293T cells, Jurkat cells, and a 50:50 293T:Jurkat mixture. To integrate these datasets, run:
+For a good illustration of how Scanorama works, we can integrate three toy data sets: 293T cells, Jurkat cells, and a 50:50 293T:Jurkat mixture. To integrate these data sets, run:
 ```
 python bin/293t_jurkat.py
 ```
-By default, this prints a log reporting the alignments the algorithm has found between datasets and saves visualization images to a file in the repository's top-level directory.
+By default, this prints a log reporting the alignments the algorithm has found between data sets and saves visualization images to a file in the repository's top-level directory.
 
-#### 26 datasets
+#### 26 data sets
 
 We can also stitch a much larger number of cells from many more datsets. To do this, run:
 ```
 python bin/panorama.py conf/panorama.txt
 ```
-The collection of datasets to be integrated is specified in the config file `conf/panorama.txt`. Default parameters are listed at the top of `scanorama/scanorama.py`.
+The collection of data sets to be integrated is specified in the config file `conf/panorama.txt`. Default parameters are listed at the top of `scanorama/scanorama.py`.
 
 By default, this script will output a verbose log as it finds alignments and applies batch correction. At the end, it will automatically save t-SNE visualized images of the integrated result. The numpy matrices containing the batch-corrected data sets are also available (in memory) to integrate with other single cell pipelines and packages.
 
 #### Runtime performance and memory requirements
 
-Aligning and batch-correcting 26 datasets should complete in under 30 minutes with the process running on 10 cores.
+Aligning and batch-correcting 26 data sets should complete in around 9 minutes with the process running on 10 cores.
 
 Note that the gradient descent portion of the t-SNE visualization step can take a very long time (a few hours) on more than 100k cells. Other methods for accelerating t-SNE could be used in place of the t-SNE implementation used in this pipeline, such as a faster C++ implementation of [t-SNE](https://github.com/lvdmaaten/bhtsne), [Multicore-TSNE](https://github.com/DmitryUlyanov/Multicore-TSNE), or [net-SNE](https://github.com/hhcho/netsne), a version of t-SNE that uses a neural network to reduce the time required for the gradient descent optimization procedure.
 
