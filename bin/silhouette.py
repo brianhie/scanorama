@@ -12,7 +12,7 @@ if __name__ == '__main__':
     labels = np.array(
         open('data/cell_labels/all.txt').read().rstrip().split()
     )
-    idx = np.random.choice(len(labels), size=60000, replace=False)
+    idx = np.random.choice(len(labels), replace=False)
     
     datasets, genes_list, n_cells = load_names(data_names)
     datasets, genes = merge_datasets(datasets, genes_list)
