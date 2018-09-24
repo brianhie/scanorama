@@ -27,12 +27,14 @@ python setup.py install --user
 
 ### Dataset download
 
-Data for the 26 datasets in our study can be downloaded from http://scanorama.csail.mit.edu/data.tar.gz. Download and unpack this data with the command:
+All of the data used in our study can be downloaded from http://scanorama.csail.mit.edu/data.tar.gz. Download and unpack this data with the command:
 
 ```
 wget http://scanorama.csail.mit.edu/data.tar.gz
 tar xvf data.tar.gz
 ```
+
+A smaller version of the data (including 26 heterogeneous data sets) can be similarly downloaded from http://scanorama.csail.mit.edu/data_light.tar.gz.
 
 ### Data processing
 
@@ -70,7 +72,7 @@ We can also stitch a much larger number of cells from many more datsets. To do t
 ```
 python bin/panorama.py conf/panorama.txt
 ```
-The collection of datasets to be integrated is specified in the config file `conf/panorama.txt`. Default parameters are listed at the top of `bin/scanorama.py`.
+The collection of datasets to be integrated is specified in the config file `conf/panorama.txt`. Default parameters are listed at the top of `scanorama/scanorama.py`.
 
 By default, this script will output a verbose log as it finds alignments and applies batch correction. At the end, it will automatically save t-SNE visualized images of the integrated result. The numpy matrices containing the batch-corrected data sets are also available (in memory) to integrate with other single cell pipelines and packages.
 
@@ -78,23 +80,11 @@ By default, this script will output a verbose log as it finds alignments and app
 
 Aligning and batch-correcting 26 datasets should complete in under 30 minutes with the process running on 10 cores.
 
-Note that the gradient descent portion of the t-SNE visualization step can take a very long time (a few hours) on more than 100k cells. Other methods for accelerating t-SNE could be used in place of the t-SNE implementation used in this pipeline, such as a faster C++ implementation of [t-SNE](https://github.com/lvdmaaten/bhtsne) or [net-SNE](https://github.com/hhcho/netsne), a version of t-SNE that uses a neural network to reduce the time required for the gradient descent optimization procedure.
-
-Also, note that with the current implementation, the memory usage can be potentially very high, currently processing all 26 datasets averages around 30 GB, peaking at around 50 GB.
+Note that the gradient descent portion of the t-SNE visualization step can take a very long time (a few hours) on more than 100k cells. Other methods for accelerating t-SNE could be used in place of the t-SNE implementation used in this pipeline, such as a faster C++ implementation of [t-SNE](https://github.com/lvdmaaten/bhtsne), [Multicore-TSNE](https://github.com/DmitryUlyanov/Multicore-TSNE), or [net-SNE](https://github.com/hhcho/netsne), a version of t-SNE that uses a neural network to reduce the time required for the gradient descent optimization procedure.
 
 ### Additional analyses
 
 Scripts for performing additional analyses of the data are also available in the `bin/` directory.
-
-A plethora of other examples can be found in:
-```
-python bin/pancreas.py
-python bin/pbmc.py
-python bin/hsc.py
-python bin/macrophage.py
-```
-
-The script `bin/simulation.py` tests the integrative performance of the method on simulated data.
 
 #### Scanorama implementation
 
