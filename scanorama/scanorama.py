@@ -489,7 +489,7 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=False,
 # values.
 def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
              sigma=SIGMA, approx=APPROX, alpha=ALPHA, expr_datasets=None,
-             ds_names=None, batch_size=None):
+             ds_names=None, batch_size=None, realign=False):
     if len(datasets) == 1:
         return datasets
     
@@ -641,7 +641,9 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
                 datasets[p] = curr_ds[base:(base + n_cells), :]
                 base += n_cells
             
-            if False and expr_datasets: #DEBUG
+            if realign and not expr_datasets is None:
+                # Realignment may improve quality of batch correction at cost
+                # of potentially higher memory usage.
                 curr_ds = vstack([ expr_datasets[p]
                                    for p in panoramas_i[0] ])
                 curr_ref = vstack([ expr_datasets[p]
