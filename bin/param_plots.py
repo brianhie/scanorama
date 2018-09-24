@@ -47,8 +47,6 @@ if __name__ == '__main__':
     plt.ylabel('t-SNE 2')
     plt.savefig('zero_pct_tsne.svg')
 
-    exit()
-    
     # Distribution of nonzero transcripts.
     
     process(data_names, min_trans=0)

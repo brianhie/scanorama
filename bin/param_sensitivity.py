@@ -144,10 +144,10 @@ if __name__ == '__main__':
     labels = np.array(
         open('data/cell_labels/all.txt').read().rstrip().split()
     )
-    idx = np.random.choice(labels.shape[0], size=20000, replace=False)
+    idx = np.random.choice(labels.shape[0], replace=False)
     
     # scran MNN baseline.
-    X = np.loadtxt('../assemble-sc/data/corrected_mnn.txt')
+    X = np.loadtxt('data/corrected_mnn.txt')
     sil_mnn = sil(X[idx, :], labels[idx])
     print(np.median(sil_mnn))
 
