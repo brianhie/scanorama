@@ -25,14 +25,6 @@ And install Scanorama with the following command
 python setup.py install --user
 ```
 
-Scanorama has been tested with Python 2.7 and 3.5 using the following packages:
-* [annoy](https://github.com/spotify/annoy) (1.11.5)
-* [fbpca](https://fbpca.readthedocs.io/en/latest/) (1.0)
-* [intervaltree](https://github.com/chaimleib/intervaltree) (2.1.0)
-* [numpy](http://www.numpy.org/) (1.11.2)
-* [scipy](https://www.scipy.org/) (1.0.0)
-* [scikit-learn](http://scikit-learn.org/) (0.19.0)
-
 ### Dataset download
 
 Data for the 26 datasets in our study can be downloaded from http://scanorama.csail.mit.edu/data.tar.gz. Download and unpack this data with the command:

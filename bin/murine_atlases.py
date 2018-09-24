@@ -4,6 +4,7 @@ from scipy.sparse import vstack
 import seaborn as sns
 from sklearn.preprocessing import normalize, LabelEncoder
 import sys
+from time import time
 
 from process import load_names
 
@@ -55,9 +56,12 @@ if __name__ == '__main__':
     #print(connect(datasets_dimred[:]))
     #sys.stdout.flush()
 
+    t0 = time()
     datasets_dimred = assemble(
-        datasets_dimred, ds_names=data_names, sigma=50
+        datasets_dimred, ds_names=data_names, sigma=50, knn=200,
+        batch_size=10000
     )
+    print('Integrated panoramas in {:.3f}s'.format(time() - t0))
 
     labels = []
     names = []

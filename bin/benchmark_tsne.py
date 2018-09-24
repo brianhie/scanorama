@@ -34,7 +34,7 @@ def load_data(fname):
     return datasets, genes, names, n_cells
 
 METHOD = 'seurat'
-NAMESPACE = 'pbmc'
+NAMESPACE = 'different3'
 
 if __name__ == '__main__':
     datasets, genes, names, n_cells = load_data(

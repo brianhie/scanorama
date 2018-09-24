@@ -2,11 +2,9 @@ library(methods)
 library(Seurat)
 
 names = list(
-    "../data/simulation/simulate_rare/simulate_rare_0_table.txt",
-    "../data/simulation/simulate_rare/simulate_rare_1_table.txt",
-    "../data/simulation/simulate_rare/simulate_rare_2_table.txt",
-    "../data/simulation/simulate_rare/simulate_rare_3_table.txt",
-    "../data/simulation/simulate_rare/simulate_rare_4_table.txt"
+    "../../assemble-sc/data/brain/neuron_9k_table.txt",
+    "../../assemble-sc/data/macrophage/uninfected_table.txt",
+    "../../assemble-sc/data/marrow/marrow_mars_table.txt"
 )
 
 data.tables <- list()
@@ -63,5 +61,5 @@ integrated <- AlignSubspace(integrated,
 print(proc.time() - ptm)
 
 write.table(integrated@dr$cca@cell.embeddings,
-            file = "../data/corrected_seurat_simulate_rare.txt",
+            file = "../data/corrected_seurat_different3.txt",
             quote = FALSE, sep = "\t")
