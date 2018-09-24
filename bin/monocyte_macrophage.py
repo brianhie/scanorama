@@ -38,8 +38,6 @@ def diff_expr(A, B, genes):
         if reject[idx]:
             print('{}\t{}'.format(gene, q_vals[idx]))
 
-    exit()
-
 if __name__ == '__main__':
     datasets, genes_list, n_cells = load_names(data_names)
 
@@ -52,8 +50,6 @@ if __name__ == '__main__':
     datasets, genes = merge_datasets(datasets, genes_list)
     datasets_dimred, genes = process_data(datasets, genes)
 
-    #diff_expr(datasets[0].toarray(), datasets[-1].toarray(), genes)
-
     _, A, _ = find_alignments_table(datasets_dimred)
 
     time = np.array([ 0, 0, 3, 3, 6, 6 ]).reshape(-1, 1)
@@ -62,35 +58,3 @@ if __name__ == '__main__':
     x = np.array([ 0, 0, 1, 1, 2, 2 ]).reshape(-1, 1)
     y = [ -.1, .1, -.1, .1, -.1, .1 ]
     time_align_visualize(A, x, y, namespace=NAMESPACE)
-
-    exit()
-
-    X = vstack(datasets).toarray()
-    write_table(X, genes, 'data/macrophage/' + NAMESPACE)
-
-    datasets_dimred = assemble(
-        datasets_dimred, # Assemble in low dimensional space.
-        expr_datasets=datasets, # Modified in place.
-    )
-
-    X = vstack(datasets).toarray()
-    write_table(X, genes, 'data/macrophage/' + NAMESPACE + '_corrected')
-    
-    labels = []
-    days = []
-    curr_label = 0
-    curr_day = 0
-    for i, a in enumerate(datasets):
-        labels += [ data_names[i] ] * int(a.shape[0])
-        curr_label += 1
-        if data_names[i] == 'data/macrophage/mcsf_day3_1':
-            curr_day += 3
-        if data_names[i] == 'data/macrophage/mcsf_day6_1':
-            curr_day += 3            
-        days += list(np.zeros(a.shape[0]) + curr_day)
-
-    with open('data/macrophage/mono_macro_hours.txt', 'w') as of:
-        of.write('Days\tBatch\n')
-        for idx, day in enumerate(days):
-            of.write('mono_macro{}\t{}\t{}'
-                     .format(idx, int(day), labels[idx].split('/')[-1]) + '\n')
