@@ -7,15 +7,12 @@ from time import time
 
 from process import load_names
 
-NAMESPACE = 'different'
+NAMESPACE = 'different3'
 
 data_names = [
-    'data/293t_jurkat/293t',
     'data/brain/neuron_9k',
     'data/hsc/hsc_mars',
     'data/macrophage/uninfected',
-    'data/pancreas/pancreas_inDrop',
-    'data/pbmc/10x/68k_pbmc',
 ]
 
 if __name__ == '__main__':
@@ -35,4 +32,5 @@ if __name__ == '__main__':
         curr_label += 1
     labels = np.array(labels, dtype=int)
     
-    visualize(datasets_dimred, labels, NAMESPACE, data_names)
+    visualize(datasets_dimred, labels, NAMESPACE, data_names,
+              perplexity=100)

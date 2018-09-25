@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.sparse import vstack
 from scipy.stats import ttest_ind
 from sklearn.preprocessing import normalize, LabelEncoder
 import sys
@@ -22,7 +23,7 @@ if __name__ == '__main__':
     #datasets, genes = merge_datasets(datasets, genes_list)
     #datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
     datasets, genes = correct(datasets, genes_list)
-    X = np.concatenate(datasets)
+    X = vstack(datasets).toarray()
     X[X < 0] = 0
 
     cell_labels = (
@@ -40,8 +41,8 @@ if __name__ == '__main__':
     plt.figure()
     plt.boxplot([ X[er_idx, gadd_idx], X[beta_idx, gadd_idx] ],
                 showmeans=True)
-    plt.title('GADD45A (p < {})'.format(ttest_ind(
-        X[er_idx, gadd_idx], X[beta_idx, gadd_idx]
+    plt.title('GADD45A (p = {})'.format(ttest_ind(
+        X[er_idx, gadd_idx], X[beta_idx, gadd_idx], equal_var=False
     )[1]))
     plt.xticks([1, 2], ['beta_er', 'beta'])
     plt.ylabel('Scaled gene expression')
@@ -50,8 +51,8 @@ if __name__ == '__main__':
     plt.figure()
     plt.boxplot([ X[er_idx, herp_idx], X[beta_idx, herp_idx] ],
                 showmeans=True)
-    plt.title('HERPUD1 (p < {})'.format(ttest_ind(
-        X[er_idx, herp_idx], X[beta_idx, herp_idx]
+    plt.title('HERPUD1 (p = {})'.format(ttest_ind(
+        X[er_idx, herp_idx], X[beta_idx, herp_idx], equal_var=False
     )[1]))
     plt.xticks([1, 2], ['beta_er', 'beta'])
     plt.ylabel('Scaled gene expression')

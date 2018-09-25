@@ -4,8 +4,9 @@ from itertools import cycle, islice
 import numpy as np
 import operator
 import random
+from scipy.sparse import csr_matrix, vstack
 from sklearn.manifold import TSNE
-from sklearn.metrics.pairwise import rbf_kernel
+from sklearn.metrics.pairwise import rbf_kernel, euclidean_distances
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import normalize
 import sys
@@ -21,7 +22,7 @@ random.seed(0)
 ALPHA = 0.10
 APPROX = True
 DIMRED = 100
-HVG = 10000
+HVG = 0
 KNN = 20
 N_ITER = 500
 PERPLEXITY = 1200
@@ -33,10 +34,10 @@ VERBOSE = 2
 def plot_clusters(coords, clusters, s=1):
     if coords.shape[0] != clusters.shape[0]:
         sys.stderr.write(
-            'Mismatch: {} cells, {} labels\n'
+            'Error: mismatch, {} cells, {} labels\n'
             .format(coords.shape[0], clusters.shape[0])
         )
-    assert(coords.shape[0] == clusters.shape[0])
+        exit(1)
 
     colors = np.array(
         list(islice(cycle([
@@ -57,53 +58,62 @@ def plot_clusters(coords, clusters, s=1):
                 c=colors[clusters], s=s)
 
 # Put datasets into a single matrix with the intersection of all genes.
-def merge_datasets(datasets, genes, verbose=True):
+def merge_datasets(datasets, genes, ds_names=None, verbose=True):
     # Find genes in common.
     keep_genes = set()
-    for gene_list in genes:
+    for idx, gene_list in enumerate(genes):
         if len(keep_genes) == 0:
             keep_genes = set(gene_list)
         else:
             keep_genes &= set(gene_list)
+        if not ds_names is None and verbose:
+            print('After {}: {} genes'.format(ds_names[idx], len(keep_genes)))
+        if len(keep_genes) == 0:
+            print('Error: No genes found in all datasets, exiting...')
+            exit(1)
     if verbose:
         print('Found {} genes among all datasets'
               .format(len(keep_genes)))
 
     # Only keep genes in common.
-    ret_datasets = []
     ret_genes = np.array(sorted(keep_genes))
     for i in range(len(datasets)):
         # Remove duplicate genes.
         uniq_genes, uniq_idx = np.unique(genes[i], return_index=True)
-        ret_datasets.append(datasets[i][:, uniq_idx])
+        datasets[i] = datasets[i][:, uniq_idx]
 
         # Do gene filtering.
         gene_sort_idx = np.argsort(uniq_genes)
         gene_idx = [ idx for idx in gene_sort_idx
                      if uniq_genes[idx] in keep_genes ]
-        ret_datasets[i] = ret_datasets[i][:, gene_idx]
+        datasets[i] = datasets[i][:, gene_idx]
         assert(np.array_equal(uniq_genes[gene_idx], ret_genes))
 
-    return ret_datasets, ret_genes
+    return datasets, ret_genes
 
 # Do batch correction on the data.
 def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,
-            sigma=SIGMA, ds_names=None):
-    datasets, genes = merge_datasets(datasets_full, genes_list)
+            sigma=SIGMA, approx=APPROX, alpha=ALPHA, ds_names=None,
+            return_dimred=False, batch_size=None):
+    datasets, genes = merge_datasets(datasets_full, genes_list,
+                                     ds_names=ds_names)
     datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
     
     datasets_dimred = assemble(
         datasets_dimred, # Assemble in low dimensional space.
         expr_datasets=datasets, # Modified in place.
-        verbose=verbose, knn=KNN, sigma=sigma, approx=APPROX,
-        ds_names=ds_names
+        verbose=verbose, knn=KNN, sigma=sigma, approx=approx,
+        alpha=alpha, ds_names=ds_names, batch_size=batch_size
     )
+
+    if return_dimred:
+        return datasets_dimred, datasets, genes
 
     return datasets, genes
 
 # Randomized SVD.
 def dimensionality_reduce(datasets, dimred=DIMRED):
-    X = np.concatenate(datasets)
+    X = vstack(datasets)
     X = reduce_dimensionality(X, dim_red_k=dimred)
     datasets_dimred = []
     base = 0
@@ -113,10 +123,12 @@ def dimensionality_reduce(datasets, dimred=DIMRED):
     return datasets_dimred
 
 # Normalize and reduce dimensionality.
-def process_data(datasets, genes, hvg=HVG, dimred=DIMRED):
+def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
     # Only keep highly variable genes
-    if hvg > 0:
-        X = np.concatenate(datasets)
+    if hvg > 0 and hvg < len(genes):
+        if verbose:
+            print('Highly variable filter...')
+        X = vstack(datasets)
         disp = dispersion(X)
         top_genes = set(genes[
             list(reversed(np.argsort(disp)))[:HVG]
@@ -128,12 +140,22 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED):
         genes = np.array(sorted(top_genes))
 
     # Normalize.
-    datasets = [ normalize(ds, axis=1) for ds in datasets ]
+    if verbose:
+        print('Normalizing...')
+    for i, ds in enumerate(datasets):
+        datasets[i] = normalize(ds, axis=1)
     
     # Compute compressed embedding.
     if dimred > 0:
+        if verbose:
+            print('Reducing dimension...')
         datasets_dimred = dimensionality_reduce(datasets)
+        if verbose:
+            print('Done processing.')
         return datasets_dimred, genes
+
+    if verbose:
+        print('Done processing.')
 
     return datasets, genes
 
@@ -142,13 +164,30 @@ def visualize(assembled, labels, namespace, data_names,
               gene_names=None, gene_expr=None, genes=None,
               n_iter=N_ITER, perplexity=PERPLEXITY, verbose=VERBOSE,
               learn_rate=200., early_exag=12., embedding=None,
-              shuffle_ds=False, size=1):
+              shuffle_ds=False, size=1, multicore_tsne=True,
+              image_suffix='.svg'):
     # Fit t-SNE.
     if embedding is None:
-        tsne = TSNEApprox(n_iter=n_iter, perplexity=perplexity,
-                          verbose=verbose, random_state=69,
-                          learning_rate=learn_rate,
-                          early_exaggeration=early_exag)
+        try:
+            from MulticoreTSNE import MulticoreTSNE
+            tsne = MulticoreTSNE(
+                n_iter=n_iter, perplexity=perplexity,
+                verbose=verbose, random_state=69,
+                learning_rate=learn_rate,
+                early_exaggeration=early_exag,
+                n_jobs=40
+            )
+        except ImportError:
+            multicore_tsne = False
+
+        if not multicore_tsne:
+            tsne = TSNEApprox(
+                n_iter=n_iter, perplexity=perplexity,
+                verbose=verbose, random_state=69,
+                learning_rate=learn_rate,
+                early_exaggeration=early_exag
+            )
+
         tsne.fit(np.concatenate(assembled))
         embedding = tsne.embedding_
 
@@ -164,14 +203,15 @@ def visualize(assembled, labels, namespace, data_names,
                'knn: {}, hvg: {}, dimred: {}, approx: {})')
               .format(n_iter, perplexity, SIGMA, KNN, HVG,
                       DIMRED, APPROX))
-    plt.savefig(namespace + '.svg', dpi=500)
+    plt.savefig(namespace + image_suffix, dpi=500)
 
     # Plot clusters individually.
     if not shuffle_ds:
         for i in range(len(data_names)):
             visualize_cluster(embedding, i, labels,
                               cluster_name=data_names[i], size=size,
-                              viz_prefix=namespace)
+                              viz_prefix=namespace,
+                              image_suffix=image_suffix)
 
     # Plot gene expression levels.
     if (not gene_names is None) and \
@@ -182,7 +222,8 @@ def visualize(assembled, labels, namespace, data_names,
         for gene_name in gene_names:
             visualize_expr(gene_expr, embedding,
                            genes, gene_name, size=size,
-                           viz_prefix=namespace)
+                           viz_prefix=namespace,
+                           image_suffix=image_suffix)
 
     return embedding
 
@@ -342,7 +383,7 @@ def find_alignments_table(datasets, knn=KNN, approx=APPROX,
     
 # Find the matching pairs of cells between datasets.
 def find_alignments(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
-                    prenormalized=False):
+                    alpha=ALPHA, prenormalized=False):
     table1, _, matches = find_alignments_table(
         datasets, knn=knn, approx=approx, verbose=verbose,
         prenormalized=prenormalized
@@ -350,15 +391,17 @@ def find_alignments(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
 
     alignments = [ (i, j) for (i, j), val in reversed(
         sorted(table1.items(), key=operator.itemgetter(1))
-    ) if val > ALPHA ]
+    ) if val > alpha ]
 
     return alignments, matches
 
 # Find connections between datasets to identify panoramas.
-def connect(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE):
+def connect(datasets, knn=KNN, approx=APPROX, alpha=ALPHA,
+            verbose=VERBOSE):
     # Find alignments.
     alignments, _ = find_alignments(
-        datasets, knn=knn, approx=approx, verbose=verbose
+        datasets, knn=knn, approx=approx, alpha=alpha,
+        verbose=verbose
     )
     if verbose:
         print(alignments)
@@ -395,30 +438,63 @@ def connect(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE):
 
     return panoramas
 
+# To reduce memory usage, split bias computation into batches.
+def batch_bias(curr_ds, match_ds, bias, batch_size=None, sigma=SIGMA):
+    if batch_size is None:
+        weights = rbf_kernel(curr_ds, match_ds, gamma=0.5*sigma)
+        avg_bias = np.dot(weights, bias) / \
+                   np.tile(np.sum(weights, axis=1),
+                           (curr_ds.shape[1], 1)).T
+        return avg_bias
+    
+    base = 0
+    avg_bias = np.zeros(curr_ds.shape)
+    denom = np.zeros(curr_ds.shape[0])
+    while base < match_ds.shape[0]:
+        batch_idx = range(
+            base, min(base + batch_size, match_ds.shape[0])
+        )
+        weights = rbf_kernel(curr_ds, match_ds[batch_idx, :],
+                             gamma=0.5*sigma)
+        avg_bias += np.dot(weights, bias[batch_idx, :])
+        denom += np.sum(weights, axis=1)
+        base += batch_size
+
+    avg_bias /= np.tile(denom, (curr_ds.shape[1], 1)).T
+
+    return avg_bias
+
 # Compute nonlinear translation vectors between dataset
 # and a reference.
-def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma):
+def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=False,
+              batch_size=None):
     # Compute the matching.
     match_ds = curr_ds[ds_ind, :]
     match_ref = curr_ref[ref_ind, :]
     bias = match_ref - match_ds
-    weights = rbf_kernel(curr_ds, match_ds, gamma=0.5*sigma)
-    avg_bias = np.dot(weights, bias) / \
-               np.tile(np.sum(weights, axis=1),
-                       (curr_ds.shape[1], 1)).T
+    if cn:
+        match_ds = match_ds.toarray()
+        curr_ds = curr_ds.toarray()
+        bias = bias.toarray()
+
+    avg_bias = batch_bias(curr_ds, match_ds, bias, sigma=sigma,
+                          batch_size=batch_size)
+    if cn:
+        avg_bias = csr_matrix(avg_bias)
+    
     return avg_bias
     
 # Finds alignments between datasets and uses them to construct
 # panoramas. "Merges" datasets by correcting gene expression
 # values.
 def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
-             sigma=SIGMA, approx=APPROX, expr_datasets=None,
-             ds_names=None):
+             sigma=SIGMA, approx=APPROX, alpha=ALPHA, expr_datasets=None,
+             ds_names=None, batch_size=None, realign=False):
     if len(datasets) == 1:
         return datasets
     
     alignments, matches = find_alignments(datasets, knn=knn, approx=approx,
-                                          verbose=verbose)
+                                          alpha=alpha, verbose=verbose)
     
     ds_assembled = {}
     panoramas = []
@@ -471,14 +547,16 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
             ds_ind = [ a for a, _ in match ]
             ref_ind = [ b for _, b in match ]
                     
-            bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma)
+            bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma,
+                             batch_size=batch_size)
             datasets[i] = curr_ds + bias
             
             if expr_datasets:
                 curr_ds = expr_datasets[i]
-                curr_ref = np.concatenate([ expr_datasets[p]
-                                            for p in panoramas_j[0] ])
-                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma)
+                curr_ref = vstack([ expr_datasets[p]
+                                    for p in panoramas_j[0] ])
+                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma,
+                                 cn=True, batch_size=batch_size)
                 expr_datasets[i] = curr_ds + bias
             
             panoramas_j[0].append(i)
@@ -500,14 +578,16 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
             ds_ind = [ a for a, _ in match ]
             ref_ind = [ b for _, b in match ]
             
-            bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma)
+            bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma,
+                             batch_size=batch_size)
             datasets[j] = curr_ds + bias
             
             if expr_datasets:
                 curr_ds = expr_datasets[j]
-                curr_ref = np.concatenate([ expr_datasets[p]
-                                            for p in panoramas_i[0] ])
-                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma)
+                curr_ref = vstack([ expr_datasets[p]
+                                    for p in panoramas_i[0] ])
+                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma,
+                                 cn=True, batch_size=batch_size)
                 expr_datasets[j] = curr_ds + bias
                 
             panoramas_i[0].append(j)
@@ -552,7 +632,8 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
             ref_ind = [ b for _, b in match ]
             
             # Apply transformation to entire panorama.
-            bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma)
+            bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma,
+                             batch_size=batch_size)
             curr_ds += bias
             base = 0
             for p in panoramas_i[0]:
@@ -560,12 +641,15 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
                 datasets[p] = curr_ds[base:(base + n_cells), :]
                 base += n_cells
             
-            if expr_datasets:
-                curr_ds = np.concatenate([ expr_datasets[p]
-                                           for p in panoramas_i[0] ])
-                curr_ref = np.concatenate([ expr_datasets[p]
-                                            for p in panoramas_j[0] ])
-                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma)
+            if realign and not expr_datasets is None:
+                # Realignment may improve quality of batch correction at cost
+                # of potentially higher memory usage.
+                curr_ds = vstack([ expr_datasets[p]
+                                   for p in panoramas_i[0] ])
+                curr_ref = vstack([ expr_datasets[p]
+                                    for p in panoramas_j[0] ])
+                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma,
+                                 cn=True, batch_size=batch_size)
                 curr_ds += bias
                 base = 0
                 for p in panoramas_i[0]:
@@ -587,7 +671,7 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
 # Non-optimal dataset assembly. Simply accumulate datasets into a
 # reference.
 def assemble_accum(datasets, verbose=VERBOSE, knn=KNN, sigma=SIGMA,
-                   approx=APPROX):
+                   approx=APPROX, batch_size=None):
     if len(datasets) == 1:
         return datasets
     
@@ -604,19 +688,20 @@ def assemble_accum(datasets, verbose=VERBOSE, knn=KNN, sigma=SIGMA,
         ds_ind = [ a for a, _ in match ]
         ref_ind = [ b for _, b in match ]
                     
-        bias = transform(ds1, ds2, ds_ind, ref_ind, sigma)
+        bias = transform(ds1, ds2, ds_ind, ref_ind, sigma,
+                         batch_size=batch_size)
         datasets[j] = ds1 + bias
 
     return datasets
 
 def interpret_alignments(datasets, expr_datasets, genes,
                          verbose=VERBOSE, knn=KNN, approx=APPROX,
-                         n_permutations=None):
+                         alpha=ALPHA, n_permutations=None):
     if n_permutations is None:
         n_permutations = float(len(genes) * 30)
     
     alignments, matches = find_alignments(
-        datasets, knn=knn, approx=approx, verbose=verbose
+        datasets, knn=knn, approx=approx, alpha=alpha, verbose=verbose
     )
 
     for i, j in alignments:
@@ -646,7 +731,3 @@ def interpret_alignments(datasets, expr_datasets, genes,
         print('>>>> Stats for alignment {}'.format((i, j)))
         for k in range(len(p)):
             print('{}\t{}'.format(genes[k], p[k]))
-        
-
-if __name__ == '__main__':
-    pass

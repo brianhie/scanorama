@@ -11,7 +11,7 @@ def time_align_visualize(alignments, time, y, namespace='time_align'):
     plt.figure()
     heat = np.flip(alignments + alignments.T +
                    np.eye(alignments.shape[0]), axis=0)
-    sns.heatmap(heat, cmap="YlGnBu")
+    sns.heatmap(heat, cmap="YlGnBu", vmin=0, vmax=1)
     plt.savefig(namespace + '_heatmap.svg')
 
     G = nx.from_numpy_matrix(alignments)

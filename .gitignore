@@ -2,7 +2,10 @@
 *.log
 *.pyc
 *.svg
+*.png
 build*
 data*
 dist*
 temp*
+R/*.txt
+R/*.pdf

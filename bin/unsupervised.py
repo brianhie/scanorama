@@ -171,7 +171,7 @@ def silhouette_samples(X, labels, metric='euclidean', **kwds):
     labels = le.fit_transform(labels)
     check_number_of_labels(len(le.classes_), X.shape[0])
 
-    distances = pairwise_distances(X, metric=metric, n_jobs=-1, **kwds)
+    distances = pairwise_distances(X, metric=metric, n_jobs=40, **kwds)
     unique_labels = le.classes_
     n_samples_per_label = np.bincount(labels, minlength=len(unique_labels))
 
