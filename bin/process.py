@@ -200,7 +200,7 @@ def load_names(data_names, norm=True, log1p=False, verbose=True):
 def save_datasets(datasets, genes, data_names, verbose=True,
                   truncate_neg=False):
     for i in range(len(datasets)):
-        dataset = datasets[i]
+        dataset = datasets[i].toarray()
         name = data_names[i]
 
         if truncate_neg:
