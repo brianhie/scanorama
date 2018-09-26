@@ -2,12 +2,12 @@ library(methods)
 library(scran)
 
 names = list(
-    "../data/macrophage/monocytes_seqwell_table.txt",
-    "../data/pbmc/10x/cd14_monocytes_table.txt",
-    "../data/macrophage/mcsf_day3_1_table.txt",
-    "../data/macrophage/mcsf_day3_2_table.txt",
-    "../data/macrophage/mcsf_day6_1_table.txt",
-    "../data/macrophage/mcsf_day6_2_table.txt"
+    "../../data/macrophage/monocytes_seqwell_table.txt",
+    "../../data/pbmc/10x/cd14_monocytes_table.txt",
+    "../../data/macrophage/mcsf_day3_1_table.txt",
+    "../../data/macrophage/mcsf_day3_2_table.txt",
+    "../../data/macrophage/mcsf_day6_1_table.txt",
+    "../../data/macrophage/mcsf_day6_2_table.txt"
 )
 
 data.tables <- list()
