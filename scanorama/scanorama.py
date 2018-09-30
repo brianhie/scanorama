@@ -484,11 +484,11 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=False,
             avg_bias = batch_bias(curr_ds, match_ds, bias, sigma=sigma,
                                   batch_size=batch_size)
         except RuntimeWarning:
-            sys.stderr.write('Warning: oversmoothing detected, will not batch '
+            sys.stderr.write('WARNING: oversmoothing detected, will not batch '
                              'correct, consider lowering sigma value.\n')
             return csr_matrix(curr_ds.shape, dtype=float)
         except:
-            sys.stderr.write('Warning: oversmoothing detected, will not '
+            sys.stderr.write('WARNING: oversmoothing detected, will not '
                              'integrate, consider lowering sigma value.\n')
             return np.zeros(curr_ds.shape, dtype=float)
         
