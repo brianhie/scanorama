@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     datasets_dimred, datasets, genes = correct(
         datasets, genes_list, ds_names=data_names,
-        return_dimred=True
+        return_dimred=True, sigma=10000
     )
 
     save_datasets(datasets, genes, data_names)

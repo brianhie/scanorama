@@ -10,6 +10,7 @@ from sklearn.metrics.pairwise import rbf_kernel, euclidean_distances
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import normalize
 import sys
+import warnings
 
 from .t_sne_approx import TSNEApprox
 from .utils import plt, dispersion, reduce_dimensionality
@@ -477,8 +478,20 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=False,
         curr_ds = curr_ds.toarray()
         bias = bias.toarray()
 
-    avg_bias = batch_bias(curr_ds, match_ds, bias, sigma=sigma,
-                          batch_size=batch_size)
+    with warnings.catch_warnings():
+        warnings.filterwarnings('error')
+        try:
+            avg_bias = batch_bias(curr_ds, match_ds, bias, sigma=sigma,
+                                  batch_size=batch_size)
+        except RuntimeWarning:
+            sys.stderr.write('Warning: oversmoothing detected, will not batch '
+                             'correct, consider lowering sigma value.\n')
+            return csr_matrix(curr_ds.shape, dtype=float)
+        except:
+            sys.stderr.write('Warning: oversmoothing detected, will not '
+                             'integrate, consider lowering sigma value.\n')
+            return np.zeros(curr_ds.shape, dtype=float)
+        
     if cn:
         avg_bias = csr_matrix(avg_bias)
     
