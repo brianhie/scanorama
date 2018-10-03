@@ -65,7 +65,7 @@ if __name__ == '__main__':
     datasets_dimred = []
     for i in range(len(data_names)):
         ds = datasets_dimred[i]
-        rand_idx = np.random.choice(ds.shape[0], size=(ds.shape[0]/10),
+        rand_idx = np.random.choice(ds.shape[0], size=int(ds.shape[0]/10),
                                     replace=False)
         datasets_dimred[i] = ds[rand_idx, :]
         datasets[i] = datasets[i][rand_idx, :]
