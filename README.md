@@ -4,6 +4,30 @@
 
 Scanorama enables batch-correction and integration of heterogeneous scRNA-seq data sets, which is described in the paper ["Panoramic stitching of single-cell transcriptomic data"](https://www.biorxiv.org/content/early/2018/07/17/371179) by Brian Hie, Bryan Bryson, and Bonnie Berger. This repository contains the Scanorama source code as well as scripts necessary for reproducing the results in the paper.
 
+## API
+
+Here is example usage of Scanorama:
+
+```
+# List of data sets:
+datasets = [ list of scipy.sparse.csr_matrix or numpy.ndarray ]
+# List of gene lists:
+genes_list = [ list of list of string ]
+
+import scanorama
+
+# Integration.
+integrated, genes = scanorama.integrate(datasets, genes_list)
+
+# Batch correction.
+corrected, genes = scanorama.correct(datasets, genes_list)
+
+# Integration and batch correction.
+integrated, corrected, genes = scanorama.correct(datasets, genes_list, return_dimred=True)
+```
+
+Additional parameter documentation for each method is in the Scanorama source code at the top of [`scanorama/scanorama.py`](scanorama/scanorama.py).
+
 ## Instructions
 
 This repository contains the Scanorama code as well as some (hopefully) helpful examples to get you started. Reading the instructions below and running at least a small toy example is highly recommended!

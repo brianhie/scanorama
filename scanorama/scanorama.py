@@ -4,6 +4,7 @@ from itertools import cycle, islice
 import numpy as np
 import operator
 import random
+import scipy
 from scipy.sparse import csr_matrix, vstack
 from sklearn.manifold import TSNE
 from sklearn.metrics.pairwise import rbf_kernel, euclidean_distances
@@ -29,6 +30,120 @@ N_ITER = 500
 PERPLEXITY = 1200
 SIGMA = 150
 VERBOSE = 2
+
+# Do batch correction on a list of data sets.
+def correct(datasets_full, genes_list, return_dimred=False,
+            batch_size=None, verbose=VERBOSE, ds_names=None,
+            approx=APPROX, sigma=SIGMA, alpha=ALPHA, hvg=HVG):
+    """Integrate and batch correct a list of data sets.
+
+    Parameters
+    ----------
+    datasets_full : `list` of `scipy.sparse.csr_matrix` or of `numpy.ndarray`
+        Data sets to integrate and correct.
+    genes_list: `list` of `list` of `string`
+        List of genes for each data set.
+    return_dimred: `bool`, optional (default: `False`)
+        In addition to returning batch corrected matrices, also returns
+        integrated low-dimesional embeddings.
+    batch_size: `int`, optional (default: `None`)
+        The batch size used in the alignment vector computation. Useful when
+        correcting very large (>100k samples) data sets. Set to large value
+        that runs within available memory.
+    verbose: `bool` or `int`, optional (default: 2)
+        When `True` or not equal to 0, prints logging output.
+    ds_names: `list` of `string`, optional
+        When `verbose=True`, reports data set names in logging output.
+    approx: `bool`, optional (default: `True`)
+        Use approximate nearest neighbors, greatly speeds up matching runtime.
+    sigma: `float`, optional (default: 150)
+        Correction smoothing parameter on Gaussian kernel.
+    alpha: `float`, optional (default: 0.10)
+        Alignment score minimum cutoff.
+    hvg: `int`, optional (default: 0)
+        *Parameter deprecated.*
+
+    Returns
+    -------
+    corrected, genes
+        By default (`return_dimred=False`), returns a two-tuple containing a
+        list of `scipy.sparse.csr_matrix` each with batch corrected values,
+        and a single list of genes containing the intersection of inputted
+        genes.
+
+    integrated, corrected, genes
+        When `return_dimred=False`, returns a three-tuple containing a list
+        of `numpy.ndarray` with integrated low dimensional embeddings, a list
+        of `scipy.sparse.csr_matrix` each with batch corrected values, and a
+        a single list of genes containing the intersection of inputted genes.
+    """
+    check_datasets(datasets_full)
+    
+    datasets, genes = merge_datasets(datasets_full, genes_list,
+                                     ds_names=ds_names)
+    datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
+    
+    datasets_dimred = assemble(
+        datasets_dimred, # Assemble in low dimensional space.
+        expr_datasets=datasets, # Modified in place.
+        verbose=verbose, knn=KNN, sigma=sigma, approx=approx,
+        alpha=alpha, ds_names=ds_names, batch_size=batch_size
+    )
+
+    if return_dimred:
+        return datasets_dimred, datasets, genes
+
+    return datasets, genes
+
+# Integrate a list of data sets.
+def integrate(datasets_full, genes_list, batch_size=None, verbose=VERBOSE,
+              ds_names=None, approx=APPROX, sigma=SIGMA, alpha=ALPHA,
+              hvg=HVG):
+    """Integrate a list of data sets.
+
+    Parameters
+    ----------
+    datasets_full : `list` of `scipy.sparse.csr_matrix` or of `numpy.ndarray`
+        Data sets to integrate and correct.
+    genes_list: `list` of `list` of `string`
+        List of genes for each data set.
+    batch_size: `int`, optional (default: `None`)
+        The batch size used in the alignment vector computation. Useful when
+        correcting very large (>100k samples) data sets. Set to large value
+        that runs within available memory.
+    verbose: `bool` or `int`, optional (default: 2)
+        When `True` or not equal to 0, prints logging output.
+    ds_names: `list` of `string`, optional
+        When `verbose=True`, reports data set names in logging output.
+    approx: `bool`, optional (default: `True`)
+        Use approximate nearest neighbors, greatly speeds up matching runtime.
+    sigma: `float`, optional (default: 150)
+        Correction smoothing parameter on Gaussian kernel.
+    alpha: `float`, optional (default: 0.10)
+        Alignment score minimum cutoff.
+    hvg: `int`, optional (default: 0)
+        *Parameter deprecated.*
+
+    Returns
+    -------
+    integrated, genes
+        Returns a two-tuple containing a list of `numpy.ndarray` with
+        integrated low dimensional embeddings and a single list of genes
+        containing the intersection of inputted genes.
+    """
+    check_datasets(datasets_full)
+
+    datasets, genes = merge_datasets(datasets_full, genes_list,
+                                     ds_names=ds_names)
+    datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
+    
+    datasets_dimred = assemble(
+        datasets_dimred, # Assemble in low dimensional space.
+        verbose=verbose, knn=KNN, sigma=sigma, approx=approx,
+        alpha=alpha, ds_names=ds_names, batch_size=batch_size
+    )
+
+    return datasets_dimred, genes
 
 # Visualize a scatter plot with cluster labels in the
 # `cluster' variable.
@@ -92,25 +207,16 @@ def merge_datasets(datasets, genes, ds_names=None, verbose=True):
 
     return datasets, ret_genes
 
-# Do batch correction on the data.
-def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,
-            sigma=SIGMA, approx=APPROX, alpha=ALPHA, ds_names=None,
-            return_dimred=False, batch_size=None):
-    datasets, genes = merge_datasets(datasets_full, genes_list,
-                                     ds_names=ds_names)
-    datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
-    
-    datasets_dimred = assemble(
-        datasets_dimred, # Assemble in low dimensional space.
-        expr_datasets=datasets, # Modified in place.
-        verbose=verbose, knn=KNN, sigma=sigma, approx=approx,
-        alpha=alpha, ds_names=ds_names, batch_size=batch_size
-    )
-
-    if return_dimred:
-        return datasets_dimred, datasets, genes
-
-    return datasets, genes
+def check_datasets(datasets_full):
+    for i, ds in enumerate(datasets_full):
+        if type(ds) is np.ndarray:
+            datasets_full[i] = csr_matrix(ds)
+        elif type(ds) is scipy.sparse.csr.csr_matrix:
+            pass
+        else:
+            sys.stderr.write('ERROR: Data sets must be numpy array or '
+                             'scipy.sparse.csr_matrix.\n')
+            exit(1)
 
 # Randomized SVD.
 def dimensionality_reduce(datasets, dimred=DIMRED):
@@ -484,13 +590,17 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=False,
             avg_bias = batch_bias(curr_ds, match_ds, bias, sigma=sigma,
                                   batch_size=batch_size)
         except RuntimeWarning:
-            sys.stderr.write('WARNING: oversmoothing detected, will not batch '
+            sys.stderr.write('WARNING: Oversmoothing detected, will not batch '
                              'correct, consider lowering sigma value.\n')
             return csr_matrix(curr_ds.shape, dtype=float)
-        except:
-            sys.stderr.write('WARNING: oversmoothing detected, will not '
-                             'integrate, consider lowering sigma value.\n')
-            return np.zeros(curr_ds.shape, dtype=float)
+        except MemoryError:
+            if batch_size is None:
+                sys.stderr.write('WARNING: Out of memory, consider turning on '
+                                 'batched computation with batch_size parameter.\n')
+            else:
+                sys.stderr.write('WARNING: Out of memory, consider lowering '
+                                 'the batch_size parameter.\n')
+            return csr_matrix(curr_ds.shape, dtype=float)
         
     if cn:
         avg_bias = csr_matrix(avg_bias)
