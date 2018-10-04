@@ -4,6 +4,7 @@ from itertools import cycle, islice
 import numpy as np
 import operator
 import random
+import scipy
 from scipy.sparse import csr_matrix, vstack
 from sklearn.manifold import TSNE
 from sklearn.metrics.pairwise import rbf_kernel, euclidean_distances
