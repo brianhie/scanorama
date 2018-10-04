@@ -92,10 +92,23 @@ def merge_datasets(datasets, genes, ds_names=None, verbose=True):
 
     return datasets, ret_genes
 
-# Do batch correction on the data.
+def check_datasets(datasets_full):
+    for i, ds in enumerate(datasets_full):
+        if type(ds) is np.ndarray:
+            datasets_full[i] = csr_matrix(ds)
+        elif type(ds) is scipy.sparse.csr.csr_matrix:
+            pass
+        else:
+            sys.stderr.write('ERROR: Data sets must be numpy array or '
+                             'scipy.sparse.csr_matrix.\n')
+            exit(1)
+
+# Do batch correction on a list of data sets.
 def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,
             sigma=SIGMA, approx=APPROX, alpha=ALPHA, ds_names=None,
             return_dimred=False, batch_size=None):
+    check_datasets(datasets_full)
+    
     datasets, genes = merge_datasets(datasets_full, genes_list,
                                      ds_names=ds_names)
     datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
@@ -111,6 +124,24 @@ def correct(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,
         return datasets_dimred, datasets, genes
 
     return datasets, genes
+
+# Integrate a list of data sets.
+def integrate(datasets_full, genes_list, hvg=HVG, verbose=VERBOSE,
+              sigma=SIGMA, approx=APPROX, alpha=ALPHA, ds_names=None,
+              batch_size=None):
+    check_datasets(datasets_full)
+
+    datasets, genes = merge_datasets(datasets_full, genes_list,
+                                     ds_names=ds_names)
+    datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
+    
+    datasets_dimred = assemble(
+        datasets_dimred, # Assemble in low dimensional space.
+        verbose=verbose, knn=KNN, sigma=sigma, approx=approx,
+        alpha=alpha, ds_names=ds_names, batch_size=batch_size
+    )
+
+    return datasets_dimred, genes
 
 # Randomized SVD.
 def dimensionality_reduce(datasets, dimred=DIMRED):
