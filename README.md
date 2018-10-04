@@ -6,7 +6,7 @@ Scanorama enables batch-correction and integration of heterogeneous scRNA-seq da
 
 ## API
 
-Below is example usage of Scanorama.
+Here is example usage of Scanorama:
 
 ```
 # List of data sets:
