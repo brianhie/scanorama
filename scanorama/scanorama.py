@@ -34,7 +34,8 @@ VERBOSE = 2
 # Do batch correction on a list of data sets.
 def correct(datasets_full, genes_list, return_dimred=False,
             batch_size=None, verbose=VERBOSE, ds_names=None,
-            approx=APPROX, sigma=SIGMA, alpha=ALPHA, hvg=HVG):
+            approx=APPROX, sigma=SIGMA, alpha=ALPHA, knn=KNN,
+            hvg=HVG):
     """Integrate and batch correct a list of data sets.
 
     Parameters
@@ -86,7 +87,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
     datasets_dimred = assemble(
         datasets_dimred, # Assemble in low dimensional space.
         expr_datasets=datasets, # Modified in place.
-        verbose=verbose, knn=KNN, sigma=sigma, approx=approx,
+        verbose=verbose, knn=knn, sigma=sigma, approx=approx,
         alpha=alpha, ds_names=ds_names, batch_size=batch_size
     )
 
@@ -237,9 +238,8 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
             print('Highly variable filter...')
         X = vstack(datasets)
         disp = dispersion(X)
-        top_genes = set(genes[
-            list(reversed(np.argsort(disp)))[:HVG]
-        ])
+        highest_disp_idx = np.argsort(disp[0])[::-1]
+        top_genes = set(genes[highest_disp_idx[range(hvg)]])
         for i in range(len(datasets)):
             gene_idx = [ idx for idx, g_i in enumerate(genes)
                          if g_i in top_genes ]
@@ -256,7 +256,7 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
     if dimred > 0:
         if verbose:
             print('Reducing dimension...')
-        datasets_dimred = dimensionality_reduce(datasets)
+        datasets_dimred = dimensionality_reduce(datasets, dimred=dimred)
         if verbose:
             print('Done processing.')
         return datasets_dimred, genes
@@ -272,7 +272,7 @@ def visualize(assembled, labels, namespace, data_names,
               n_iter=N_ITER, perplexity=PERPLEXITY, verbose=VERBOSE,
               learn_rate=200., early_exag=12., embedding=None,
               shuffle_ds=False, size=1, multicore_tsne=True,
-              image_suffix='.svg'):
+              image_suffix='.svg', viz_cluster=False):
     # Fit t-SNE.
     if embedding is None:
         try:
@@ -313,7 +313,7 @@ def visualize(assembled, labels, namespace, data_names,
     plt.savefig(namespace + image_suffix, dpi=500)
 
     # Plot clusters individually.
-    if not shuffle_ds:
+    if viz_cluster and not shuffle_ds:
         for i in range(len(data_names)):
             visualize_cluster(embedding, i, labels,
                               cluster_name=data_names[i], size=size,
