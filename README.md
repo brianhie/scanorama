@@ -50,7 +50,7 @@ integrated.corrected.data <- scanorama$correct(datasets, genes_list,
                                                return_dimred=TRUE, return_dense=TRUE)
 ```
 
-Note that `reticulate` has trouble returning sparse matrices, so you should set the `return_dense` flag to `TRUE` (which returns the corrected data in R matrices).
+Note that `reticulate` has trouble returning sparse matrices, so you should set the `return_dense` flag to `TRUE` (which returns the corrected data in R matrices) when attempting to use Scanorama in R.
 
 ## Instructions
 
