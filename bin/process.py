@@ -5,7 +5,6 @@ import scipy.sparse
 from scipy.sparse import csr_matrix
 from sklearn.preprocessing import normalize
 import sys
-import tables
 
 from scanorama import merge_datasets
 
@@ -63,6 +62,13 @@ def load_mtx(dname):
     return X, np.array(genes)
 
 def load_h5(fname, genome='mm10'):
+    try:
+        import tables
+    except ImportError:
+        sys.stderr.write('Please install PyTables to read .h5 files: '
+                         'https://www.pytables.org/usersguide/installation.html\n')
+        exit(1)
+    
     # Adapted from scanpy's read_10x_h5() method.
     with tables.open_file(str(fname), 'r') as f:
         try:

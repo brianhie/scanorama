@@ -16,7 +16,6 @@ setup(
         'scipy>=1.0.0',
         'scikit-learn>=0.20rc1',
         'statsmodels>=0.8.0rc1',
-        'tables>=3.3.0'
     ],
     author='Brian Hie',
     author_email='brianhie@mit.edu',
