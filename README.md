@@ -4,7 +4,7 @@
 
 Scanorama enables batch-correction and integration of heterogeneous scRNA-seq data sets, which is described in the paper ["Panoramic stitching of single-cell transcriptomic data"](https://www.biorxiv.org/content/early/2018/07/17/371179) by Brian Hie, Bryan Bryson, and Bonnie Berger. This repository contains the Scanorama source code as well as scripts necessary for reproducing the results in the paper.
 
-## API
+## Example Usage and API
 
 Here is example usage of Scanorama in Python:
 
