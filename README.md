@@ -6,7 +6,7 @@ Scanorama enables batch-correction and integration of heterogeneous scRNA-seq da
 
 ## API
 
-Here is example usage of Scanorama:
+Here is example usage of Scanorama in Python:
 
 ```
 # List of data sets:
@@ -27,6 +27,29 @@ integrated, corrected, genes = scanorama.correct(datasets, genes_list, return_di
 ```
 
 Additional parameter documentation for each method is in the Scanorama source code at the top of [`scanorama/scanorama.py`](scanorama/scanorama.py).
+
+You can also call Scanorama from R using the [`reticulate`](https://rstudio.github.io/reticulate/) package:
+
+```
+# List of data sets:
+datasets <- list( list of matrices )
+# List of gene lists:
+genes_list <- list( list of list of string )
+
+library(reticulate)
+scanorama <- import('scanorama')
+
+# Integration.
+integrated.data <- scanorama$integrate(datasets, genes_list, return_dense=TRUE)
+
+# Batch correction.
+corrected.data <- scanorama$correct(datasets, genes_list, return_dense=TRUE)
+
+# Integration and batch correction.
+integrated.corrected.data <- scanorama$correct(datasets, genes_list, return_dimred=TRUE, return_dense=TRUE)
+```
+
+Note that `reticulate` has trouble returning sparse matrices, so you should set the `return_dense` flag to `TRUE` (which returns the corrected data in R matrices).
 
 ## Instructions
 
