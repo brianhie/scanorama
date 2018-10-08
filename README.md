@@ -26,7 +26,7 @@ corrected, genes = scanorama.correct(datasets, genes_list)
 integrated, corrected, genes = scanorama.correct(datasets, genes_list, return_dimred=True)
 ```
 
-Additional parameter documentation for each method is in the Scanorama source code at the top of [`scanorama/scanorama.py`](scanorama/scanorama.py).
+**Parameter documentation for each method is in the Scanorama source code at the top of [`scanorama/scanorama.py`](scanorama/scanorama.py).**
 
 There are also wrappers that make it easy to use Scanorama with [scanpy's AnnData object](https://anndata.readthedocs.io/en/latest/anndata.AnnData.html#anndata.AnnData):
 
