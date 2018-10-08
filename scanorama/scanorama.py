@@ -24,7 +24,7 @@ random.seed(0)
 ALPHA = 0.10
 APPROX = True
 DIMRED = 100
-HVG = 0
+HVG = None
 KNN = 20
 N_ITER = 500
 PERPLEXITY = 1200
@@ -34,8 +34,8 @@ VERBOSE = 2
 # Do batch correction on a list of data sets.
 def correct(datasets_full, genes_list, return_dimred=False,
             batch_size=None, verbose=VERBOSE, ds_names=None,
-            approx=APPROX, sigma=SIGMA, alpha=ALPHA, knn=KNN,
-            hvg=HVG):
+            approx=APPROX, sigma=SIGMA, alpha=ALPHA,
+            return_dense=False, hvg=None):
     """Integrate and batch correct a list of data sets.
 
     Parameters
@@ -61,8 +61,10 @@ def correct(datasets_full, genes_list, return_dimred=False,
         Correction smoothing parameter on Gaussian kernel.
     alpha: `float`, optional (default: 0.10)
         Alignment score minimum cutoff.
-    hvg: `int`, optional (default: 0)
-        *Parameter deprecated.*
+    return_dense: `bool`, optional (default: `False`)
+        Return `numpy.ndarray` matrices instead of `scipy.sparse.csr_matrix`.
+    hvg: `int`, optional (default: None)
+        Use this number of top highly variable genes based on dispersion.
 
     Returns
     -------
@@ -78,7 +80,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
         of `scipy.sparse.csr_matrix` each with batch corrected values, and a
         a single list of genes containing the intersection of inputted genes.
     """
-    check_datasets(datasets_full)
+    datasets_full = check_datasets(datasets_full)
     
     datasets, genes = merge_datasets(datasets_full, genes_list,
                                      ds_names=ds_names)
@@ -91,6 +93,9 @@ def correct(datasets_full, genes_list, return_dimred=False,
         alpha=alpha, ds_names=ds_names, batch_size=batch_size
     )
 
+    if return_dense:
+        datasets = [ ds.toarray() for ds in datasets ]
+
     if return_dimred:
         return datasets_dimred, datasets, genes
 
@@ -99,7 +104,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
 # Integrate a list of data sets.
 def integrate(datasets_full, genes_list, batch_size=None, verbose=VERBOSE,
               ds_names=None, approx=APPROX, sigma=SIGMA, alpha=ALPHA,
-              hvg=HVG):
+              hvg=None):
     """Integrate a list of data sets.
 
     Parameters
@@ -122,8 +127,8 @@ def integrate(datasets_full, genes_list, batch_size=None, verbose=VERBOSE,
         Correction smoothing parameter on Gaussian kernel.
     alpha: `float`, optional (default: 0.10)
         Alignment score minimum cutoff.
-    hvg: `int`, optional (default: 0)
-        *Parameter deprecated.*
+    hvg: `int`, optional (default: None)
+        Use this number of top highly variable genes based on dispersion.
 
     Returns
     -------
@@ -132,7 +137,7 @@ def integrate(datasets_full, genes_list, batch_size=None, verbose=VERBOSE,
         integrated low dimensional embeddings and a single list of genes
         containing the intersection of inputted genes.
     """
-    check_datasets(datasets_full)
+    datasets_full = check_datasets(datasets_full)
 
     datasets, genes = merge_datasets(datasets_full, genes_list,
                                      ds_names=ds_names)
@@ -209,15 +214,17 @@ def merge_datasets(datasets, genes, ds_names=None, verbose=True):
     return datasets, ret_genes
 
 def check_datasets(datasets_full):
+    datasets_new = []
     for i, ds in enumerate(datasets_full):
         if type(ds) is np.ndarray:
-            datasets_full[i] = csr_matrix(ds)
+            datasets_new.append(csr_matrix(ds))
         elif type(ds) is scipy.sparse.csr.csr_matrix:
             pass
         else:
             sys.stderr.write('ERROR: Data sets must be numpy array or '
                              'scipy.sparse.csr_matrix.\n')
             exit(1)
+    return datasets_new
 
 # Randomized SVD.
 def dimensionality_reduce(datasets, dimred=DIMRED):
@@ -233,7 +240,7 @@ def dimensionality_reduce(datasets, dimred=DIMRED):
 # Normalize and reduce dimensionality.
 def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
     # Only keep highly variable genes
-    if hvg > 0 and hvg < len(genes):
+    if not hvg is None and hvg > 0 and hvg < len(genes):
         if verbose:
             print('Highly variable filter...')
         X = vstack(datasets)
