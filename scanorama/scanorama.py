@@ -166,6 +166,7 @@ def correct_scanpy(adatas, **kwargs):
     kwargs : `dict`
         See documentation for the `correct()` method for a full list of
         parameters to use for batch correction.
+
     Returns
     -------
     corrected
@@ -212,6 +213,7 @@ def integrate_scanpy(adatas, **kwargs):
     kwargs : `dict`
         See documentation for the `integrate()` method for a full list of
         parameters to use for batch correction.
+
     Returns
     -------
     integrated
@@ -225,36 +227,6 @@ def integrate_scanpy(adatas, **kwargs):
     )
 
     return datasets_dimred
-
-# Batch correction with scanpy's AnnData object.
-def integrate_scanpy(adatas, **kwargs):
-    """Batch correct a list of `scanpy.api.AnnData`.
-
-    Parameters
-    ----------
-    adatas : `list` of `scanpy.api.AnnData`
-        Data sets to integrate and correct.
-    kwargs : `dict`
-        See documentation for the `correct()` method for a full list of
-        parameters to use for batch correction.
-    Returns
-    -------
-    corrected
-        Returns a list of `scanpy.api.AnnData` with batch corrected
-        values in the `.X` field.s
-    """
-    datasets, genes = correct(
-        [adata.X for adata in adatas],
-        [adata.var_names.values for adata in adatas],
-        **kwargs
-    )
-
-    new_adatas = []
-    for i, adata in enumerate(adatas):
-        adata.X = datasets[i]
-        new_adatas.append(adata)
-
-    return new_adatas
 
 # Visualize a scatter plot with cluster labels in the
 # `cluster' variable.
