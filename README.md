@@ -28,6 +28,24 @@ integrated, corrected, genes = scanorama.correct(datasets, genes_list, return_di
 
 Additional parameter documentation for each method is in the Scanorama source code at the top of [`scanorama/scanorama.py`](scanorama/scanorama.py).
 
+There are also wrappers that make it easy to use Scanorama with scanpy's AnnData object:
+
+```
+# List of data sets:
+adatas = [ list of scanpy.api.AnnData ]
+
+import scanorama
+
+# Integration.
+integrated = scanorama.integrate_scanpy(adatas)
+
+# Batch correction.
+corrected = scanorama.correct_scanpy(adatas)
+
+# Integration and batch correction.
+integrated, corrected = scanorama.correct_scanpy(adatas, return_dimred=True)
+```
+
 You can also call Scanorama from R using the [`reticulate`](https://rstudio.github.io/reticulate/) package:
 
 ```
