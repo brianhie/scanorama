@@ -296,7 +296,7 @@ def check_datasets(datasets_full):
         if type(ds) is np.ndarray:
             datasets_new.append(csr_matrix(ds))
         elif type(ds) is scipy.sparse.csr.csr_matrix:
-            pass
+            datasets_new.append(ds)
         else:
             sys.stderr.write('ERROR: Data sets must be numpy array or '
                              'scipy.sparse.csr_matrix.\n')
