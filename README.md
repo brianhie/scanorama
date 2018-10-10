@@ -74,8 +74,6 @@ Note that `reticulate` has trouble returning sparse matrices, so you should set 
 
 ## Installation
 
-This repository contains the Scanorama code as well as some (hopefully) helpful examples to get you started. Reading the instructions below and running at least a small toy example is highly recommended!
-
 ### Setup
 
 First, download the Scanorama repository with the command:
