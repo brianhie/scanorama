@@ -52,7 +52,7 @@ You can also call Scanorama from R using the [`reticulate`](https://rstudio.gith
 
 ```
 # List of data sets:
-datasets <- list( list of matrices )
+datasets <- list( list of matrix )
 # List of gene lists:
 genes_list <- list( list of list of string )
 
@@ -70,7 +70,7 @@ integrated.corrected.data <- scanorama$correct(datasets, genes_list,
                                                return_dimred=TRUE, return_dense=TRUE)
 ```
 
-Note that `reticulate` has trouble returning sparse matrices, so you should set the `return_dense` flag to `TRUE` (which returns the corrected data in R matrices) when attempting to use Scanorama in R.
+Note that `reticulate` has trouble returning sparse matrices, so you should set the `return_dense` flag to `TRUE` (which returns the corrected data as R `matrix` objects) when attempting to use Scanorama in R. This will increase memory usage, however, especially for very large data sets.
 
 ## Installation
 
