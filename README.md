@@ -6,7 +6,7 @@ Scanorama enables batch-correction and integration of heterogeneous scRNA-seq da
 
 Scanorama is designed to be used in scRNA-seq pipelines downstream of noise-reduction methods, including those for normalization, imputation, and highly-variable gene filtering. The results from Scanorama integration and batch correction can then be used as input to other tools for scRNA-seq clustering, visualization, and analysis.
 
-## Example Usage and API
+## API example usage
 
 Here is example usage of Scanorama in Python:
 
