@@ -4,6 +4,8 @@
 
 Scanorama enables batch-correction and integration of heterogeneous scRNA-seq data sets, which is described in the paper ["Panoramic stitching of single-cell transcriptomic data"](https://www.biorxiv.org/content/early/2018/07/17/371179) by Brian Hie, Bryan Bryson, and Bonnie Berger. This repository contains the Scanorama source code as well as scripts necessary for reproducing the results in the paper.
 
+Scanorama is designed to be used in scRNA-seq pipelines downstream of noise-reduction methods, including those for normalization, imputation, and highly-variable gene filtering. The results from Scanorama integration and batch correction can then be used as input to other tools for scRNA-seq clustering, visualization, and analysis.
+
 ## Example Usage and API
 
 Here is example usage of Scanorama in Python:
@@ -70,7 +72,7 @@ integrated.corrected.data <- scanorama$correct(datasets, genes_list,
 
 Note that `reticulate` has trouble returning sparse matrices, so you should set the `return_dense` flag to `TRUE` (which returns the corrected data in R matrices) when attempting to use Scanorama in R.
 
-## Instructions
+## Installation
 
 This repository contains the Scanorama code as well as some (hopefully) helpful examples to get you started. Reading the instructions below and running at least a small toy example is highly recommended!
 
@@ -91,6 +93,8 @@ And install Scanorama with the following command
 python setup.py install --user
 ```
 
+## Examples from paper
+
 ### Data set download
 
 All of the data used in our study (around 4 GB) can be downloaded from http://scanorama.csail.mit.edu/data.tar.gz. Download and unpack this data with the command:
@@ -104,7 +108,7 @@ A smaller version of the data (around 720 MB), including 26 heterogeneous data s
 
 ### Data processing
 
-Scanorama is able to process two file formats. The first is a tab-delimited table format where the columns correspond to cells and the rows correspond to genes. A sample file looks something like:
+The script `bin/process.py` can handle two file formats. The first is a tab-delimited table format where the columns correspond to cells and the rows correspond to genes. A sample file looks something like:
 ```
 gene	cell_a	cell_b
 gene_1	10	10
@@ -112,15 +116,13 @@ gene_2	20	20
 ```
 The second is a sparse matrix format used by 10X Genomics (example [here](http://cf.10xgenomics.com/samples/cell-exp/1.1.0/293t/293t_filtered_gene_bc_matrices.tar.gz)). This format has a directory where one file has a list of gene names (`genes.tsv`) and one file has a list of the nonzero transcript counts at certain gene/cell coordinates (`matrix.mtx`).
 
-To ensure a consistent data format, Scanorama first processes these raw files and saves them in numpy archive files. To generate these files, run the command:
+To ensure a consistent data format, the examples first processes these raw files and saves them in `.npz` files along with some related metadata. To generate these files, run the command:
 ```
 python bin/process.py conf/panorama.txt
 ```
 The corresponding `.npz` files will be saved in the `data/` directory.
 
 New files can be processed by feeding them into `bin/process.py` via the command line or a configuration file, or by modifying the `data_names` variables at the top of `bin/config.py`.
-
-Currently, Scanorama uses a relatively low-level data representation (for Python at least) where a list of numpy arrays holds the gene expression values for each data set.
 
 ### Panorama stitching
 
@@ -148,7 +150,7 @@ Aligning and batch-correcting 26 data sets should complete in around 9 minutes w
 
 Note that the gradient descent portion of the t-SNE visualization step can take a very long time (a few hours) and require a lot of memory (around 13 GB) on more than 100k cells. Other methods for accelerating t-SNE could be used in place of the t-SNE implementation used in this pipeline, such as a faster C++ implementation of [t-SNE](https://github.com/lvdmaaten/bhtsne), [Multicore-TSNE](https://github.com/DmitryUlyanov/Multicore-TSNE), or [net-SNE](https://github.com/hhcho/netsne), a version of t-SNE that uses a neural network to reduce the time required for the gradient descent optimization procedure.
 
-### Additional analyses
+#### Additional analyses from paper
 
 Scripts for performing additional analyses of the data are also available in the `bin/` directory.
 
