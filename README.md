@@ -11,7 +11,7 @@ Scanorama enables batch-correction and integration of heterogeneous scRNA-seq da
 Here is example usage of Scanorama in Python:
 
 ```
-# List of data sets:
+# List of data sets (matrices of cells-by-genes):
 datasets = [ list of scipy.sparse.csr_matrix or numpy.ndarray ]
 # List of gene lists:
 genes_list = [ list of list of string ]
@@ -51,7 +51,7 @@ integrated, corrected = scanorama.correct_scanpy(adatas, return_dimred=True)
 You can also call Scanorama from R using the [`reticulate`](https://rstudio.github.io/reticulate/) package:
 
 ```
-# List of data sets:
+# List of data sets (matrices of cells-by-genes):
 datasets <- list( list of matrix )
 # List of gene lists:
 genes_list <- list( list of list of string )
@@ -60,7 +60,7 @@ library(reticulate)
 scanorama <- import('scanorama')
 
 # Integration.
-integrated.data <- scanorama$integrate(datasets, genes_list, return_dense=TRUE)
+integrated.data <- scanorama$integrate(datasets, genes_list)
 
 # Batch correction.
 corrected.data <- scanorama$correct(datasets, genes_list, return_dense=TRUE)
@@ -70,7 +70,7 @@ integrated.corrected.data <- scanorama$correct(datasets, genes_list,
                                                return_dimred=TRUE, return_dense=TRUE)
 ```
 
-Note that `reticulate` has trouble returning sparse matrices, so you should set the `return_dense` flag to `TRUE` (which returns the corrected data as R `matrix` objects) when attempting to use Scanorama in R. This will increase memory usage, however, especially for very large data sets.
+Note that `reticulate` has trouble returning sparse matrices, so you should set the `return_dense` flag to `TRUE` (which returns the corrected data as R `matrix` objects) when attempting to use Scanorama's `correct()` method in R. This will increase memory usage, however, especially for very large data sets.
 
 ## Installation
 
