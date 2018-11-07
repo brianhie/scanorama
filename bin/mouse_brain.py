@@ -6,7 +6,7 @@ import sys
 from time import time
 
 from benchmark import write_table
-from process import load_names
+from process import load_names, process
 
 np.random.seed(0)
 
@@ -27,6 +27,8 @@ data_names = [
 ]
 
 if __name__ == '__main__':
+    process(data_names, min_trans=100)
+    
     datasets, genes_list, n_cells = load_names(data_names)
 
     datasets, genes = merge_datasets(datasets, genes_list, ds_names=data_names)
