@@ -28,7 +28,7 @@ HVG = None
 KNN = 20
 N_ITER = 500
 PERPLEXITY = 1200
-SIGMA = 150
+SIGMA = 15
 VERBOSE = 2
 
 # Do batch correction on a list of data sets.
@@ -57,7 +57,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
         When `verbose=True`, reports data set names in logging output.
     approx: `bool`, optional (default: `True`)
         Use approximate nearest neighbors, greatly speeds up matching runtime.
-    sigma: `float`, optional (default: 150)
+    sigma: `float`, optional (default: 15)
         Correction smoothing parameter on Gaussian kernel.
     alpha: `float`, optional (default: 0.10)
         Alignment score minimum cutoff.
@@ -125,7 +125,7 @@ def integrate(datasets_full, genes_list, batch_size=None, verbose=VERBOSE,
         When `verbose=True`, reports data set names in logging output.
     approx: `bool`, optional (default: `True`)
         Use approximate nearest neighbors, greatly speeds up matching runtime.
-    sigma: `float`, optional (default: 150)
+    sigma: `float`, optional (default: 15)
         Correction smoothing parameter on Gaussian kernel.
     alpha: `float`, optional (default: 0.10)
         Alignment score minimum cutoff.
@@ -299,7 +299,8 @@ def check_datasets(datasets_full):
             datasets_new.append(ds)
         else:
             sys.stderr.write('ERROR: Data sets must be numpy array or '
-                             'scipy.sparse.csr_matrix.\n')
+                             'scipy.sparse.csr_matrix, received type '
+                             '{}.\n'.format(type(ds)))
             exit(1)
     return datasets_new
 

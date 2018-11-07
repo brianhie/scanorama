@@ -1,11 +1,12 @@
 *.egg-info
 *.log
+*.pdf
+*.png
 *.pyc
 *.svg
-*.png
+R/*.pdf
+R/*.txt
 build*
 data*
 dist*
 temp*
-R/*.txt
-R/*.pdf

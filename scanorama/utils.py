@@ -73,6 +73,8 @@ def visualize_expr(X, coords, genes, viz_gene, image_suffix='.svg',
         colors[idx] = i
         prev_percentile = percentile
 
+    colors = colors.flatten()
+
     if new_fig:
         plt.figure()
         plt.title(viz_gene)
