@@ -5,7 +5,7 @@ import numpy as np
 import operator
 import random
 import scipy
-from scipy.sparse import csr_matrix, vstack
+from scipy.sparse import csc_matrix, csr_matrix, vstack
 from sklearn.manifold import TSNE
 from sklearn.metrics.pairwise import rbf_kernel, euclidean_distances
 from sklearn.neighbors import NearestNeighbors
@@ -35,7 +35,7 @@ VERBOSE = 2
 def correct(datasets_full, genes_list, return_dimred=False,
             batch_size=None, verbose=VERBOSE, ds_names=None,
             approx=APPROX, sigma=SIGMA, alpha=ALPHA, knn=KNN,
-            return_dense=False, hvg=None):
+            return_dense=False, union=False, hvg=None):
     """Integrate and batch correct a list of data sets.
 
     Parameters
@@ -85,7 +85,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
     datasets_full = check_datasets(datasets_full)
     
     datasets, genes = merge_datasets(datasets_full, genes_list,
-                                     ds_names=ds_names)
+                                     ds_names=ds_names, union=union)
     datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
     
     datasets_dimred = assemble(
@@ -106,7 +106,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
 # Integrate a list of data sets.
 def integrate(datasets_full, genes_list, batch_size=None, verbose=VERBOSE,
               ds_names=None, approx=APPROX, sigma=SIGMA, alpha=ALPHA,
-              knn=KNN, hvg=None):
+              knn=KNN, union=False, hvg=None):
     """Integrate a list of data sets.
 
     Parameters
@@ -144,7 +144,7 @@ def integrate(datasets_full, genes_list, batch_size=None, verbose=VERBOSE,
     datasets_full = check_datasets(datasets_full)
 
     datasets, genes = merge_datasets(datasets_full, genes_list,
-                                     ds_names=ds_names)
+                                     ds_names=ds_names, union=union)
     datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
     
     datasets_dimred = assemble(
@@ -257,15 +257,18 @@ def plot_clusters(coords, clusters, s=1):
                 c=colors[clusters], s=s)
 
 # Put datasets into a single matrix with the intersection of all genes.
-def merge_datasets(datasets, genes, ds_names=None, verbose=True):
+def merge_datasets(datasets, genes, ds_names=None, verbose=True,
+                   union=False):
     # Find genes in common.
     keep_genes = set()
     for idx, gene_list in enumerate(genes):
         if len(keep_genes) == 0:
             keep_genes = set(gene_list)
+        elif union:
+            keep_genes |= set(gene_list)
         else:
             keep_genes &= set(gene_list)
-        if not ds_names is None and verbose:
+        if not union and not ds_names is None and verbose:
             print('After {}: {} genes'.format(ds_names[idx], len(keep_genes)))
         if len(keep_genes) == 0:
             print('Error: No genes found in all datasets, exiting...')
@@ -274,20 +277,34 @@ def merge_datasets(datasets, genes, ds_names=None, verbose=True):
         print('Found {} genes among all datasets'
               .format(len(keep_genes)))
 
-    # Only keep genes in common.
-    ret_genes = np.array(sorted(keep_genes))
-    for i in range(len(datasets)):
-        # Remove duplicate genes.
-        uniq_genes, uniq_idx = np.unique(genes[i], return_index=True)
-        datasets[i] = datasets[i][:, uniq_idx]
-
-        # Do gene filtering.
-        gene_sort_idx = np.argsort(uniq_genes)
-        gene_idx = [ idx for idx in gene_sort_idx
-                     if uniq_genes[idx] in keep_genes ]
-        datasets[i] = datasets[i][:, gene_idx]
-        assert(np.array_equal(uniq_genes[gene_idx], ret_genes))
-
+    if union:
+        union_genes = sorted(keep_genes)
+        for i in range(len(datasets)):
+            if verbose:
+                print('Processing data set {}'.format(i))
+            X_new = np.zeros((datasets[i].shape[0], len(union_genes)))
+            X_old = csc_matrix(datasets[i])
+            gene_to_idx = { gene: idx for idx, gene in enumerate(genes[i]) }
+            for j, gene in enumerate(union_genes):
+                if gene in gene_to_idx:
+                    X_new[:, j] = X_old[:, gene_to_idx[gene]].toarray().flatten()
+            datasets[i] = csr_matrix(X_new)
+        ret_genes = np.array(union_genes)
+    else:
+        # Only keep genes in common.
+        ret_genes = np.array(sorted(keep_genes))
+        for i in range(len(datasets)):
+            # Remove duplicate genes.
+            uniq_genes, uniq_idx = np.unique(genes[i], return_index=True)
+            datasets[i] = datasets[i][:, uniq_idx]
+    
+            # Do gene filtering.
+            gene_sort_idx = np.argsort(uniq_genes)
+            gene_idx = [ idx for idx in gene_sort_idx
+                         if uniq_genes[idx] in keep_genes ]
+            datasets[i] = datasets[i][:, gene_idx]
+            assert(np.array_equal(uniq_genes[gene_idx], ret_genes))
+                
     return datasets, ret_genes
 
 def check_datasets(datasets_full):

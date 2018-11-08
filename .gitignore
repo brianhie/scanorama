@@ -9,4 +9,5 @@ R/*.txt
 build*
 data*
 dist*
+target*
 temp*

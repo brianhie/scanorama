@@ -2,12 +2,21 @@ library(methods)
 library(scran)
 
 names = list(
-    "../../data/macrophage/monocytes_seqwell_table.txt",
-    "../../data/pbmc/10x/cd14_monocytes_table.txt",
-    "../../data/macrophage/mcsf_day3_1_table.txt",
-    "../../data/macrophage/mcsf_day3_2_table.txt",
-    "../../data/macrophage/mcsf_day6_1_table.txt",
-    "../../data/macrophage/mcsf_day6_2_table.txt"
+    "data/pbmc/10x/68k_pbmc_table.txt",
+    "data/pbmc/10x/b_cells_table.txt",
+    "data/pbmc/10x/cd14_monocytes_table.txt",
+    "data/pbmc/10x/cd4_t_helper_table.txt",
+    "data/pbmc/10x/cd56_nk_table.txt",
+    "data/pbmc/10x/cytotoxic_t_table.txt",
+    "data/pbmc/10x/memory_t_table.txt",
+    "data/pbmc/10x/regulatory_t_table.txt",
+    "data/pbmc/pbmc_kang_table.txt",
+    "data/pbmc/pbmc_10X_table.txt"
+    #"data/pancreas/pancreas_inDrop_table.txt",
+    #"data/pancreas/pancreas_multi_celseq2_expression_matrix_table.txt",
+    #"data/pancreas/pancreas_multi_celseq_expression_matrix_table.txt",
+    #"data/pancreas/pancreas_multi_fluidigmc1_expression_matrix_table.txt",
+    #"data/pancreas/pancreas_multi_smartseq2_expression_matrix_table.txt"
 )
 
 data.tables <- list()
@@ -27,11 +36,11 @@ Xmnn <- mnnCorrect(
     data.tables[[3]],
     data.tables[[4]],
     data.tables[[5]],
-    data.tables[[6]]
-    #data.tables[[7]],
-    #data.tables[[8]],
-    #data.tables[[9]],
-    #data.tables[[10]],
+    data.tables[[6]],
+    data.tables[[7]],
+    data.tables[[8]],
+    data.tables[[9]],
+    data.tables[[10]]
     #data.tables[[11]],
     #data.tables[[12]],
     #data.tables[[13]],
@@ -57,5 +66,5 @@ print(proc.time() - ptm)
 corrected.df <- do.call(cbind.data.frame, Xmnn$corrected)
 corrected.mat <- as.matrix(t(corrected.df))
 
-write.table(corrected.mat, file = "/scratch1/brianhie/data/macrophage/mono_macro_mnn_table.txt",
+write.table(corrected.mat, file = "/scratch1/brianhie/data/mnn_corrected_pancreas.txt",
             quote = FALSE, sep = "\t")
