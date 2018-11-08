@@ -21,20 +21,26 @@ def entropy_test(datasets_dimred, ds_labels):
     
     ds_labels = np.array(ds_labels)
     X_dimred = np.concatenate(datasets_dimred)
-
-    for k in range(3, 20):
+    embedding = None
+    
+    for k in range(10, 21):
         km = KMeans(n_clusters=k, n_jobs=-1, verbose=0)
         km.fit(X_dimred)
-        
-        visualize(datasets_dimred,
-                  km.labels_, NAMESPACE + '_km{}'.format(k),
-                  [ str(x) for x in range(k) ],
-                  embedding=embedding)
+
+        if False and k % 5 == 0:
+            embedding = visualize(
+                datasets_dimred,
+                km.labels_, NAMESPACE + '_km{}'.format(k),
+                [ str(x) for x in range(k) ],
+                embedding=embedding
+            )
         
         print('k = {}, average normalized entropy = {}'
               .format(k, avg_norm_entropy(ds_labels, km.labels_)))
 
 def avg_norm_entropy(ds_labels, cluster_labels):
+    assert(len(ds_labels) == len(cluster_labels))
+    
     clusters = sorted(set(cluster_labels))
     datasets = sorted(set(ds_labels))
 
@@ -46,9 +52,9 @@ def avg_norm_entropy(ds_labels, cluster_labels):
         n_cluster = float(sum(cluster_idx))
 
         H = 0
-        for ds in data_sets:
+        for ds in datasets:
             n_ds = float(sum(ds_rep == ds))
-            if n_ds == 0:
+            if n_ds == 0: # 0 log 0 = 0
                 continue
             H += (n_ds / n_cluster) * np.log(n_ds / n_cluster)
         H *= -1
@@ -74,9 +80,6 @@ if __name__ == '__main__':
         names.append(data_names[i])
         curr_label += 1
     labels = np.array(labels, dtype=int)
-
-    entropy_test(datasets_dimred, labels)
-    exit()
 
     pancreas_genes = [
         'HADH', 'G6PC2', 'PAPSS2', 'PCSK1', 'GC',
