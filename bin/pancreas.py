@@ -1,6 +1,7 @@
 import numpy as np
 from scanorama import *
 from scipy.sparse import vstack
+from scipy.stats import f_oneway
 from sklearn.preprocessing import normalize, LabelEncoder
 import sys
 
@@ -64,14 +65,18 @@ def avg_norm_entropy(ds_labels, cluster_labels):
         
     return np.mean(Hs)
         
+def log_oneway(X, genes, ds_labels):
+    for gene_idx, gene in enumerate(genes):
+        ds_names = sorted(set(ds_labels))
+        dist = []
+        for ds in ds_names:
+            dist.append(X[ds_labels == ds, gene_idx])
+        sys.stdout.write('{}\t'.format(gene))
+        print('{}\t{}'.format(*f_oneway(*dist)))
+        
 if __name__ == '__main__':
     datasets, genes_list, n_cells = load_names(data_names)
     
-    datasets_dimred, datasets, genes = correct(
-        datasets, genes_list, ds_names=data_names,
-        return_dimred=True
-    )
-
     labels = []
     names = []
     curr_label = 0
@@ -80,6 +85,23 @@ if __name__ == '__main__':
         names.append(data_names[i])
         curr_label += 1
     labels = np.array(labels, dtype=int)
+
+    #datasets, genes_list, n_cells = load_names(['data/mnn_corrected_pancreas'])
+    
+    datasets_dimred, datasets, genes = correct(
+        datasets, genes_list, ds_names=data_names,
+        return_dimred=True, sigma=150
+    )
+    
+    cell_labels = (
+        open('data/cell_labels/pancreas_cluster.txt')
+        .read().rstrip().split()
+    )
+    le = LabelEncoder().fit(cell_labels)
+    cell_labels = le.transform(cell_labels)
+    cell_types = le.classes_
+    
+    log_oneway(vstack(datasets).toarray(), genes, labels)
 
     pancreas_genes = [
         'HADH', 'G6PC2', 'PAPSS2', 'PCSK1', 'GC',
@@ -95,14 +117,7 @@ if __name__ == '__main__':
                           gene_names=pancreas_genes, genes=genes,
                           gene_expr=vstack(datasets),
                           perplexity=100, n_iter=400)
-    cell_labels = (
-        open('data/cell_labels/pancreas_cluster.txt')
-        .read().rstrip().split()
-    )
-    le = LabelEncoder().fit(cell_labels)
-    cell_labels = le.transform(cell_labels)
-    cell_types = le.classes_
-
+    
     visualize(datasets_dimred,
               cell_labels, NAMESPACE + '_type', cell_types,
               embedding=embedding)
@@ -112,6 +127,8 @@ if __name__ == '__main__':
     datasets, genes = merge_datasets(datasets, genes_list)
     datasets = [ normalize(ds, axis=1) for ds in datasets ]
     datasets_dimred = dimensionality_reduce(datasets)
+
+    log_oneway(vstack(datasets).toarray(), genes, labels)
     
     embedding = visualize(datasets_dimred, labels,
                           NAMESPACE + '_ds_uncorrected', names,

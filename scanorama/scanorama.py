@@ -35,7 +35,7 @@ VERBOSE = 2
 def correct(datasets_full, genes_list, return_dimred=False,
             batch_size=None, verbose=VERBOSE, ds_names=None,
             approx=APPROX, sigma=SIGMA, alpha=ALPHA, knn=KNN,
-            return_dense=False, union=False, hvg=None):
+            return_dense=False, hvg=None, union=False, realign=False):
     """Integrate and batch correct a list of data sets.
 
     Parameters
@@ -92,7 +92,8 @@ def correct(datasets_full, genes_list, return_dimred=False,
         datasets_dimred, # Assemble in low dimensional space.
         expr_datasets=datasets, # Modified in place.
         verbose=verbose, knn=knn, sigma=sigma, approx=approx,
-        alpha=alpha, ds_names=ds_names, batch_size=batch_size
+        alpha=alpha, ds_names=ds_names, batch_size=batch_size,
+        realign=realign
     )
 
     if return_dense:
