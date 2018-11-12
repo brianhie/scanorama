@@ -48,7 +48,7 @@ corrected = scanorama.correct_scanpy(adatas)
 integrated, corrected = scanorama.correct_scanpy(adatas, return_dimred=True)
 ```
 
-You can also call Scanorama from R using the [`reticulate`](https://rstudio.github.io/reticulate/) package:
+You can also call Scanorama from R using the [`reticulate`](https://rstudio.github.io/reticulate/) package (tested with R version 3.5.1 and reticulate version 1.10):
 
 ```
 # List of data sets (matrices of cells-by-genes):
