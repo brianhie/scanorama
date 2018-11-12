@@ -4,6 +4,7 @@
 *.png
 *.pyc
 *.svg
+*.txt
 R/*.pdf
 R/*.txt
 build*
