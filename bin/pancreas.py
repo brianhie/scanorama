@@ -4,6 +4,7 @@ from scipy.sparse import vstack
 from sklearn.preprocessing import normalize, LabelEncoder
 import sys
 
+from pancreas_tests import *
 from process import load_names
 
 NAMESPACE = 'pancreas'
@@ -19,11 +20,6 @@ data_names = [
 if __name__ == '__main__':
     datasets, genes_list, n_cells = load_names(data_names)
     
-    datasets_dimred, datasets, genes = correct(
-        datasets, genes_list, ds_names=data_names,
-        return_dimred=True
-    )
-
     labels = []
     names = []
     curr_label = 0
@@ -33,20 +29,13 @@ if __name__ == '__main__':
         curr_label += 1
     labels = np.array(labels, dtype=int)
 
-    pancreas_genes = [
-        'HADH', 'G6PC2', 'PAPSS2', 'PCSK1', 'NKX6.1', 'GC',
-        'TTR', 'GCG', 'GPX3', 'VGF', 'CST3', 'KRT7', 'LCN2', 'SDC4',
-        'ZFP36L1', 'KRT19', 'CDC42EP1', 'LAD1', 'FLNA', 'AHNAK',
-        'ANXA2', 'RBP4', 'SST', 'PECAM1', 'FLT1', 'PLVAP', 'ENG',
-        'S1PR1', 'EGFL7', 'ADGRL4', 'CD93', 'ESM1', 'KDR', 'PPY',
-        'BTG2', 'HERPUD1', 'GADD45A'
-    ]
-
-    embedding = visualize(datasets_dimred,
-                          labels, NAMESPACE + '_ds', names,
-                          gene_names=pancreas_genes, genes=genes,
-                          gene_expr=vstack(datasets),
-                          perplexity=100, n_iter=400)
+    #datasets, genes_list, n_cells = load_names(['data/mnn_corrected_pancreas'])
+    
+    datasets_dimred, datasets, genes = correct(
+        datasets, genes_list, ds_names=data_names,
+        return_dimred=True, sigma=150
+    )
+    
     cell_labels = (
         open('data/cell_labels/pancreas_cluster.txt')
         .read().rstrip().split()
@@ -54,7 +43,24 @@ if __name__ == '__main__':
     le = LabelEncoder().fit(cell_labels)
     cell_labels = le.transform(cell_labels)
     cell_types = le.classes_
+    
+    print_oneway(vstack(datasets).toarray(), genes, labels)
 
+    pancreas_genes = [
+        'HADH', 'G6PC2', 'PAPSS2', 'PCSK1', 'GC',
+        'TTR', 'GCG', 'GPX3', 'VGF', 'CST3', 'KRT7',
+        'ZFP36L1', 'KRT19',  'LAD1', 'FLNA', 'AHNAK',
+        'ANXA2', 'RBP4', 'SST', 'FLT1', 'PLVAP', 'ENG',
+        'S1PR1', 'EGFL7', 'CD93', 'ESM1', 'KDR', 'PPY',
+        'BTG2', 'HERPUD1', 'GADD45A', 'LCN2', 'SDC4',
+    ]
+
+    embedding = visualize(datasets_dimred,
+                          labels, NAMESPACE + '_ds', names,
+                          gene_names=pancreas_genes, genes=genes,
+                          gene_expr=vstack(datasets),
+                          perplexity=100, n_iter=400)
+    
     visualize(datasets_dimred,
               cell_labels, NAMESPACE + '_type', cell_types,
               embedding=embedding)
@@ -64,6 +70,8 @@ if __name__ == '__main__':
     datasets, genes = merge_datasets(datasets, genes_list)
     datasets = [ normalize(ds, axis=1) for ds in datasets ]
     datasets_dimred = dimensionality_reduce(datasets)
+
+    print_oneway(vstack(datasets).toarray(), genes, labels)
     
     embedding = visualize(datasets_dimred, labels,
                           NAMESPACE + '_ds_uncorrected', names,

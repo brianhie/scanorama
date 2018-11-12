@@ -4,9 +4,12 @@
 *.png
 *.pyc
 *.svg
+*.txt
 R/*.pdf
 R/*.txt
+bin/polarized.py
 build*
 data*
 dist*
+target*
 temp*
