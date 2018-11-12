@@ -260,6 +260,13 @@ def plot_clusters(coords, clusters, s=1):
 # Put datasets into a single matrix with the intersection of all genes.
 def merge_datasets(datasets, genes, ds_names=None, verbose=True,
                    union=False):
+    if union:
+        sys.stderr.write(
+            'WARNING: Integrating based on the union of genes is '
+            'highly discouraged, consider taking the intersection '
+            'or requantifying gene expression.\n'
+        )
+    
     # Find genes in common.
     keep_genes = set()
     for idx, gene_list in enumerate(genes):
