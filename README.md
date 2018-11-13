@@ -76,18 +76,15 @@ Note that `reticulate` has trouble returning sparse matrices, so you should set 
 
 ### Setup
 
-First, download the Scanorama repository with the command:
+You should be able to download Scanorama using `pip`:
+```
+pip install scanorama
+```
+
+If for some reason this doesn't work, you can also install from within the Scanorama repository:
 ```
 git clone https://github.com/brianhie/scanorama.git
-```
-
-Change into the repository directory:
-```
 cd scanorama/
-```
-
-And install Scanorama with the following command
-```
 python setup.py install --user
 ```
 
