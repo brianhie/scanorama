@@ -21,7 +21,7 @@ obj <- orderCells(obj)
 
 pdf('uncorrected.pdf')
 
-plot_cell_trajectory(obj, color_by = "Batch")
+plot_cell_trajectory(obj, color_by = "Batch", cell_size = 3)
 
 # Pseudo-time for corrected.
 
@@ -44,7 +44,7 @@ obj <- orderCells(obj)
 
 pdf('corrected.pdf')
 
-plot_cell_trajectory(obj, color_by = "Batch")
+plot_cell_trajectory(obj, color_by = "Batch", cell_size = 3)
 
 # Pseudo-time for scran MNN.
 
@@ -67,4 +67,4 @@ obj <- orderCells(obj)
 
 pdf('mnn_corrected.pdf')
 
-plot_cell_trajectory(obj, color_by = "Batch")
+plot_cell_trajectory(obj, color_by = "Batch", cell_size = 3)

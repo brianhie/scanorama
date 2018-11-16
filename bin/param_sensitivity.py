@@ -10,7 +10,7 @@ def test_dimred(datasets, genes, labels, idx, distr, xlabels):
     for dimred in dimreds:
         datasets_dimred, genes = process_data(datasets, genes,
                                               dimred=dimred)
-        datasets_dimred = assemble(datasets_dimred)
+        datasets_dimred = assemble(datasets_dimred, sigma=150)
         X = np.concatenate(datasets_dimred)
         distr.append(sil(X[idx, :], labels[idx]))
         xlabels.append(str(dimred))
@@ -26,7 +26,7 @@ def test_dimred(datasets, genes, labels, idx, distr, xlabels):
 def test_knn(datasets_dimred, genes, labels, idx, distr, xlabels):
     knns = [ 5, 10, 50, 100 ]
     for knn in knns:
-        integrated = assemble(datasets_dimred, knn=knn)
+        integrated = assemble(datasets_dimred[:], knn=knn, sigma=150)
         X = np.concatenate(integrated)
         distr.append(sil(X[idx, :], labels[idx]))
         xlabels.append(str(knn))
@@ -41,7 +41,7 @@ def test_knn(datasets_dimred, genes, labels, idx, distr, xlabels):
 def test_sigma(datasets_dimred, genes, labels, idx, distr, xlabels):
     sigmas = [ 10, 50, 100, 200 ]
     for sigma in sigmas:
-        integrated = assemble(datasets_dimred, sigma=sigma)
+        integrated = assemble(datasets_dimred[:], sigma=sigma)
         X = np.concatenate(integrated)
         distr.append(sil(X[idx, :], labels[idx]))
         xlabels.append(str(sigma))
@@ -54,9 +54,9 @@ def test_sigma(datasets_dimred, genes, labels, idx, distr, xlabels):
     plt.savefig('param_sensitivity_{}.svg'.format('sigma'))
 
 def test_alpha(datasets_dimred, genes, labels, idx, distr, xlabels):
-    alphas = [ 0, 0.05, 0.20, 0.30 ]
+    alphas = [ 0, 0.05, 0.20, 0.50 ]
     for alpha in alphas:
-        integrated = assemble(datasets_dimred, alpha=alpha)
+        integrated = assemble(datasets_dimred[:], alpha=alpha, sigma=150)
         X = np.concatenate(integrated)
         distr.append(sil(X[idx, :], labels[idx]))
         xlabels.append(str(alpha))
@@ -69,7 +69,7 @@ def test_alpha(datasets_dimred, genes, labels, idx, distr, xlabels):
     plt.savefig('param_sensitivity_{}.svg'.format('alpha'))
 
 def test_approx(datasets_dimred, genes, labels, idx, distr, xlabels):
-    integrated = assemble(datasets_dimred, approx=False)
+    integrated = assemble(datasets_dimred[:], approx=False)
     X = np.concatenate(integrated)
     distr.append(sil(X[idx, :], labels[idx]))
     xlabels.append('Exact NN')
@@ -144,38 +144,35 @@ if __name__ == '__main__':
     labels = np.array(
         open('data/cell_labels/all.txt').read().rstrip().split()
     )
-    idx = np.random.choice(labels.shape[0], replace=False)
+    idx = range(labels.shape[0])
     
-    # scran MNN baseline.
-    X = np.loadtxt('data/corrected_mnn.txt')
-    sil_mnn = sil(X[idx, :], labels[idx])
-    print(np.median(sil_mnn))
-
-    # Seurat CCA baseline.
-    X = np.loadtxt('data/corrected_seurat.txt')
-    sil_cca = sil(X[idx, :], labels[idx])
-    print(np.median(sil_cca))
-
     datasets, genes_list, n_cells = load_names(data_names)
     datasets, genes = merge_datasets(datasets, genes_list)
     datasets_dimred, genes = process_data(datasets, genes)
 
-    # Baseline without correction.
     X = np.concatenate(datasets_dimred)
     sil_non = sil(X[idx, :], labels[idx])
     print(np.median(sil_non))
     
+    X = np.loadtxt('data/corrected_mnn.txt')
+    sil_mnn = sil(X[idx, :], labels[idx])
+    print(np.median(sil_mnn))
+
+    X = np.loadtxt('data/corrected_seurat.txt')
+    sil_cca = sil(X[idx, :], labels[idx])
+    print(np.median(sil_cca))
+
     distr = [  sil_non, sil_mnn, sil_cca ]
     xlabels = [ 'No correction', 'scran MNN', 'Seurat CCA' ]
-    
+
     # Test processing parameters.
     test_dimred(datasets[:], genes, labels, idx, distr[:], xlabels[:])
 
     # Test alignment parameters.
+    test_approx(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
+    test_alpha(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
     test_knn(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
     test_sigma(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
-    test_alpha(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
-    test_approx(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])
 
     datasets_dimred = assemble(datasets_dimred)
     
