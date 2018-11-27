@@ -15,7 +15,7 @@ import warnings
 
 from .t_sne_approx import TSNEApprox
 from .utils import plt, dispersion, reduce_dimensionality
-from .utils import visualize_cluster, visualize_expr
+from .utils import visualize_cluster, visualize_expr, visualize_dropout
 
 np.random.seed(0)
 random.seed(0)
@@ -33,7 +33,7 @@ VERBOSE = 2
 
 # Do batch correction on a list of data sets.
 def correct(datasets_full, genes_list, return_dimred=False,
-            batch_size=None, verbose=VERBOSE, ds_names=None,
+            batch_size=None, verbose=VERBOSE, ds_names=None, dimred=DIMRED,
             approx=APPROX, sigma=SIGMA, alpha=ALPHA, knn=KNN,
             return_dense=False, hvg=None, union=False, realign=False):
     """Integrate and batch correct a list of data sets.
@@ -55,6 +55,8 @@ def correct(datasets_full, genes_list, return_dimred=False,
         When `True` or not equal to 0, prints logging output.
     ds_names: `list` of `string`, optional
         When `verbose=True`, reports data set names in logging output.
+    dimred: `int`, optional (default: 100)
+        Dimensionality of integrated embedding.
     approx: `bool`, optional (default: `True`)
         Use approximate nearest neighbors, greatly speeds up matching runtime.
     sigma: `float`, optional (default: 15)
@@ -86,7 +88,8 @@ def correct(datasets_full, genes_list, return_dimred=False,
     
     datasets, genes = merge_datasets(datasets_full, genes_list,
                                      ds_names=ds_names, union=union)
-    datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
+    datasets_dimred, genes = process_data(datasets, genes, hvg=hvg,
+                                          dimred=dimred)
     
     datasets_dimred = assemble(
         datasets_dimred, # Assemble in low dimensional space.
@@ -106,8 +109,9 @@ def correct(datasets_full, genes_list, return_dimred=False,
 
 # Integrate a list of data sets.
 def integrate(datasets_full, genes_list, batch_size=None, verbose=VERBOSE,
-              ds_names=None, approx=APPROX, sigma=SIGMA, alpha=ALPHA,
-              knn=KNN, union=False, hvg=None):
+              ds_names=None, dimred=DIMRED, approx=APPROX, sigma=SIGMA,
+              alpha=ALPHA, knn=KNN, geosketch=False, geosketch_max=20000,
+              n_iter=1, union=False, hvg=None):
     """Integrate a list of data sets.
 
     Parameters
@@ -124,6 +128,8 @@ def integrate(datasets_full, genes_list, batch_size=None, verbose=VERBOSE,
         When `True` or not equal to 0, prints logging output.
     ds_names: `list` of `string`, optional
         When `verbose=True`, reports data set names in logging output.
+    dimred: `int`, optional (default: 100)
+        Dimensionality of integrated embedding.
     approx: `bool`, optional (default: `True`)
         Use approximate nearest neighbors, greatly speeds up matching runtime.
     sigma: `float`, optional (default: 15)
@@ -146,13 +152,16 @@ def integrate(datasets_full, genes_list, batch_size=None, verbose=VERBOSE,
 
     datasets, genes = merge_datasets(datasets_full, genes_list,
                                      ds_names=ds_names, union=union)
-    datasets_dimred, genes = process_data(datasets, genes, hvg=hvg)
-    
-    datasets_dimred = assemble(
-        datasets_dimred, # Assemble in low dimensional space.
-        verbose=verbose, knn=knn, sigma=sigma, approx=approx,
-        alpha=alpha, ds_names=ds_names, batch_size=batch_size
-    )
+    datasets_dimred, genes = process_data(datasets, genes, hvg=hvg,
+                                          dimred=dimred)
+
+    for _ in range(n_iter):
+        datasets_dimred = assemble(
+            datasets_dimred, # Assemble in low dimensional space.
+            verbose=verbose, knn=knn, sigma=sigma, approx=approx,
+            alpha=alpha, ds_names=ds_names, batch_size=batch_size,
+            geosketch=geosketch, geosketch_max=geosketch_max,
+        )
 
     return datasets_dimred, genes
 
@@ -252,7 +261,7 @@ def plot_clusters(coords, clusters, s=1):
             '#808080', '#fabebe', '#a3f4ff'
         ]), int(max(clusters) + 1)))
     )
-        
+
     plt.figure()
     plt.scatter(coords[:, 0], coords[:, 1],
                 c=colors[clusters], s=s)
@@ -558,11 +567,24 @@ def fill_table(table, i, curr_ds, datasets, base_ds=0,
         table[(i, j)].add((d, r - base))
         assert(r - base >= 0)
 
+gs_idxs = None
+        
 # Fill table of alignment scores.
-def find_alignments_table(datasets, knn=KNN, approx=APPROX,
-                          verbose=VERBOSE, prenormalized=False):
+def find_alignments_table(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
+                          prenormalized=False, geosketch=False,
+                          geosketch_max=20000):
     if not prenormalized:
         datasets = [ normalize(ds, axis=1) for ds in datasets ]
+
+    if geosketch:
+        # Only match cells in geometric sketches.
+        from ample import gs
+        global gs_idxs
+        if gs_idxs is None:
+            gs_idxs = [ gs(X, geosketch_max, replace=False)
+                        if X.shape[0] > geosketch_max else range(X.shape[0])
+                        for X in datasets ]
+        datasets = [ datasets[i][gs_idx, :] for i, gs_idx in enumerate(gs_idxs) ]
     
     table = {}
     for i in range(len(datasets)):
@@ -576,7 +598,8 @@ def find_alignments_table(datasets, knn=KNN, approx=APPROX,
     # Count all mutual nearest neighbors between datasets.
     matches = {}
     table1 = {}
-    table_print = np.zeros((len(datasets), len(datasets)))
+    if verbose > 1:
+        table_print = np.zeros((len(datasets), len(datasets)))
     for i in range(len(datasets)):
         for j in range(len(datasets)):
             if i >= j:
@@ -586,24 +609,37 @@ def find_alignments_table(datasets, knn=KNN, approx=APPROX,
             match_ij = table[(i, j)]
             match_ji = set([ (b, a) for a, b in table[(j, i)] ])
             matches[(i, j)] = match_ij & match_ji
+            
             table1[(i, j)] = (max(
                 float(len(set([ idx for idx, _ in matches[(i, j)] ]))) /
                 datasets[i].shape[0],
                 float(len(set([ idx for _, idx in matches[(i, j)] ]))) /
                 datasets[j].shape[0]
             ))
-            table_print[i, j] += table1[(i, j)]
+            if verbose > 1:
+                table_print[i, j] += table1[(i, j)]
+
+            if geosketch:
+                # Translate matches within geometric sketches to original indices.
+                matches_mnn = matches[(i, j)]
+                matches[(i, j)] = [
+                    (gs_idxs[i][a], gs_idxs[j][b]) for a, b in matches_mnn
+                ]
+            
     if verbose > 1:
         print(table_print)
-
-    return table1, table_print, matches
+        return table1, table_print, matches
+    else:
+        return table1, None, matches
     
 # Find the matching pairs of cells between datasets.
 def find_alignments(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
-                    alpha=ALPHA, prenormalized=False):
+                    alpha=ALPHA, prenormalized=False, geosketch=False,
+                    geosketch_max=20000):
     table1, _, matches = find_alignments_table(
         datasets, knn=knn, approx=approx, verbose=verbose,
-        prenormalized=prenormalized
+        prenormalized=prenormalized, geosketch=geosketch,
+        geosketch_max=geosketch_max
     )
 
     alignments = [ (i, j) for (i, j), val in reversed(
@@ -722,12 +758,15 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=False,
 # values.
 def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
              sigma=SIGMA, approx=APPROX, alpha=ALPHA, expr_datasets=None,
-             ds_names=None, batch_size=None, realign=False):
+             ds_names=None, batch_size=None, realign=False, geosketch=False,
+             geosketch_max=20000):
     if len(datasets) == 1:
         return datasets
     
-    alignments, matches = find_alignments(datasets, knn=knn, approx=approx,
-                                          alpha=alpha, verbose=verbose)
+    alignments, matches = find_alignments(
+        datasets, knn=knn, approx=approx, alpha=alpha, verbose=verbose,
+        geosketch=geosketch, geosketch_max=geosketch_max
+    )
     
     ds_assembled = {}
     panoramas = []

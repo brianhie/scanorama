@@ -81,3 +81,32 @@ def visualize_expr(X, coords, genes, viz_gene, image_suffix='.svg',
     plt.scatter(coords[:, 0], coords[:, 1],
                 c=colors, cmap=cm.get_cmap('Reds'), s=size)
     plt.savefig(image_fname, dpi=500)
+
+def visualize_dropout(X, coords, image_suffix='.svg',
+                      new_fig=True, size=1, viz_prefix='dropout'):
+    image_fname = '{}{}'.format(
+        viz_prefix, image_suffix
+    )
+
+    # Color based on percentiles.
+    x_gene = np.array(np.sum(X != 0, axis=1))
+    colors = np.zeros(x_gene.shape)
+    n_tiles = 100
+    prev_percentile = min(x_gene)
+    for i in range(n_tiles):
+        q = (i+1) / float(n_tiles) * 100.
+        percentile = np.percentile(x_gene, q)
+        idx = np.logical_and(prev_percentile <= x_gene,
+                             x_gene <= percentile)
+        colors[idx] = i
+        prev_percentile = percentile
+
+    colors = colors.flatten()
+
+    if new_fig:
+        plt.figure()
+        plt.title(viz_prefix)
+    plt.scatter(coords[:, 0], coords[:, 1],
+                c=colors, cmap=cm.get_cmap('Reds'), s=size)
+    plt.savefig(image_fname, dpi=500)
+    
