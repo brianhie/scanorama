@@ -23,19 +23,21 @@ random.seed(0)
 # Default parameters.
 ALPHA = 0.10
 APPROX = True
+BATCH_SIZE = 5000
 DIMRED = 100
 HVG = None
 KNN = 20
 N_ITER = 500
 PERPLEXITY = 1200
+REALIGN = True
 SIGMA = 15
 VERBOSE = 2
 
 # Do batch correction on a list of data sets.
 def correct(datasets_full, genes_list, return_dimred=False,
-            batch_size=None, verbose=VERBOSE, ds_names=None, dimred=DIMRED,
-            approx=APPROX, sigma=SIGMA, alpha=ALPHA, knn=KNN,
-            return_dense=False, hvg=None, union=False, realign=False):
+            batch_size=BATCH_SIZE, verbose=VERBOSE, ds_names=None,
+            dimred=DIMRED, approx=APPROX, sigma=SIGMA, alpha=ALPHA, knn=KNN,
+            return_dense=False, hvg=None, union=False, realign=REALIGN):
     """Integrate and batch correct a list of data sets.
 
     Parameters
@@ -47,7 +49,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
     return_dimred: `bool`, optional (default: `False`)
         In addition to returning batch corrected matrices, also returns
         integrated low-dimesional embeddings.
-    batch_size: `int`, optional (default: `None`)
+    batch_size: `int`, optional (default: `5000`)
         The batch size used in the alignment vector computation. Useful when
         correcting very large (>100k samples) data sets. Set to large value
         that runs within available memory.
@@ -108,10 +110,10 @@ def correct(datasets_full, genes_list, return_dimred=False,
     return datasets, genes
 
 # Integrate a list of data sets.
-def integrate(datasets_full, genes_list, batch_size=None, verbose=VERBOSE,
-              ds_names=None, dimred=DIMRED, approx=APPROX, sigma=SIGMA,
-              alpha=ALPHA, knn=KNN, geosketch=False, geosketch_max=20000,
-              n_iter=1, union=False, hvg=None):
+def integrate(datasets_full, genes_list, batch_size=BATCH_SIZE,
+              verbose=VERBOSE, ds_names=None, dimred=DIMRED, approx=APPROX,
+              sigma=SIGMA, alpha=ALPHA, knn=KNN, geosketch=False,
+              geosketch_max=20000, n_iter=1, union=False, hvg=None):
     """Integrate a list of data sets.
 
     Parameters
@@ -120,7 +122,7 @@ def integrate(datasets_full, genes_list, batch_size=None, verbose=VERBOSE,
         Data sets to integrate and correct.
     genes_list: `list` of `list` of `string`
         List of genes for each data set.
-    batch_size: `int`, optional (default: `None`)
+    batch_size: `int`, optional (default: `5000`)
         The batch size used in the alignment vector computation. Useful when
         correcting very large (>100k samples) data sets. Set to large value
         that runs within available memory.
@@ -758,7 +760,7 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=False,
 # values.
 def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
              sigma=SIGMA, approx=APPROX, alpha=ALPHA, expr_datasets=None,
-             ds_names=None, batch_size=None, realign=False, geosketch=False,
+             ds_names=None, batch_size=None, realign=REALIGN, geosketch=False,
              geosketch_max=20000):
     if len(datasets) == 1:
         return datasets
