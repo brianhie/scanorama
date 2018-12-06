@@ -141,7 +141,7 @@ By default, this script will output a verbose log as it finds alignments and app
 
 #### Runtime performance and memory requirements
 
-Scanorama runs on multiple cores to speed up its computation; [here are some instructions](https://roman-kh.github.io/numpy-multicore/) to check if Python is making use of the benefits from multicore processing. Aligning and batch-correcting 105,476 cells across 26 data sets should complete in around 9 minutes with the process running on 10 cores. The memory usage should be under 10 GB.
+Scanorama runs on multiple cores to speed up its computation; [here are some instructions](https://roman-kh.github.io/numpy-multicore/) to check if Python is making use of the benefits from multicore processing. Aligning and batch-correcting 105,476 cells across 26 data sets should complete in around 12 minutes with the process running on 10 cores. The memory usage should be under 16 GB.
 
 Note that the gradient descent portion of the t-SNE visualization step can take a very long time (a few hours) and require a lot of memory (around 13 GB) on more than 100k cells. Other methods for accelerating t-SNE could be used in place of the t-SNE implementation used in this pipeline, such as a faster C++ implementation of [t-SNE](https://github.com/lvdmaaten/bhtsne), [Multicore-TSNE](https://github.com/DmitryUlyanov/Multicore-TSNE), or [net-SNE](https://github.com/hhcho/netsne), a version of t-SNE that uses a neural network to reduce the time required for the gradient descent optimization procedure.
 

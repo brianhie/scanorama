@@ -38,13 +38,15 @@ if __name__ == '__main__':
     t0 = time()
     datasets_dimred = assemble(
         datasets_dimred, batch_size=BATCH_SIZE,
+        geosketch=True, geosketch_max=6900
     )
     print('Integrated panoramas in {:.3f}s'.format(time() - t0))
     
     t0 = time()
     datasets_dimred, datasets, genes = correct(
         datasets, genes_list, ds_names=data_names,
-        return_dimred=True, batch_size=BATCH_SIZE
+        return_dimred=True, batch_size=BATCH_SIZE,
+        geosketch=True, geosketch_max=6900
     )
     print('Integrated and batch corrected panoramas in {:.3f}s'
           .format(time() - t0))

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='scanorama',
-    version='0.6.1',
+    version='0.6.2',
     description='Panoramic stitching of heterogeneous single cell transcriptomic data',
     url='https://github.com/brianhie/scanorama',
     download_url='https://github.com/brianhie/scanorama/archive/v0.6.1.tar.gz',
