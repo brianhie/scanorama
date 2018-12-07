@@ -2,10 +2,10 @@ from setuptools import setup, find_packages
 
 setup(
     name='scanorama',
-    version='0.6.2',
+    version='0.7',
     description='Panoramic stitching of heterogeneous single cell transcriptomic data',
     url='https://github.com/brianhie/scanorama',
-    download_url='https://github.com/brianhie/scanorama/archive/v0.6.2.tar.gz',
+    download_url='https://github.com/brianhie/scanorama/archive/v0.7.tar.gz',
     packages=find_packages(exclude=['bin', 'conf', 'data', 'target']),
     install_requires=[
         'annoy>=1.11.5',

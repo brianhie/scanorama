@@ -9,7 +9,7 @@ from scipy.sparse import csc_matrix, csr_matrix, vstack
 from sklearn.manifold import TSNE
 from sklearn.metrics.pairwise import rbf_kernel, euclidean_distances
 from sklearn.neighbors import NearestNeighbors
-from sklearn.preprocessing import normalize
+from sklearn.preprocessing import normalize, _handle_zeros_in_scale
 import sys
 import warnings
 
@@ -31,7 +31,7 @@ KNN = 20
 N_ITER = 500
 PERPLEXITY = 1200
 REALIGN = True
-SIGMA = 15
+SIGMA = 50
 VERBOSE = 2
 
 # Do batch correction on a list of data sets.
@@ -717,7 +717,8 @@ def batch_bias(curr_ds, match_ds, bias, batch_size=None, sigma=SIGMA):
         avg_bias += np.dot(weights, bias[batch_idx, :])
         denom += np.sum(weights, axis=1)
         base += batch_size
-
+        
+    denom = _handle_zeros_in_scale(denom, copy=False)
     avg_bias /= denom[:, np.newaxis]
 
     return avg_bias
