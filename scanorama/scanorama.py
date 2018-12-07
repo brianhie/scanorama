@@ -9,7 +9,7 @@ from scipy.sparse import csc_matrix, csr_matrix, vstack
 from sklearn.manifold import TSNE
 from sklearn.metrics.pairwise import rbf_kernel, euclidean_distances
 from sklearn.neighbors import NearestNeighbors
-from sklearn.preprocessing import normalize, _handle_zeros_in_scale
+from sklearn.preprocessing import normalize
 import sys
 import warnings
 
@@ -17,6 +17,7 @@ from .t_sne_approx import TSNEApprox
 from .integration import harmony_integrate
 from .utils import plt, dispersion, reduce_dimensionality
 from .utils import visualize_cluster, visualize_expr, visualize_dropout
+from .utils import handle_zeros_in_scale
 
 np.random.seed(0)
 random.seed(0)
@@ -718,7 +719,7 @@ def batch_bias(curr_ds, match_ds, bias, batch_size=None, sigma=SIGMA):
         denom += np.sum(weights, axis=1)
         base += batch_size
         
-    denom = _handle_zeros_in_scale(denom, copy=False)
+    denom = handle_zeros_in_scale(denom, copy=False)
     avg_bias /= denom[:, np.newaxis]
 
     return avg_bias
