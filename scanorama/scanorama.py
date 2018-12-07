@@ -31,7 +31,7 @@ KNN = 20
 N_ITER = 500
 PERPLEXITY = 1200
 REALIGN = True
-SIGMA = 150
+SIGMA = 15
 VERBOSE = 2
 
 # Do batch correction on a list of data sets.
@@ -701,9 +701,8 @@ def connect(datasets, knn=KNN, approx=APPROX, alpha=ALPHA,
 def batch_bias(curr_ds, match_ds, bias, batch_size=None, sigma=SIGMA):
     if batch_size is None:
         weights = rbf_kernel(curr_ds, match_ds, gamma=0.5*sigma)
-        avg_bias = np.dot(weights, bias) / \
-                   np.tile(np.sum(weights, axis=1),
-                           (curr_ds.shape[1], 1)).T
+        weights = normalize(weights, axis=1, norm='l1')
+        avg_bias = np.dot(weights, bias)
         return avg_bias
     
     base = 0
@@ -719,13 +718,13 @@ def batch_bias(curr_ds, match_ds, bias, batch_size=None, sigma=SIGMA):
         denom += np.sum(weights, axis=1)
         base += batch_size
 
-    avg_bias /= np.tile(denom, (curr_ds.shape[1], 1)).T
+    avg_bias /= denom[:, np.newaxis]
 
     return avg_bias
 
 # Compute nonlinear translation vectors between dataset
 # and a reference.
-def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=False,
+def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma=SIGMA, cn=False,
               batch_size=None):
     # Compute the matching.
     match_ds = curr_ds[ds_ind, :]
@@ -742,7 +741,7 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma, cn=False,
             avg_bias = batch_bias(curr_ds, match_ds, bias, sigma=sigma,
                                   batch_size=batch_size)
         except RuntimeWarning:
-            sys.stderr.write('WARNING: Oversmoothing detected, will not batch '
+            sys.stderr.write('WARNING: Oversmoothing detected, refusing to batch '
                              'correct, consider lowering sigma value.\n')
             return csr_matrix(curr_ds.shape, dtype=float)
         except MemoryError:
@@ -826,7 +825,7 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
             ds_ind = [ a for a, _ in match ]
             ref_ind = [ b for _, b in match ]
                     
-            bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma,
+            bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma=sigma,
                              batch_size=batch_size)
             datasets[i] = curr_ds + bias
             
@@ -834,8 +833,8 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
                 curr_ds = expr_datasets[i]
                 curr_ref = vstack([ expr_datasets[p]
                                     for p in panoramas_j[0] ])
-                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma,
-                                 cn=True, batch_size=batch_size)
+                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind,
+                                 sigma=sigma, cn=True, batch_size=batch_size)
                 expr_datasets[i] = curr_ds + bias
             
             panoramas_j[0].append(i)
@@ -857,7 +856,7 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
             ds_ind = [ a for a, _ in match ]
             ref_ind = [ b for _, b in match ]
             
-            bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma,
+            bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma=sigma,
                              batch_size=batch_size)
             datasets[j] = curr_ds + bias
             
@@ -865,7 +864,7 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
                 curr_ds = expr_datasets[j]
                 curr_ref = vstack([ expr_datasets[p]
                                     for p in panoramas_i[0] ])
-                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma,
+                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma=sigma,
                                  cn=True, batch_size=batch_size)
                 expr_datasets[j] = curr_ds + bias
                 
@@ -911,7 +910,7 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
             ref_ind = [ b for _, b in match ]
             
             # Apply transformation to entire panorama.
-            bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma,
+            bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma=sigma,
                              batch_size=batch_size)
             curr_ds += bias
             base = 0
@@ -927,8 +926,8 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
                                    for p in panoramas_i[0] ])
                 curr_ref = vstack([ expr_datasets[p]
                                     for p in panoramas_j[0] ])
-                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma,
-                                 cn=True, batch_size=batch_size)
+                bias = transform(curr_ds, curr_ref, ds_ind, ref_ind,
+                                 sigma=sigma, cn=True, batch_size=batch_size)
                 curr_ds += bias
                 base = 0
                 for p in panoramas_i[0]:
@@ -967,7 +966,7 @@ def assemble_accum(datasets, verbose=VERBOSE, knn=KNN, sigma=SIGMA,
         ds_ind = [ a for a, _ in match ]
         ref_ind = [ b for _, b in match ]
                     
-        bias = transform(ds1, ds2, ds_ind, ref_ind, sigma,
+        bias = transform(ds1, ds2, ds_ind, ref_ind, sigma=sigma,
                          batch_size=batch_size)
         datasets[j] = ds1 + bias
 
