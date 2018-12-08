@@ -11,7 +11,7 @@ fd <- new("AnnotatedDataFrame", data = gene.annotation)
 obj <- newCellDataSet(expr.matrix, phenoData = pd, featureData = fd,
                       expressionFamily=tobit())
 
-orderingGenes <- scan("data/macrophage/mono_macro_diffexpr.txt",
+orderingGenes <- scan("data/macrophage/mono_macro_diffexpr_uncorrected.txt",
                       what = typeof(""), sep = "\n")
 obj <- setOrderingFilter(obj, orderingGenes)
 
@@ -34,7 +34,7 @@ fd <- new("AnnotatedDataFrame", data = gene.annotation)
 obj <- newCellDataSet(expr.matrix, phenoData = pd, featureData = fd,
                       expressionFamily=tobit())
 
-orderingGenes <- scan("data/macrophage/mono_macro_diffexpr.txt",
+orderingGenes <- scan("data/macrophage/mono_macro_diffexpr_scanorama.txt",
                       what = typeof(""), sep = "\n")
 obj <- setOrderingFilter(obj, orderingGenes)
 
@@ -57,7 +57,7 @@ fd <- new("AnnotatedDataFrame", data = gene.annotation)
 obj <- newCellDataSet(expr.matrix, phenoData = pd, featureData = fd,
                       expressionFamily=tobit())
 
-orderingGenes <- scan("data/macrophage/mono_macro_diffexpr.txt",
+orderingGenes <- scan("data/macrophage/mono_macro_diffexpr_mnn.txt",
                       what = typeof(""), sep = "\n")
 obj <- setOrderingFilter(obj, orderingGenes)
 

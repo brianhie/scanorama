@@ -32,7 +32,7 @@ KNN = 20
 N_ITER = 500
 PERPLEXITY = 1200
 REALIGN = True
-SIGMA = 50
+SIGMA = 15
 VERBOSE = 2
 
 # Do batch correction on a list of data sets.
