@@ -1,7 +1,7 @@
 import numpy as np
 from scanorama import *
 from scipy.stats import ttest_ind
-from unsupervised import silhouette_samples as sil
+from sklearn.metrics import silhouette_samples as sil
 
 from process import load_names, process
 
@@ -13,7 +13,9 @@ def test_dimred(datasets, genes, labels, idx, distr, xlabels):
         datasets_dimred = assemble(datasets_dimred, sigma=150)
         X = np.concatenate(datasets_dimred)
         distr.append(sil(X[idx, :], labels[idx]))
+        print(ttest_ind(X[idx, :], labels[idx]))
         xlabels.append(str(dimred))
+    print('')
     xlabels[-1] = 'No SVD'
     
     plt.figure()
@@ -29,7 +31,9 @@ def test_knn(datasets_dimred, genes, labels, idx, distr, xlabels):
         integrated = assemble(datasets_dimred[:], knn=knn, sigma=150)
         X = np.concatenate(integrated)
         distr.append(sil(X[idx, :], labels[idx]))
+        print(ttest_ind(X[idx, :], labels[idx]))
         xlabels.append(str(knn))
+    print('')
     
     plt.figure()
     plt.boxplot(distr, showmeans=True, whis='range')
@@ -44,7 +48,9 @@ def test_sigma(datasets_dimred, genes, labels, idx, distr, xlabels):
         integrated = assemble(datasets_dimred[:], sigma=sigma)
         X = np.concatenate(integrated)
         distr.append(sil(X[idx, :], labels[idx]))
+        print(ttest_ind(X[idx, :], labels[idx]))
         xlabels.append(str(sigma))
+    print('')
     
     plt.figure()
     plt.boxplot(distr, showmeans=True, whis='range')
@@ -59,7 +65,9 @@ def test_alpha(datasets_dimred, genes, labels, idx, distr, xlabels):
         integrated = assemble(datasets_dimred[:], alpha=alpha, sigma=150)
         X = np.concatenate(integrated)
         distr.append(sil(X[idx, :], labels[idx]))
+        print(ttest_ind(X[idx, :], labels[idx]))
         xlabels.append(str(alpha))
+    print('')
     
     plt.figure()
     plt.boxplot(distr, showmeans=True, whis='range')
@@ -69,10 +77,12 @@ def test_alpha(datasets_dimred, genes, labels, idx, distr, xlabels):
     plt.savefig('param_sensitivity_{}.svg'.format('alpha'))
 
 def test_approx(datasets_dimred, genes, labels, idx, distr, xlabels):
-    integrated = assemble(datasets_dimred[:], approx=False)
+    integrated = assemble(datasets_dimred[:], approx=False, sigma=150)
     X = np.concatenate(integrated)
     distr.append(sil(X[idx, :], labels[idx]))
+    print(ttest_ind(X[idx, :], labels[idx]))
     xlabels.append('Exact NN')
+    print('')
     
     plt.figure()
     plt.boxplot(distr, showmeans=True, whis='range')
@@ -111,7 +121,9 @@ def test_perplexity(datasets_dimred, genes, labels, idx,
     for perplexity in perplexities:
         embedding = fit_tsne(X, perplexity=perplexity)
         distr.append(sil(embedding[idx, :], labels[idx]))
+        print(ttest_ind(X[idx, :], labels[idx]))
         xlabels.append(str(perplexity))
+    print('')
     
     plt.figure()
     plt.boxplot(distr, showmeans=True, whis='range')
@@ -128,7 +140,9 @@ def test_learn_rate(datasets_dimred, genes, labels, idx,
     for learn_rate in learn_rates:
         embedding = fit_tsne(X, learn_rate=learn_rate)
         distr.append(sil(embedding[idx, :], labels[idx]))
+        print(ttest_ind(X[idx, :], labels[idx]))
         xlabels.append(str(learn_rate))
+    print('')
     
     plt.figure()
     plt.boxplot(distr, showmeans=True, whis='range')

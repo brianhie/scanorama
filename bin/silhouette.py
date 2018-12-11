@@ -1,7 +1,7 @@
 import numpy as np
 from scanorama import *
 from scipy.stats import ttest_ind
-from unsupervised import silhouette_samples as sil
+from sklearn.metrics import silhouette_samples as sil
 
 from process import load_names
 
@@ -12,7 +12,8 @@ if __name__ == '__main__':
     labels = np.array(
         open('data/cell_labels/all.txt').read().rstrip().split()
     )
-    idx = np.random.choice(len(labels), replace=False)
+    idx = range(labels.shape[0])
+    #idx = np.random.choice(len(labels), size=int(len(labels)/2), replace=False)
     
     datasets, genes_list, n_cells = load_names(data_names)
     datasets, genes = merge_datasets(datasets, genes_list)
@@ -24,7 +25,7 @@ if __name__ == '__main__':
     print(np.median(sil_non))
 
     # scran MNN.
-    X = np.loadtxt('../assemble-sc/data/corrected_mnn.txt')
+    X = np.loadtxt('data/corrected_mnn.txt')
     sil_mnn = sil(X[idx, :], labels[idx])
     print(np.median(sil_mnn))
 
@@ -34,13 +35,13 @@ if __name__ == '__main__':
     print(np.median(sil_cca))
 
     # Scanorama.
-    X = np.loadtxt('../assemble-sc/data/corrected_scanorama.txt')
+    X = np.concatenate(assemble(datasets_dimred, sigma=150))
     sil_pan = sil(X[idx, :], labels[idx])
     print(np.median(sil_pan))
 
     print(ttest_ind(sil_pan, sil_non))
     print(ttest_ind(sil_pan, sil_cca))
-    print(ttest_ind(sil_pan, sil_cca))
+    print(ttest_ind(sil_pan, sil_mnn))
     
     plt.figure()
     plt.boxplot([ sil_non, sil_mnn, sil_cca, sil_pan ], showmeans=True, whis='range')

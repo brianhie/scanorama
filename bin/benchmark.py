@@ -1,7 +1,10 @@
 from process import load_names, merge_datasets
 
-def write_table(dataset, genes, name):
-    prefix = name.split('/')[-1]
+def write_table(dataset, genes, name, cell_name=None):
+    if cell_name is not None:
+        prefix = cell_name
+    else:
+        prefix = name.split('/')[-1]
     with open(name + '_table.txt', 'w') as f:
         header = '\t'.join([ prefix + str(i) for i in range(dataset.shape[0]) ])
         f.write(header + '\n')

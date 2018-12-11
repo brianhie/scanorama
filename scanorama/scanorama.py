@@ -14,7 +14,6 @@ import sys
 import warnings
 
 from .t_sne_approx import TSNEApprox
-from .integration import harmony_integrate
 from .utils import plt, dispersion, reduce_dimensionality
 from .utils import visualize_cluster, visualize_expr, visualize_dropout
 from .utils import handle_zeros_in_scale
@@ -115,7 +114,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
 # Integrate a list of data sets.
 def integrate(datasets_full, genes_list, batch_size=BATCH_SIZE,
               verbose=VERBOSE, ds_names=None, dimred=DIMRED, approx=APPROX,
-              sigma=SIGMA, alpha=ALPHA, knn=KNN, harmony=False, geosketch=False,
+              sigma=SIGMA, alpha=ALPHA, knn=KNN, geosketch=False,
               geosketch_max=20000, n_iter=1, union=False, hvg=None):
     """Integrate a list of data sets.
 
@@ -165,7 +164,7 @@ def integrate(datasets_full, genes_list, batch_size=BATCH_SIZE,
             datasets_dimred, # Assemble in low dimensional space.
             verbose=verbose, knn=knn, sigma=sigma, approx=approx,
             alpha=alpha, ds_names=ds_names, batch_size=batch_size,
-            harmony=harmony, geosketch=geosketch, geosketch_max=geosketch_max,
+            geosketch=geosketch, geosketch_max=geosketch_max,
         )
 
     return datasets_dimred, genes
@@ -576,7 +575,7 @@ gs_idxs = None
         
 # Fill table of alignment scores.
 def find_alignments_table(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
-                          prenormalized=False, harmony=False, geosketch=False,
+                          prenormalized=False, geosketch=False,
                           geosketch_max=20000):
     if not prenormalized:
         datasets = [ normalize(ds, axis=1) for ds in datasets ]
@@ -591,9 +590,6 @@ def find_alignments_table(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
                         for X in datasets ]
         datasets = [ datasets[i][gs_idx, :] for i, gs_idx in enumerate(gs_idxs) ]
 
-        if harmony:
-            datasets = harmony_integrate(datasets)
-    
     table = {}
     for i in range(len(datasets)):
         if len(datasets[:i]) > 0:
@@ -641,11 +637,11 @@ def find_alignments_table(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
     
 # Find the matching pairs of cells between datasets.
 def find_alignments(datasets, knn=KNN, approx=APPROX, verbose=VERBOSE,
-                    alpha=ALPHA, prenormalized=False, harmony=False,
+                    alpha=ALPHA, prenormalized=False,
                     geosketch=False, geosketch_max=20000):
     table1, _, matches = find_alignments_table(
         datasets, knn=knn, approx=approx, verbose=verbose,
-        prenormalized=prenormalized, harmony=harmony,
+        prenormalized=prenormalized,
         geosketch=geosketch, geosketch_max=geosketch_max
     )
 
@@ -765,7 +761,7 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma=SIGMA, cn=False,
 # values.
 def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
              sigma=SIGMA, approx=APPROX, alpha=ALPHA, expr_datasets=None,
-             ds_names=None, batch_size=None, realign=REALIGN, harmony=False,
+             ds_names=None, batch_size=None, realign=REALIGN,
              geosketch=False, geosketch_max=20000, alignments=None, matches=None):
     if len(datasets) == 1:
         return datasets
@@ -773,7 +769,7 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
     if alignments is None and matches is None:
         alignments, matches = find_alignments(
             datasets, knn=knn, approx=approx, alpha=alpha, verbose=verbose,
-            harmony=harmony, geosketch=geosketch, geosketch_max=geosketch_max
+            geosketch=geosketch, geosketch_max=geosketch_max
         )
     
     ds_assembled = {}
