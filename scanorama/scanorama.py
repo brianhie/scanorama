@@ -30,7 +30,6 @@ HVG = None
 KNN = 20
 N_ITER = 500
 PERPLEXITY = 1200
-REALIGN = True
 SIGMA = 15
 VERBOSE = 2
 
@@ -38,7 +37,7 @@ VERBOSE = 2
 def correct(datasets_full, genes_list, return_dimred=False,
             batch_size=BATCH_SIZE, verbose=VERBOSE, ds_names=None,
             dimred=DIMRED, approx=APPROX, sigma=SIGMA, alpha=ALPHA, knn=KNN,
-            return_dense=False, hvg=None, union=False, realign=REALIGN,
+            return_dense=False, hvg=None, union=False,
             geosketch=False, geosketch_max=20000):
     """Integrate and batch correct a list of data sets.
 
@@ -100,7 +99,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
         expr_datasets=datasets, # Modified in place.
         verbose=verbose, knn=knn, sigma=sigma, approx=approx,
         alpha=alpha, ds_names=ds_names, batch_size=batch_size,
-        realign=realign, geosketch=geosketch, geosketch_max=geosketch_max,
+        geosketch=geosketch, geosketch_max=geosketch_max,
     )
 
     if return_dense:
@@ -761,7 +760,7 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma=SIGMA, cn=False,
 # values.
 def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
              sigma=SIGMA, approx=APPROX, alpha=ALPHA, expr_datasets=None,
-             ds_names=None, batch_size=None, realign=REALIGN,
+             ds_names=None, batch_size=None,
              geosketch=False, geosketch_max=20000, alignments=None, matches=None):
     if len(datasets) == 1:
         return datasets
@@ -917,9 +916,7 @@ def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
                 datasets[p] = curr_ds[base:(base + n_cells), :]
                 base += n_cells
             
-            if realign and not expr_datasets is None:
-                # Realignment may improve quality of batch correction at cost
-                # of potentially higher memory usage.
+            if not expr_datasets is None:
                 curr_ds = vstack([ expr_datasets[p]
                                    for p in panoramas_i[0] ])
                 curr_ref = vstack([ expr_datasets[p]

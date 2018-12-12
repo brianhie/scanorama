@@ -36,10 +36,11 @@ above = sum(scanorama < uncorrected - 50)
 print('{}% above line'.format(float(above) / float(above + below) * 100))
     
 name = sys.argv[1].split('.')[0]
-line = min(max(scanorama), max(uncorrected))
+line = max(min(max(scanorama), max(uncorrected)), 2100)
         
 plt.figure()
 plt.scatter(scanorama, uncorrected, s=10)
 plt.plot([0, line], [0, line], 'r--')
+plt.xlim([ 0, 2100 ])
 plt.tight_layout()
 plt.savefig('oneway_{}.png'.format(name))
