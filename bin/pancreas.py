@@ -1,5 +1,6 @@
 import numpy as np
 from scanorama import *
+from sklearn.metrics import silhouette_samples as sil
 from scipy.sparse import vstack
 from sklearn.preprocessing import normalize, LabelEncoder
 import sys
@@ -29,8 +30,6 @@ if __name__ == '__main__':
         curr_label += 1
     labels = np.array(labels, dtype=int)
 
-    #datasets, genes_list, n_cells = load_names(['data/mnn_corrected_pancreas'])
-    
     datasets_dimred, datasets, genes = correct(
         datasets, genes_list, ds_names=data_names,
         return_dimred=True, sigma=150
@@ -45,6 +44,11 @@ if __name__ == '__main__':
     cell_types = le.classes_
     
     print_oneway(vstack(datasets).toarray(), genes, labels)
+    
+    mean_pan = {
+        genes[i]: val
+        for i, val in enumerate(np.var(vstack(datasets).toarray(), axis=0))
+    }
 
     pancreas_genes = [
         'HADH', 'G6PC2', 'PAPSS2', 'PCSK1', 'GC',
@@ -64,6 +68,22 @@ if __name__ == '__main__':
     visualize(datasets_dimred,
               cell_labels, NAMESPACE + '_type', cell_types,
               embedding=embedding)
+
+    # scran MNN.
+    datasets, genes_list, n_cells = load_names(['data/mnn_corrected_pancreas'])
+    
+    datasets_dimred, datasets, genes = correct(
+        datasets, genes_list, ds_names=data_names,
+        return_dimred=True, sigma=150
+    )
+    genes = [ g.decode('utf-8') for g in genes ]
+    
+    print_oneway(vstack(datasets).toarray(), genes, labels)
+    
+    mean_mnn = {
+        genes[i]: val
+        for i, val in enumerate(np.var(vstack(datasets).toarray(), axis=0))
+    }
     
     # Uncorrected.
     datasets, genes_list, n_cells = load_names(data_names)
@@ -73,6 +93,11 @@ if __name__ == '__main__':
 
     print_oneway(vstack(datasets).toarray(), genes, labels)
     
+    mean_non = {
+        genes[i]: val
+        for i, val in enumerate(np.var(vstack(datasets).toarray(), axis=0))
+    }
+    
     embedding = visualize(datasets_dimred, labels,
                           NAMESPACE + '_ds_uncorrected', names,
                           perplexity=100, n_iter=400)
@@ -80,3 +105,11 @@ if __name__ == '__main__':
               NAMESPACE + '_type_uncorrected', cell_types,
               embedding=embedding,
               perplexity=100, n_iter=400)
+
+    from scipy.stats import pearsonr
+    in_common = sorted(set(mean_pan.keys()) & set(mean_non.keys()))
+    print(pearsonr([ mean_pan[g] for g in in_common ],
+                    [ mean_non[g] for g in in_common ]))
+    in_common = sorted(set(mean_mnn.keys()) & set(mean_non.keys()))
+    print(pearsonr([ mean_mnn[g] for g in in_common ],
+                    [ mean_non[g] for g in in_common ]))

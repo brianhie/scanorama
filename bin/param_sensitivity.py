@@ -6,16 +6,16 @@ from sklearn.metrics import silhouette_samples as sil
 from process import load_names, process
 
 def test_dimred(datasets, genes, labels, idx, distr, xlabels):
-    dimreds = [ 10, 20, 50, 200, 6000 ]
+    dimreds = [ 10, 20, 200, 6000 ]
     len_distr = len(distr)
     for dimred in dimreds:
-        datasets_dimred, genes = process_data(datasets, genes,
+        datasets_dimred, genes = process_data(datasets[:], genes,
                                               dimred=dimred)
         datasets_dimred = assemble(datasets_dimred, sigma=150)
         X = np.concatenate(datasets_dimred)
         distr.append(sil(X[idx, :], labels[idx]))
         for d in distr[:len_distr]:
-            print(ttest_ind(X[idx, :], d))
+            print(ttest_ind(np.ravel(X[idx, :]), np.ravel(d)))
         xlabels.append(str(dimred))
     print('')
     xlabels[-1] = 'No SVD'
@@ -29,12 +29,13 @@ def test_dimred(datasets, genes, labels, idx, distr, xlabels):
 
 def test_knn(datasets_dimred, genes, labels, idx, distr, xlabels):
     knns = [ 5, 10, 50, 100 ]
+    len_distr = len(distr)
     for knn in knns:
         integrated = assemble(datasets_dimred[:], knn=knn, sigma=150)
         X = np.concatenate(integrated)
         distr.append(sil(X[idx, :], labels[idx]))
         for d in distr[:len_distr]:
-            print(ttest_ind(X[idx, :], d))
+            print(ttest_ind(np.ravel(X[idx, :]), np.ravel(d)))
         xlabels.append(str(knn))
     print('')
     
@@ -47,12 +48,13 @@ def test_knn(datasets_dimred, genes, labels, idx, distr, xlabels):
 
 def test_sigma(datasets_dimred, genes, labels, idx, distr, xlabels):
     sigmas = [ 10, 50, 100, 200 ]
+    len_distr = len(distr)
     for sigma in sigmas:
         integrated = assemble(datasets_dimred[:], sigma=sigma)
         X = np.concatenate(integrated)
         distr.append(sil(X[idx, :], labels[idx]))
         for d in distr[:len_distr]:
-            print(ttest_ind(X[idx, :], d))
+            print(ttest_ind(np.ravel(X[idx, :]), np.ravel(d)))
         xlabels.append(str(sigma))
     print('')
     
@@ -65,12 +67,13 @@ def test_sigma(datasets_dimred, genes, labels, idx, distr, xlabels):
 
 def test_alpha(datasets_dimred, genes, labels, idx, distr, xlabels):
     alphas = [ 0, 0.05, 0.20, 0.50 ]
+    len_distr = len(distr)
     for alpha in alphas:
         integrated = assemble(datasets_dimred[:], alpha=alpha, sigma=150)
         X = np.concatenate(integrated)
         distr.append(sil(X[idx, :], labels[idx]))
         for d in distr[:len_distr]:
-            print(ttest_ind(X[idx, :], d))
+            print(ttest_ind(np.ravel(X[idx, :]), np.ravel(d)))
         xlabels.append(str(alpha))
     print('')
     
@@ -85,8 +88,9 @@ def test_approx(datasets_dimred, genes, labels, idx, distr, xlabels):
     integrated = assemble(datasets_dimred[:], approx=False, sigma=150)
     X = np.concatenate(integrated)
     distr.append(sil(X[idx, :], labels[idx]))
+    len_distr = len(distr)
     for d in distr[:len_distr]:
-        print(ttest_ind(X[idx, :], d))
+        print(ttest_ind(np.ravel(X[idx, :]), np.ravel(d)))
     xlabels.append('Exact NN')
     print('')
     
@@ -124,11 +128,12 @@ def test_perplexity(datasets_dimred, genes, labels, idx,
     X = np.concatenate(datasets_dimred)
 
     perplexities = [ 10, 100, 500, 2000 ]
+    len_distr = len(distr)
     for perplexity in perplexities:
         embedding = fit_tsne(X, perplexity=perplexity)
         distr.append(sil(embedding[idx, :], labels[idx]))
         for d in distr[:len_distr]:
-            print(ttest_ind(X[idx, :], d))
+            print(ttest_ind(np.ravel(X[idx, :]), np.ravel(d)))
         xlabels.append(str(perplexity))
     print('')
     
@@ -144,11 +149,12 @@ def test_learn_rate(datasets_dimred, genes, labels, idx,
     X = np.concatenate(datasets_dimred)
 
     learn_rates = [ 50., 100., 500., 1000. ]
+    len_distr = len(distr)
     for learn_rate in learn_rates:
         embedding = fit_tsne(X, learn_rate=learn_rate)
         distr.append(sil(embedding[idx, :], labels[idx]))
         for d in distr[:len_distr]:
-            print(ttest_ind(X[idx, :], d))
+            print(ttest_ind(np.ravel(X[idx, :]), np.ravel(d)))
         xlabels.append(str(learn_rate))
     print('')
     
