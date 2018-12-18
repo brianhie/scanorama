@@ -10,7 +10,7 @@ setup(
     install_requires=[
         'annoy>=1.11.5',
         'fbpca>=1.0',
-        'intervaltree>=2.1.0',
+        'intervaltree==2.1.0',
         'matplotlib>=2.0.2',
         'numpy>=1.12.0',
         'scipy>=1.0.0',
