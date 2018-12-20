@@ -2,7 +2,7 @@ import numpy as np
 
 from process import load_names, merge_datasets
 from scanorama import process_data, find_alignments_table
-from time_align import time_align_correlate, time_align_visualize
+from time_align import time_align_correlate, time_align_visualize, time_dist
 
 NAMESPACE = 'dendritic'
 
@@ -26,7 +26,10 @@ if __name__ == '__main__':
     time = np.array([ 0, 0, 1, 2, 4, 4, 6 ]).reshape(-1, 1)
     
     time_align_correlate(A, time)
+    
+    time_dist(datasets_dimred, time)
 
     x = np.array([ 0, 0, 1, 2, 3, 3, 4 ]).reshape(-1, 1)
     y = [ -.1, .1, 0, 0, -.1, .1, 0 ]
     time_align_visualize(A, x, y, namespace=NAMESPACE)
+

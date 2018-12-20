@@ -5,7 +5,7 @@ from scipy.stats import mannwhitneyu
 
 from benchmark import write_table
 from process import load_names, merge_datasets, process
-from time_align import time_align_correlate, time_align_visualize
+from time_align import time_align_correlate, time_align_visualize, time_dist
 
 NAMESPACE = 'mono_macro'
 
@@ -37,16 +37,21 @@ def diff_expr(A, B, genes, permute_cutoff, verbose=True):
     return de_genes
 
 if __name__ == '__main__':
+    from process import process
+    process(data_names)
+    
     datasets, genes_list, n_cells = load_names(data_names, norm=False)
     
     datasets, genes = merge_datasets(datasets, genes_list)
     datasets_dimred, genes = process_data(datasets, genes)
-
+    
     _, A, _ = find_alignments_table(datasets_dimred)
     
     time = np.array([ 0, 0, 3, 3, 6, 6 ]).reshape(-1, 1)
     time_align_correlate(A, time)
     
+    time_dist(datasets_dimred, time)
+
     x = np.array([ 0, 0, 1, 1, 2, 2 ]).reshape(-1, 1)
     y = [ -.1, .1, -.1, .1, -.1, .1 ]
     time_align_visualize(A, x, y, namespace=NAMESPACE)

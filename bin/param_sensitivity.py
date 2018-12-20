@@ -5,28 +5,6 @@ from sklearn.metrics import silhouette_samples as sil
 
 from process import load_names, process
 
-def test_dimred(datasets, genes, labels, idx, distr, xlabels):
-    dimreds = [ 10, 20, 200, 6000 ]
-    len_distr = len(distr)
-    for dimred in dimreds:
-        datasets_dimred, genes = process_data(datasets[:], genes,
-                                              dimred=dimred)
-        datasets_dimred = assemble(datasets_dimred, sigma=150)
-        X = np.concatenate(datasets_dimred)
-        distr.append(sil(X[idx, :], labels[idx]))
-        for d in distr[:len_distr]:
-            print(ttest_ind(np.ravel(X[idx, :]), np.ravel(d)))
-        xlabels.append(str(dimred))
-    print('')
-    xlabels[-1] = 'No SVD'
-    
-    plt.figure()
-    plt.boxplot(distr, showmeans=True, whis='range')
-    plt.xticks(range(1, len(xlabels) + 1), xlabels)
-    plt.ylabel('Silhouette Coefficient')
-    plt.ylim((-1, 1))
-    plt.savefig('param_sensitivity_{}.svg'.format('dimred'))
-
 def test_knn(datasets_dimred, genes, labels, idx, distr, xlabels):
     knns = [ 5, 10, 50, 100 ]
     len_distr = len(distr)
@@ -192,9 +170,6 @@ if __name__ == '__main__':
 
     distr = [  sil_non, sil_mnn, sil_cca ]
     xlabels = [ 'No correction', 'scran MNN', 'Seurat CCA' ]
-
-    # Test processing parameters.
-    test_dimred(datasets[:], genes, labels, idx, distr[:], xlabels[:])
 
     # Test alignment parameters.
     test_approx(datasets_dimred[:], genes, labels, idx, distr[:], xlabels[:])

@@ -89,5 +89,22 @@ def load_alignments_from_log(fname):
     
     return A, names
 
+def time_dist(datasets_dimred, time):
+    time_dist = euclidean_distances(time, time)
+
+    time_dists, scores = [], []
+    for i in range(time_dist.shape[0]):
+        for j in range(time_dist.shape[1]):
+            if i >= j:
+                continue
+            score = np.mean(euclidean_distances(
+                datasets_dimred[i], datasets_dimred[j]
+            ))
+            time_dists.append(time_dist[i, j])
+            scores.append(score)
+
+    print('Spearman rho = {}'.format(spearmanr(time_dists, scores)))
+    print('Pearson rho = {}'.format(pearsonr(time_dists, scores)))
+
 if __name__ == '__main__':
     pass

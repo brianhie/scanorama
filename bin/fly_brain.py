@@ -2,7 +2,7 @@ import numpy as np
 
 from process import load_names, merge_datasets
 from scanorama import process_data, find_alignments_table
-from time_align import time_align_correlate, time_align_visualize
+from time_align import time_align_correlate, time_align_visualize, time_dist
 
 NAMESPACE = 'fly_brain'
 
@@ -30,6 +30,9 @@ if __name__ == '__main__':
     time = np.array([ 0, 0, 1, 3, 6, 6, 9, 15, 30, 30, 50 ]).reshape(-1, 1)
     time_align_correlate(A, time)
     
+    time_dist(datasets_dimred, time)
+    
     x = np.array([ 0, 0, 1, 2, 3, 3, 4, 5, 6, 6, 7 ]).reshape(-1, 1)
     y = [ -.1, .1, 0, 0, -.1, .1, 0, 0, -.1, .1, 0 ]
     time_align_visualize(A, x, y, namespace=NAMESPACE)
+
