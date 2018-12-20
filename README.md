@@ -149,9 +149,19 @@ Note that the gradient descent portion of the t-SNE visualization step can take 
 
 Scripts for performing additional analyses of the data are also available in the `bin/` directory.
 
-#### Scanorama implementation
+## Scanorama implementation
 
 For those interested in the algorithm implementation, `scanorama/scanorama.py` is the main file that handles the mutual nearest neighbors-based matching, batch correction, and panorama assembly.
+
+## Troubleshooting
+
+- Make sure the input matrices are cells-by-genes, not the transpose.
+
+- For the example scripts, be sure to run `bin/process.py` first, although this is not necessary if you are using Scanorama through the API.
+
+- For large data set integration under memory constraints (e.g., if you run into a `MemoryError`), try lowering the `batch_size` parameter. And stay tuned for more improvements!
+
+- Scanorama versions 0.2 through 0.6.1 had default parameters that resulted in non-optimal batch correction results (integration was unaffected). Upgrade to the latest version for a fix to this issue.
 
 ## Questions
 
