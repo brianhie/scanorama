@@ -131,17 +131,21 @@ By default, this prints a log reporting the alignments the algorithm has found b
 
 #### 26 data sets
 
-We can also stitch a much larger number of cells from many more datsets. To do this, run:
+We can also stitch a much larger number of cells from many more datsets. To do this, run
+```
+python bin/integration_panorama.py conf/panorama.txt
+```
+to integrate the data sets or
 ```
 python bin/panorama.py conf/panorama.txt
 ```
-The collection of data sets to be integrated is specified in the config file `conf/panorama.txt`. Default parameters are listed at the top of `scanorama/scanorama.py`.
+to batch correct the data sets as well. The collection of data sets to be integrated is specified in the config file `conf/panorama.txt`. Default parameters are listed at the top of `scanorama/scanorama.py`.
 
 By default, this script will output a verbose log as it finds alignments and applies batch correction. At the end, it will automatically save t-SNE visualized images of the integrated result. The numpy matrices containing the batch-corrected data sets are also available (in memory) to integrate with other single cell pipelines and packages.
 
 #### Runtime performance and memory requirements
 
-Scanorama runs on multiple cores to speed up its computation; [here are some instructions](https://roman-kh.github.io/numpy-multicore/) to check if Python is making use of the benefits from multicore processing. Aligning and batch-correcting 105,476 cells across 26 data sets should complete in around 12 minutes with the process running on 10 cores. The memory usage should be under 16 GB.
+Scanorama runs on multiple cores to speed up its computation; [here are some instructions](https://roman-kh.github.io/numpy-multicore/) to check if Python is making use of the benefits from multicore processing. Aligning and batch-correcting 105,476 cells across 26 data sets should complete in around 15 minutes with the process running on 10 cores. The memory usage should be under 8 GB for integration and under 26 GB for batch correction.
 
 Note that the gradient descent portion of the t-SNE visualization step can take a very long time (a few hours) and require a lot of memory (around 13 GB) on more than 100k cells. Other methods for accelerating t-SNE could be used in place of the t-SNE implementation used in this pipeline, such as a faster C++ implementation of [t-SNE](https://github.com/lvdmaaten/bhtsne), [Multicore-TSNE](https://github.com/DmitryUlyanov/Multicore-TSNE), or [net-SNE](https://github.com/hhcho/netsne), a version of t-SNE that uses a neural network to reduce the time required for the gradient descent optimization procedure.
 
