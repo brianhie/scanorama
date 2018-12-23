@@ -30,7 +30,7 @@ if __name__ == '__main__':
     # Put each of the datasets into a panorama.
     t0 = time()
     datasets_dimred = assemble(
-        datasets_dimred, ds_names=data_names
+        datasets_dimred, ds_names=data_names, sigma=150,
     )
     if VERBOSE:
         print('Integrated panoramas in {:.3f}s'.format(time() - t0))

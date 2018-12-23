@@ -14,7 +14,7 @@ if __name__ == '__main__':
     t0 = time()
     datasets_dimred, datasets, genes = correct(
         datasets, genes_list, ds_names=data_names,
-        return_dimred=True
+        sigma=150, return_dimred=True
     )
     if VERBOSE:
         print('Integrated and batch corrected panoramas in {:.3f}s'
