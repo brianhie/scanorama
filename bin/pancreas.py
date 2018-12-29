@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     datasets_dimred, datasets, genes = correct(
         datasets, genes_list, ds_names=data_names,
-        return_dimred=True, sigma=150
+        return_dimred=True
     )
     
     cell_labels = (
@@ -44,10 +44,11 @@ if __name__ == '__main__':
     cell_types = le.classes_
     
     print_oneway(vstack(datasets).toarray(), genes, labels)
-    
-    mean_pan = {
+
+    X_pan = vstack(datasets).toarray()
+    var_pan = {
         genes[i]: val
-        for i, val in enumerate(np.var(vstack(datasets).toarray(), axis=0))
+        for i, val in enumerate(np.var(X_pan, axis=0))
     }
 
     pancreas_genes = [
@@ -74,13 +75,13 @@ if __name__ == '__main__':
     
     datasets_dimred, datasets, genes = correct(
         datasets, genes_list, ds_names=data_names,
-        return_dimred=True, sigma=150
+        return_dimred=True
     )
     genes = [ g.decode('utf-8') for g in genes ]
     
     print_oneway(vstack(datasets).toarray(), genes, labels)
     
-    mean_mnn = {
+    var_mnn = {
         genes[i]: val
         for i, val in enumerate(np.var(vstack(datasets).toarray(), axis=0))
     }
@@ -92,10 +93,11 @@ if __name__ == '__main__':
     datasets_dimred = dimensionality_reduce(datasets)
 
     print_oneway(vstack(datasets).toarray(), genes, labels)
-    
-    mean_non = {
+
+    X_non = vstack(datasets).toarray()
+    var_non = {
         genes[i]: val
-        for i, val in enumerate(np.var(vstack(datasets).toarray(), axis=0))
+        for i, val in enumerate(np.var(X_non, axis=0))
     }
     
     embedding = visualize(datasets_dimred, labels,
@@ -107,9 +109,23 @@ if __name__ == '__main__':
               perplexity=100, n_iter=400)
 
     from scipy.stats import pearsonr
-    in_common = sorted(set(mean_pan.keys()) & set(mean_non.keys()))
-    print(pearsonr([ mean_pan[g] for g in in_common ],
-                    [ mean_non[g] for g in in_common ]))
-    in_common = sorted(set(mean_mnn.keys()) & set(mean_non.keys()))
-    print(pearsonr([ mean_mnn[g] for g in in_common ],
-                    [ mean_non[g] for g in in_common ]))
+
+    rhos = []
+    assert(X_pan.shape == X_non.shape)
+    for i in range(X_pan.shape[0]):
+        rho, p = pearsonr(X_pan[i], X_non[i])
+        rhos.append(rho)
+
+    print(max(rhos))
+    print(min(rhos))
+    print(np.mean(rhos))
+    print(np.median(rhos))
+    print(np.var(rhos))
+    
+    in_common = sorted(set(var_pan.keys()) & set(var_non.keys()))
+    print(pearsonr([ var_pan[g] for g in in_common ],
+                    [ var_non[g] for g in in_common ]))
+    in_common = sorted(set(var_mnn.keys()) & set(var_non.keys()))
+    print(pearsonr([ var_mnn[g] for g in in_common ],
+                    [ var_non[g] for g in in_common ]))
+
