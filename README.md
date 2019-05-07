@@ -2,7 +2,7 @@
 
 ## Overview
 
-Scanorama enables batch-correction and integration of heterogeneous scRNA-seq data sets, which is described in the paper ["Panoramic stitching of single-cell transcriptomic data"](https://www.biorxiv.org/content/early/2018/07/17/371179) by Brian Hie, Bryan Bryson, and Bonnie Berger. This repository contains the Scanorama source code as well as scripts necessary for reproducing the results in the paper.
+Scanorama enables batch-correction and integration of heterogeneous scRNA-seq data sets, which is described in the paper ["Efficient integration of heterogeneous single-cell transcriptomes using Scanorama"](https://www.nature.com/articles/s41587-019-0113-3) by Brian Hie, Bryan Bryson, and Bonnie Berger. This repository contains the Scanorama source code as well as scripts necessary for reproducing the results in the paper.
 
 **Scanorama is designed to be used in scRNA-seq pipelines downstream of noise-reduction methods, including those for imputation and highly-variable gene filtering. The results from Scanorama integration and batch correction can then be used as input to other tools for scRNA-seq clustering, visualization, and analysis.**
 
