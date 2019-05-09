@@ -186,8 +186,8 @@ def correct_scanpy(adatas, **kwargs):
         By default (`return_dimred=False`), returns a list of
         `scanpy.api.AnnData` with batch corrected values in the `.X` field.
 
-    corrected, integrated
-        When `return_dimred=False`, returns a two-tuple containing a list of
+    integrated, corrected
+        When `return_dimred=True`, returns a two-tuple containing a list of
         `np.ndarray` with integrated low-dimensional embeddings and a list
         of `scanpy.api.AnnData` with batch corrected values in the `.X`
         field.
@@ -243,7 +243,7 @@ def integrate_scanpy(adatas, **kwargs):
 
 # Visualize a scatter plot with cluster labels in the
 # `cluster' variable.
-def plot_clusters(coords, clusters, s=1):
+def plot_clusters(coords, clusters, s=1, colors=None):
     if coords.shape[0] != clusters.shape[0]:
         sys.stderr.write(
             'Error: mismatch, {} cells, {} labels\n'
@@ -251,19 +251,20 @@ def plot_clusters(coords, clusters, s=1):
         )
         exit(1)
 
-    colors = np.array(
-        list(islice(cycle([
-            '#377eb8', '#ff7f00', '#4daf4a',
-            '#f781bf', '#a65628', '#984ea3',
-            '#999999', '#e41a1c', '#dede00',
-            '#ffe119', '#e6194b', '#ffbea3',
-            '#911eb4', '#46f0f0', '#f032e6',
-            '#d2f53c', '#008080', '#e6beff',
-            '#aa6e28', '#800000', '#aaffc3',
-            '#808000', '#ffd8b1', '#000080',
-            '#808080', '#fabebe', '#a3f4ff'
-        ]), int(max(clusters) + 1)))
-    )
+    if colors is None:
+        colors = np.array(
+            list(islice(cycle([
+                '#377eb8', '#ff7f00', '#4daf4a',
+                '#f781bf', '#a65628', '#984ea3',
+                '#999999', '#e41a1c', '#dede00',
+                '#ffe119', '#e6194b', '#ffbea3',
+                '#911eb4', '#46f0f0', '#f032e6',
+                '#d2f53c', '#008080', '#e6beff',
+                '#aa6e28', '#800000', '#aaffc3',
+                '#808000', '#ffd8b1', '#000080',
+                '#808080', '#fabebe', '#a3f4ff'
+            ]), int(max(clusters) + 1)))
+        )
 
     plt.figure()
     plt.scatter(coords[:, 0], coords[:, 1],
@@ -394,7 +395,7 @@ def visualize(assembled, labels, namespace, data_names,
               n_iter=N_ITER, perplexity=PERPLEXITY, verbose=VERBOSE,
               learn_rate=200., early_exag=12., embedding=None,
               shuffle_ds=False, size=1, multicore_tsne=True,
-              image_suffix='.svg', viz_cluster=False):
+              image_suffix='.svg', viz_cluster=False, colors=None):
     # Fit t-SNE.
     if embedding is None:
         try:
@@ -427,7 +428,7 @@ def visualize(assembled, labels, namespace, data_names,
         labels = labels[rand_idx]
 
     # Plot clusters together.
-    plot_clusters(embedding, labels, s=size)
+    plot_clusters(embedding, labels, s=size, colors=colors)
     plt.title(('Panorama ({} iter, perplexity: {}, sigma: {}, ' +
                'knn: {}, hvg: {}, dimred: {}, approx: {})')
               .format(n_iter, perplexity, SIGMA, KNN, HVG,
