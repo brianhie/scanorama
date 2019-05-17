@@ -18,9 +18,6 @@ from .utils import plt, dispersion, reduce_dimensionality
 from .utils import visualize_cluster, visualize_expr, visualize_dropout
 from .utils import handle_zeros_in_scale
 
-np.random.seed(0)
-random.seed(0)
-
 # Default parameters.
 ALPHA = 0.10
 APPROX = True
@@ -38,7 +35,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
             batch_size=BATCH_SIZE, verbose=VERBOSE, ds_names=None,
             dimred=DIMRED, approx=APPROX, sigma=SIGMA, alpha=ALPHA, knn=KNN,
             return_dense=False, hvg=None, union=False,
-            geosketch=False, geosketch_max=20000):
+            geosketch=False, geosketch_max=20000, seed=0):
     """Integrate and batch correct a list of data sets.
 
     Parameters
@@ -87,9 +84,12 @@ def correct(datasets_full, genes_list, return_dimred=False,
         of `scipy.sparse.csr_matrix` each with batch corrected values, and a
         a single list of genes containing the intersection of inputted genes.
     """
+    np.random.seed(seed)
+    random.seed(seed)
+
     datasets_full = check_datasets(datasets_full)
     
-    datasets, genes = merge_datasets(datasets_full[:], genes_list,
+    datasets, genes = merge_datasets(datasets_full, genes_list,
                                      ds_names=ds_names, union=union)
     datasets_dimred, genes = process_data(datasets, genes, hvg=hvg,
                                           dimred=dimred)
@@ -114,7 +114,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
 def integrate(datasets_full, genes_list, batch_size=BATCH_SIZE,
               verbose=VERBOSE, ds_names=None, dimred=DIMRED, approx=APPROX,
               sigma=SIGMA, alpha=ALPHA, knn=KNN, geosketch=False,
-              geosketch_max=20000, n_iter=1, union=False, hvg=None):
+              geosketch_max=20000, n_iter=1, union=False, hvg=None, seed=0):
     """Integrate a list of data sets.
 
     Parameters
@@ -151,9 +151,12 @@ def integrate(datasets_full, genes_list, batch_size=BATCH_SIZE,
         integrated low dimensional embeddings and a single list of genes
         containing the intersection of inputted genes.
     """
+    np.random.seed(seed)
+    random.seed(seed)
+
     datasets_full = check_datasets(datasets_full)
 
-    datasets, genes = merge_datasets(datasets_full[:], genes_list,
+    datasets, genes = merge_datasets(datasets_full, genes_list,
                                      ds_names=ds_names, union=union)
     datasets_dimred, genes = process_data(datasets, genes, hvg=hvg,
                                           dimred=dimred)
