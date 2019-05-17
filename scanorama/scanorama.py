@@ -89,7 +89,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
     """
     datasets_full = check_datasets(datasets_full)
     
-    datasets, genes = merge_datasets(datasets_full, genes_list,
+    datasets, genes = merge_datasets(datasets_full[:], genes_list,
                                      ds_names=ds_names, union=union)
     datasets_dimred, genes = process_data(datasets, genes, hvg=hvg,
                                           dimred=dimred)
@@ -153,7 +153,7 @@ def integrate(datasets_full, genes_list, batch_size=BATCH_SIZE,
     """
     datasets_full = check_datasets(datasets_full)
 
-    datasets, genes = merge_datasets(datasets_full, genes_list,
+    datasets, genes = merge_datasets(datasets_full[:], genes_list,
                                      ds_names=ds_names, union=union)
     datasets_dimred, genes = process_data(datasets, genes, hvg=hvg,
                                           dimred=dimred)
