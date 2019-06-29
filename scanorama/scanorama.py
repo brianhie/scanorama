@@ -190,15 +190,13 @@ def correct_scanpy(adatas, **kwargs):
     Returns
     -------
     corrected
-        By default (`return_dimred=False`), returns a list of
-        `scanpy.api.AnnData` with batch corrected values in
-        `adata.obsm['X_scanorama']`.
+        By default (`return_dimred=False`), returns a list of new
+        `scanpy.api.AnnData`.
 
     integrated, corrected
         When `return_dimred=True`, returns a two-tuple containing a list of
         `np.ndarray` with integrated low-dimensional embeddings and a list
-        of `scanpy.api.AnnData` with batch corrected values in
-        `adata.obsm['X_scanorama']`.
+        of new `scanpy.api.AnnData`.
     """
     if 'return_dimred' in kwargs and kwargs['return_dimred']:
         datasets_dimred, datasets, genes = correct(
