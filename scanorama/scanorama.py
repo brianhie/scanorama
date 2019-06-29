@@ -213,9 +213,12 @@ def correct_scanpy(adatas, **kwargs):
             **kwargs
         )
 
+    from anndata import AnnData
+
     new_adatas = []
-    for i, adata in enumerate(adatas):
-        adata.obsm['X_scanorama'] = datasets[i]
+    for i in range(len((adatas))):
+        adata = AnnData(datasets[i])
+        adata.var_names = genes
         new_adatas.append(adata)
 
     if 'return_dimred' in kwargs and kwargs['return_dimred']:
