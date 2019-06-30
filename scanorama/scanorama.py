@@ -216,7 +216,8 @@ def correct_scanpy(adatas, **kwargs):
     new_adatas = []
     for i in range(len((adatas))):
         adata = AnnData(datasets[i])
-        adata.var_names = genes
+        adata.obs = adatas[i].obs
+        adata.var = adatas[i].var
         new_adatas.append(adata)
 
     if 'return_dimred' in kwargs and kwargs['return_dimred']:
