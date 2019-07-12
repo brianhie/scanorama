@@ -34,7 +34,7 @@ There are also wrappers that make it easy to use Scanorama with [scanpy's AnnDat
 
 ```
 # List of data sets:
-adatas = [ list of scanpy.api.AnnData ]
+adatas = [ list of scanpy.AnnData ]
 
 import scanorama
 
