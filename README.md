@@ -88,6 +88,11 @@ cd scanorama/
 python setup.py install --user
 ```
 
+If you are running inside an anaconda environment, first install annoy by doing: 
+```
+conda install -c conda-forge python-annoy
+```
+
 ## Examples from paper
 
 ### Data set download
