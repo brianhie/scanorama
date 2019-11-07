@@ -10,7 +10,7 @@ Scanorama enables batch-correction and integration of heterogeneous scRNA-seq da
 
 Here is example usage of Scanorama in Python:
 
-```
+```Python
 # List of data sets (matrices of cells-by-genes):
 datasets = [ list of scipy.sparse.csr_matrix or numpy.ndarray ]
 # List of gene lists:
@@ -32,7 +32,7 @@ integrated, corrected, genes = scanorama.correct(datasets, genes_list, return_di
 
 There are also wrappers that make it easy to use Scanorama with [scanpy's AnnData object](https://anndata.readthedocs.io/en/latest/anndata.AnnData.html#anndata.AnnData):
 
-```
+```Python
 # List of data sets:
 adatas = [ list of scanpy.AnnData ]
 
@@ -50,7 +50,7 @@ integrated, corrected = scanorama.correct_scanpy(adatas, return_dimred=True)
 
 You can also call Scanorama from R using the [`reticulate`](https://rstudio.github.io/reticulate/) package (tested with R version 3.5.1 and reticulate version 1.10):
 
-```
+```R
 # List of data sets (matrices of cells-by-genes):
 datasets <- list( list of matrix )
 # List of gene lists:
