@@ -10,7 +10,7 @@ from process import load_names, process
 
 np.random.seed(0)
 
-NAMESPACE = 'mouse_brain'
+NAMESPACE = 'mouse_brain_sketched'
 BATCH_SIZE = 10000
 
 data_names = [
@@ -36,17 +36,11 @@ if __name__ == '__main__':
     datasets_dimred, genes = process_data(datasets, genes, verbose=True)
 
     t0 = time()
-    datasets_dimred = assemble(
-        datasets_dimred, batch_size=BATCH_SIZE,
-    )
-    print('Integrated panoramas in {:.3f}s'.format(time() - t0))
-
-    t0 = time()
-    datasets_dimred, datasets, genes = correct(
+    datasets_dimred, genes = integrate(
         datasets, genes_list, ds_names=data_names,
-        return_dimred=True, batch_size=BATCH_SIZE,
+        sketch=True, sketch_method='geosketch', sketch_max=2000,
     )
-    print('Integrated and batch corrected panoramas in {:.3f}s'
+    print('Sketched and integrated panoramas in {:.3f}s'
           .format(time() - t0))
 
     labels = []
@@ -79,8 +73,6 @@ if __name__ == '__main__':
                           gene_expr=vstack(datasets),
                           multicore_tsne=True,
                           image_suffix='.png')
-    np.savetxt('data/{}_embedding.txt'.format(NAMESPACE),
-               embedding, delimiter='\t')
 
     cell_labels = (
         open('data/cell_labels/mouse_brain_cluster.txt')

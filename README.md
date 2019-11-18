@@ -4,7 +4,9 @@
 
 Scanorama enables batch-correction and integration of heterogeneous scRNA-seq data sets, which is described in the paper ["Efficient integration of heterogeneous single-cell transcriptomes using Scanorama"](https://www.nature.com/articles/s41587-019-0113-3) by Brian Hie, Bryan Bryson, and Bonnie Berger. This repository contains the Scanorama source code as well as scripts necessary for reproducing the results in the paper.
 
-**Scanorama is designed to be used in scRNA-seq pipelines downstream of noise-reduction methods, including those for imputation and highly-variable gene filtering. The results from Scanorama integration and batch correction can then be used as input to other tools for scRNA-seq clustering, visualization, and analysis.**
+Scanorama is designed to be used in scRNA-seq pipelines downstream of noise-reduction methods, including those for imputation and highly-variable gene filtering. The results from Scanorama integration and batch correction can then be used as input to other tools for scRNA-seq clustering, visualization, and analysis.
+
+Scanorama integration can also be greatly accelerated using tools for data sketching, as described in the paper ["Geometric sketching compactly summarizes the single-cell transcriptomic landscape", Cell Systems (2019)](https://www.cell.com/cell-systems/fulltext/S2405-4712\(19\)30152-8) and implemented [here](https://github.com/brianhie/geosketch).
 
 ## API example usage
 
@@ -88,7 +90,7 @@ cd scanorama/
 python setup.py install --user
 ```
 
-If you are running inside an anaconda environment, first install annoy by doing: 
+If you are running inside an anaconda environment, first install annoy by doing:
 ```
 conda install -c conda-forge python-annoy
 ```
@@ -166,11 +168,9 @@ For those interested in the algorithm implementation, `scanorama/scanorama.py` i
 
 - Make sure the input matrices are cells-by-genes, not the transpose.
 
+- For large data set integration under memory constraints (e.g., if you run into a `MemoryError`), try lowering the `batch_size` parameter to improve memory usage and try sketch-based acceleration using the `sketch` parameter to `integrate()` to improve both memory usage and runtime.
+
 - For the example scripts, be sure to run `bin/process.py` first, although this is not necessary if you are using Scanorama through the API.
-
-- For large data set integration under memory constraints (e.g., if you run into a `MemoryError`), try lowering the `batch_size` parameter. And stay tuned for more improvements!
-
-- Scanorama versions 0.2 through 0.6.1 had default parameters that resulted in non-optimal batch correction results (integration was unaffected). Upgrade to the latest version for a fix to this issue.
 
 ## Questions
 
