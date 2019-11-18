@@ -6,7 +6,7 @@ Scanorama enables batch-correction and integration of heterogeneous scRNA-seq da
 
 Scanorama is designed to be used in scRNA-seq pipelines downstream of noise-reduction methods, including those for imputation and highly-variable gene filtering. The results from Scanorama integration and batch correction can then be used as input to other tools for scRNA-seq clustering, visualization, and analysis.
 
-Scanorama integration can also be greatly accelerated using tools for data sketching, as described in the paper ["Geometric sketching compactly summarizes the single-cell transcriptomic landscape", Cell Systems (2019)](https://www.cell.com/cell-systems/fulltext/S2405-4712\(19\)30152-8) and implemented [here](https://github.com/brianhie/geosketch).
+Scanorama integration can also be greatly accelerated using tools for data sketching, as described in the paper ["Geometric sketching compactly summarizes the single-cell transcriptomic landscape"](https://www.cell.com/cell-systems/fulltext/S2405-4712\(19\)30152-8) and implemented [here](https://github.com/brianhie/geosketch).
 
 ## API example usage
 
