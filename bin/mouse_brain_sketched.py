@@ -31,9 +31,7 @@ if __name__ == '__main__':
 
     datasets, genes_list, n_cells = load_names(data_names)
 
-    datasets, genes = merge_datasets(datasets, genes_list, ds_names=data_names)
-
-    datasets_dimred, genes = process_data(datasets, genes, verbose=True)
+    datasets_merged, genes = merge_datasets(datasets[:], genes_list)
 
     t0 = time()
     datasets_dimred, genes = integrate(
@@ -43,6 +41,8 @@ if __name__ == '__main__':
     print('Sketched and integrated panoramas in {:.3f}s'
           .format(time() - t0))
 
+    datasets = datasets_merged
+
     labels = []
     names = []
     curr_label = 0
@@ -50,7 +50,7 @@ if __name__ == '__main__':
         labels += list(np.zeros(a.shape[0]) + curr_label)
         names.append(data_names[i])
         curr_label += 1
-        labels = np.array(labels, dtype=int)
+    labels = np.array(labels, dtype=int)
 
     mouse_brain_genes = [
         'Gja1', 'Flt1', 'Gabra6', 'Syt1', 'Gabrb2', 'Gabra1',
@@ -58,14 +58,12 @@ if __name__ == '__main__':
     ]
 
     # Downsample for visualization purposes
-    datasets_dimred = []
     for i in range(len(data_names)):
         ds = datasets_dimred[i]
         rand_idx = np.random.choice(ds.shape[0], size=int(ds.shape[0]/10),
                                     replace=False)
         datasets_dimred[i] = ds[rand_idx, :]
         datasets[i] = datasets[i][rand_idx, :]
-        data.close()
 
     embedding = visualize(datasets_dimred,
                           labels, NAMESPACE + '_ds', names,

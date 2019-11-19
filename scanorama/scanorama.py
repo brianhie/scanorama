@@ -959,7 +959,6 @@ def integrate_sketch(datasets_dimred, sketch_method='geosketch', N=10000,
         sampling_fn = uniform
 
     # Sketch each dataset.
-
     sketch_idxs = [
         sorted(set(sampling_fn(X, N, replace=False)))
         if X.shape[0] > N else list(range(X.shape[0]))
@@ -968,18 +967,9 @@ def integrate_sketch(datasets_dimred, sketch_method='geosketch', N=10000,
     datasets_sketch = [ X[idx] for X, idx in zip(datasets_dimred, sketch_idxs) ]
 
     # Integrate the dataset sketches.
-
     datasets_int = integration_fn(datasets_sketch[:], **integration_fn_args)
 
     # Apply integrated coordinates back to full data.
-
-    labels = []
-    curr_label = 0
-    for i, a in enumerate(datasets_sketch):
-        labels += list(np.zeros(a.shape[0]) + curr_label)
-        curr_label += 1
-    labels = np.array(labels, dtype=int)
-
     for i, (X_dimred, X_sketch) in enumerate(zip(datasets_dimred, datasets_sketch)):
         X_int = datasets_int[i]
 
