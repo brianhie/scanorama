@@ -170,6 +170,8 @@ For those interested in the algorithm implementation, `scanorama/scanorama.py` i
 
 - For large data set integration under memory constraints (e.g., if you run into a `MemoryError`), try lowering the `batch_size` parameter to improve memory usage and try sketch-based acceleration using the `sketch` parameter to `integrate()` to improve both memory usage and runtime.
 
+- Some users report "Illegal instruction" or "Segfault" errors using the most recent versions of the `annoy` package; Scanorama is tested with `annoy` version 1.11.5 on Ubuntu 18.04.
+
 - For the example scripts, be sure to run `bin/process.py` first, although this is not necessary if you are using Scanorama through the API.
 
 ## Questions
