@@ -1,8 +1,5 @@
 import errno
 from fbpca import pca
-import matplotlib as mpl
-mpl.rcParams['figure.figsize'] = [10.0, 9.0]
-mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import numpy as np
@@ -22,7 +19,7 @@ def dispersion(X):
     dispersion[mean > 1e-10] = temp.A1
     dispersion[mean <= 1e-10] = float('-inf')
     return dispersion
-        
+
 def reduce_dimensionality(X, dim_red_k=100):
     k = min((dim_red_k, X.shape[0], X.shape[1]))
     U, s, Vt = pca(X, k=k) # Automatically centers.
@@ -48,16 +45,16 @@ def visualize_cluster(coords, cluster, cluster_labels,
                 c=colors[1], s=size)
     plt.title(str(cluster_name))
     plt.savefig(image_fname, dpi=500)
-        
+
 def visualize_expr(X, coords, genes, viz_gene, image_suffix='.svg',
                    new_fig=True, size=1, viz_prefix='ve'):
     genes = [ gene.upper() for gene in genes ]
     viz_gene = viz_gene.upper()
-    
+
     if not viz_gene.upper() in genes:
         sys.stderr.write('Warning: Could not find gene {}\n'.format(viz_gene))
         return
-    
+
     image_fname = '{}_{}{}'.format(
         viz_prefix, viz_gene, image_suffix
     )
@@ -111,7 +108,7 @@ def visualize_dropout(X, coords, image_suffix='.svg',
     plt.scatter(coords[:, 0], coords[:, 1],
                 c=colors, cmap=cm.get_cmap('Reds'), s=size)
     plt.savefig(image_fname, dpi=500)
-    
+
 def mkdir_p(path):
     try:
         os.makedirs(path)
