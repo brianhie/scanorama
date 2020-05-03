@@ -13,7 +13,6 @@ from sklearn.preprocessing import normalize
 import sys
 import warnings
 
-from .t_sne_approx import TSNEApprox
 from .utils import plt, dispersion, reduce_dimensionality
 from .utils import visualize_cluster, visualize_expr, visualize_dropout
 from .utils import handle_zeros_in_scale
@@ -421,14 +420,15 @@ def visualize(assembled, labels, namespace, data_names,
               n_iter=N_ITER, perplexity=PERPLEXITY, verbose=VERBOSE,
               learn_rate=200., early_exag=12., embedding=None,
               shuffle_ds=False, size=1, multicore_tsne=True,
-              image_suffix='.svg', viz_cluster=False, colors=None):
+              image_suffix='.svg', viz_cluster=False, colors=None,
+              random_state=None,):
     # Fit t-SNE.
     if embedding is None:
         try:
             from MulticoreTSNE import MulticoreTSNE
             tsne = MulticoreTSNE(
                 n_iter=n_iter, perplexity=perplexity,
-                verbose=verbose, random_state=69,
+                verbose=verbose, random_state=random_state,
                 learning_rate=learn_rate,
                 early_exaggeration=early_exag,
                 n_jobs=40
@@ -437,9 +437,9 @@ def visualize(assembled, labels, namespace, data_names,
             multicore_tsne = False
 
         if not multicore_tsne:
-            tsne = TSNEApprox(
+            tsne = TSNE(
                 n_iter=n_iter, perplexity=perplexity,
-                verbose=verbose, random_state=69,
+                verbose=verbose, random_state=random_state,
                 learning_rate=learn_rate,
                 early_exaggeration=early_exag
             )
