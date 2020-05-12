@@ -79,7 +79,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
         genes.
 
     integrated, corrected, genes
-        When `return_dimred=False`, returns a three-tuple containing a list
+        When `return_dimred=True`, returns a three-tuple containing a list
         of `numpy.ndarray` with integrated low dimensional embeddings, a list
         of `scipy.sparse.csr_matrix` each with batch corrected values, and a
         a single list of genes containing the intersection of inputted genes.
