@@ -145,7 +145,7 @@ def integrate(datasets_full, genes_list, batch_size=BATCH_SIZE,
     seed: `int`, optional (default: 0)
         Random seed to use.
     sketch: `bool`, optional (default: False)
-        Apply sketching-based acceleration by first downsampmling the datsets.
+        Apply sketching-based acceleration by first downsampling the datasets.
         See Hie et al., Cell Systems (2019).
     sketch_method: {'geosketch', 'uniform'}, optional (default: `geosketch`)
         Apply the given sketching method to the data. Only used if
