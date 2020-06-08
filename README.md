@@ -1,8 +1,13 @@
 # Scanorama
 
+- [API example usage](#api-example-usage)
+- [Full tutorial](#full-tutorial)
+- [Installation](#installation)
+- [Troubleshooting](#troubleshooting)
+
 ## Overview
 
-Scanorama enables batch-correction and integration of heterogeneous scRNA-seq data sets, which is described in the paper ["Efficient integration of heterogeneous single-cell transcriptomes using Scanorama"](https://www.nature.com/articles/s41587-019-0113-3) by Brian Hie, Bryan Bryson, and Bonnie Berger. This repository contains the Scanorama source code as well as scripts necessary for reproducing the results in the paper.
+Scanorama enables batch-correction and integration of heterogeneous scRNA-seq datasets, which is described in the paper ["Efficient integration of heterogeneous single-cell transcriptomes using Scanorama"](https://www.nature.com/articles/s41587-019-0113-3) by Brian Hie, Bryan Bryson, and Bonnie Berger. This repository contains the Scanorama source code as well as scripts necessary for reproducing the results in the paper.
 
 Scanorama is designed to be used in scRNA-seq pipelines downstream of noise-reduction methods, including those for imputation and highly-variable gene filtering. The results from Scanorama integration and batch correction can then be used as input to other tools for scRNA-seq clustering, visualization, and analysis.
 
@@ -10,10 +15,12 @@ Tools for data sketching can also greatly accelerate Scanorama integration, as d
 
 ## API example usage
 
+**Parameter documentation for each method is in the Scanorama source code at the top of [`scanorama/scanorama.py`](scanorama/scanorama.py).**
+
 Here is example usage of Scanorama in Python:
 
 ```Python
-# List of data sets (matrices of cells-by-genes):
+# List of datasets (matrices of cells-by-genes):
 datasets = [ list of scipy.sparse.csr_matrix or numpy.ndarray ]
 # List of gene lists:
 genes_list = [ list of list of string ]
@@ -30,12 +37,10 @@ corrected, genes = scanorama.correct(datasets, genes_list)
 integrated, corrected, genes = scanorama.correct(datasets, genes_list, return_dimred=True)
 ```
 
-**Parameter documentation for each method is in the Scanorama source code at the top of [`scanorama/scanorama.py`](scanorama/scanorama.py).**
-
 There are also wrappers that make it easy to use Scanorama with [scanpy's AnnData object](https://anndata.readthedocs.io/en/latest/anndata.AnnData.html#anndata.AnnData):
 
 ```Python
-# List of data sets:
+# List of datasets:
 adatas = [ list of scanpy.AnnData ]
 
 import scanorama
@@ -53,7 +58,7 @@ integrated, corrected = scanorama.correct_scanpy(adatas, return_dimred=True)
 You can also call Scanorama from R using the [`reticulate`](https://rstudio.github.io/reticulate/) package (tested with R version 3.5.1 and reticulate version 1.10):
 
 ```R
-# List of data sets (matrices of cells-by-genes):
+# List of datasets (matrices of cells-by-genes):
 datasets <- list( list of matrix )
 # List of gene lists:
 genes_list <- list( list of list of string )
@@ -72,7 +77,19 @@ integrated.corrected.data <- scanorama$correct(datasets, genes_list,
                                                return_dimred=TRUE, return_dense=TRUE)
 ```
 
-Note that `reticulate` has trouble returning sparse matrices, so you should set the `return_dense` flag to `TRUE` (which returns the corrected data as R `matrix` objects) when attempting to use Scanorama's `correct()` method in R. This will increase memory usage, however, especially for very large data sets.
+Note that `reticulate` has trouble returning sparse matrices, so you should set the `return_dense` flag to `TRUE` (which returns the corrected data as R `matrix` objects) when attempting to use Scanorama's `correct()` method in R. This will increase memory usage, however, especially for very large datasets.
+
+## Full tutorial
+
+For step-by-step tutorials on how Scanorama can integrate into a full single-cell analysis pipeline, there are a few excellent resources made available by the community of Scanorama users.
+
+Here is a simple exercise for integrating two PBMC scRNA-seq datasets (by Åsa Björklund and Paulo Czarnewski):
+https://nbisweden.github.io/workshop-scRNAseq/labs/compiled/scanpy/scanpy_03_integration.html
+
+Here is a more advanced exercise for integrating scRNA-seq Visium spatial data (by Giovanni Palla):
+https://scanpy-tutorials.readthedocs.io/en/latest/spatial/integration-scanorama.html
+
+Our gratitude goes out to the creators of these tutorials!
 
 ## Installation
 
@@ -97,7 +114,7 @@ conda install -c conda-forge python-annoy
 
 ## Examples from paper
 
-### Data set download
+### Dataset download
 
 All of the data used in our study (around 4 GB) can be downloaded from http://scanorama.csail.mit.edu/data.tar.gz. Download and unpack this data with the command:
 
@@ -106,7 +123,7 @@ wget http://scanorama.csail.mit.edu/data.tar.gz
 tar xvf data.tar.gz
 ```
 
-A smaller version of the data (around 720 MB), including 26 heterogeneous data sets, can be similarly downloaded from http://scanorama.csail.mit.edu/data_light.tar.gz.
+A smaller version of the data (around 720 MB), including 26 heterogeneous datasets, can be similarly downloaded from http://scanorama.csail.mit.edu/data_light.tar.gz.
 
 ### Data processing
 
@@ -128,31 +145,31 @@ New files can be processed by feeding them into `bin/process.py` via the command
 
 ### Panorama stitching
 
-#### Toy data sets
+#### Toy datasets
 
-For a good illustration of how Scanorama works, we can integrate three toy data sets: 293T cells, Jurkat cells, and a 50:50 293T:Jurkat mixture. To integrate these data sets, run:
+For a good illustration of how Scanorama works, we can integrate three toy datasets: 293T cells, Jurkat cells, and a 50:50 293T:Jurkat mixture. To integrate these datasets, run:
 ```
 python bin/293t_jurkat.py
 ```
-By default, this prints a log reporting the alignments the algorithm has found between data sets and saves visualization images to a file in the repository's top-level directory.
+By default, this prints a log reporting the alignments the algorithm has found between datasets and saves visualization images to a file in the repository's top-level directory.
 
-#### 26 data sets
+#### 26 datasets
 
 We can also stitch a much larger number of cells from many more datsets. To do this, run
 ```
 python bin/integration_panorama.py conf/panorama.txt
 ```
-to integrate the data sets or
+to integrate the datasets or
 ```
 python bin/panorama.py conf/panorama.txt
 ```
-to batch correct the data sets as well. The collection of data sets to be integrated is specified in the config file `conf/panorama.txt`. Default parameters are listed at the top of `scanorama/scanorama.py`.
+to batch correct the datasets as well. The collection of datasets to be integrated is specified in the config file `conf/panorama.txt`. Default parameters are listed at the top of `scanorama/scanorama.py`.
 
-By default, this script will output a verbose log as it finds alignments and applies batch correction. At the end, it will automatically save t-SNE visualized images of the integrated result. The numpy matrices containing the batch-corrected data sets are also available (in memory) to integrate with other single cell pipelines and packages.
+By default, this script will output a verbose log as it finds alignments and applies batch correction. At the end, it will automatically save t-SNE visualized images of the integrated result. The numpy matrices containing the batch-corrected datasets are also available (in memory) to integrate with other single cell pipelines and packages.
 
 #### Runtime performance and memory requirements
 
-Scanorama runs on multiple cores to speed up its computation; [here are some instructions](https://roman-kh.github.io/numpy-multicore/) to check if Python is making use of the benefits from multicore processing. Aligning and batch-correcting 105,476 cells across 26 data sets should complete in around 15 minutes with the process running on 10 cores. The memory usage should be under 8 GB for integration and under 26 GB for batch correction.
+Scanorama runs on multiple cores to speed up its computation; [here are some instructions](https://roman-kh.github.io/numpy-multicore/) to check if Python is making use of the benefits from multicore processing. Aligning and batch-correcting 105,476 cells across 26 datasets should complete in around 15 minutes with the process running on 10 cores. The memory usage should be under 8 GB for integration and under 26 GB for batch correction.
 
 Note that the gradient descent portion of the t-SNE visualization step can take a very long time (a few hours) and require a lot of memory (around 30 GB) on more than 100k cells. Other methods for accelerating t-SNE could be used in place of the t-SNE implementation used in this pipeline, such as a faster C++ implementation of [t-SNE](https://github.com/lvdmaaten/bhtsne), [Multicore-TSNE](https://github.com/DmitryUlyanov/Multicore-TSNE), or [net-SNE](https://github.com/hhcho/netsne), a version of t-SNE that uses a neural network to reduce the time required for the gradient descent optimization procedure.
 
@@ -168,7 +185,7 @@ For those interested in the algorithm implementation, `scanorama/scanorama.py` i
 
 - Make sure the input matrices are cells-by-genes, not the transpose.
 
-- For large data set integration under memory constraints (e.g., if you run into a `MemoryError`), try lowering the `batch_size` parameter to improve memory usage and try sketch-based acceleration using the `sketch` parameter to `integrate()` to improve both memory usage and runtime.
+- For large dataset integration under memory constraints (e.g., if you run into a `MemoryError`), try lowering the `batch_size` parameter to improve memory usage and try sketch-based acceleration using the `sketch` parameter to `integrate()` to improve both memory usage and runtime.
 
 - Some users report "Illegal instruction" or "Segfault" errors using the most recent versions of the `annoy` package; Scanorama is tested with `annoy` version 1.11.5 on Ubuntu 18.04.
 
