@@ -83,7 +83,7 @@ Note that `reticulate` has trouble returning sparse matrices, so you should set 
 
 For step-by-step tutorials on how Scanorama can integrate into a full single-cell analysis pipeline, there are a few excellent resources made available by the community of Scanorama users.
 
-Here is a simple exercise for integrating two PBMC scRNA-seq datasets (by Åsa Björklund and Paulo Czarnewski):
+Here is a simple exercise for integrating three PBMC scRNA-seq datasets (by Åsa Björklund and Paulo Czarnewski):
 https://nbisweden.github.io/workshop-scRNAseq/labs/compiled/scanpy/scanpy_03_integration.html
 
 Here is a more advanced exercise for integrating scRNA-seq Visium spatial data (by Giovanni Palla):
