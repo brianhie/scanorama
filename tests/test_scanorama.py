@@ -75,6 +75,3 @@ def test_scanorama_correct_scanpy():
         assert(adata_cor.X.shape[1] == adatas[0].X.shape[1])
         assert(list(adata_cor.obs['obs1']) == list(adata_orig.obs['obs1']))
         assert(list(adata_cor.var['var1']) == list(adatas[0].var['var1']))
-
-if __name__ == '__main__':
-    test_scanorama_correct_scanpy()
