@@ -55,7 +55,7 @@ corrected = scanorama.correct_scanpy(adatas)
 # Integration and batch correction.
 corrected = scanorama.correct_scanpy(adatas, return_dimred=True)
 ```
-The function `integrate_scanpy()` will simply add an entry into `adata.obsm` called `X_scanorama` for each `adata` in `adatas`. `X_scanorama` contains the low dimensional embeddings as a result of integration, which can be used for KNN graph construction, visualization, and other downstream analysis.
+The function `integrate_scanpy()` will simply add an entry into `adata.obsm` called `'X_scanorama'` for each `adata` in `adatas`. `obsm['X_scanorama']` contains the low dimensional embeddings as a result of integration, which can be used for KNN graph construction, visualization, and other downstream analysis.
 The function `correct_scanpy()` is a little more involved -- it will create new `AnnData` objects and replace `adata.X` with the Scanorama-transformed cell-by-gene matrix, while keeping the other metadata in `adata` as well.
 
 You can also call Scanorama from R using the [`reticulate`](https://rstudio.github.io/reticulate/) package (tested with R version 3.5.1 and reticulate version 1.10):

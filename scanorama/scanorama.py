@@ -203,7 +203,7 @@ def correct_scanpy(adatas, **kwargs):
     return_dimred : `bool`, optional (default=`False`)
         When `True`, the returned `adatas` are each modified to
         also have the integrated low-dimensional embeddings in
-        `adata.obsm[X_scanorama]`.
+        `adata.obsm['X_scanorama']`.
     kwargs : `dict`
         See documentation for the `correct()` method for a full list of
         parameters to use for batch correction.
@@ -215,7 +215,7 @@ def correct_scanpy(adatas, **kwargs):
         `scanpy.api.AnnData`.
         When `return_dimred=True`, `corrected` also includes the
         integrated low-dimensional embeddings in
-        `adata.obsm[X_scanorama]`.
+        `adata.obsm['X_scanorama']`.
     """
     if 'return_dimred' in kwargs and kwargs['return_dimred']:
         datasets_dimred, datasets, genes = correct(
