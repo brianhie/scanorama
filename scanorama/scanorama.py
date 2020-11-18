@@ -199,6 +199,11 @@ def correct_scanpy(adatas, **kwargs):
     ----------
     adatas : `list` of `scanpy.api.AnnData`
         Data sets to integrate and/or correct.
+        `adata.var_names` must be set to the list of genes.
+    return_dimred : `bool`, optional (default=`False`)
+        When `True`, the returned `adatas` are each modified to
+        also have the integrated low-dimensional embeddings in
+        `adata.obsm['X_scanorama']`.
     kwargs : `dict`
         See documentation for the `correct()` method for a full list of
         parameters to use for batch correction.
@@ -208,11 +213,9 @@ def correct_scanpy(adatas, **kwargs):
     corrected
         By default (`return_dimred=False`), returns a list of new
         `scanpy.api.AnnData`.
-
-    integrated, corrected
-        When `return_dimred=True`, returns a two-tuple containing a list of
-        `np.ndarray` with integrated low-dimensional embeddings and a list
-        of new `scanpy.api.AnnData`.
+        When `return_dimred=True`, `corrected` also includes the
+        integrated low-dimensional embeddings in
+        `adata.obsm['X_scanorama']`.
     """
     if 'return_dimred' in kwargs and kwargs['return_dimred']:
         datasets_dimred, datasets, genes = correct(
@@ -232,13 +235,28 @@ def correct_scanpy(adatas, **kwargs):
     new_adatas = []
     for i in range(len((adatas))):
         adata = AnnData(datasets[i])
+        adata.obs = adatas[i].obs
+        adata.obsm = adatas[i].obsm
+
+        # Ensure that variables are in the right order,
+        # as Scanorama rearranges genes to be in alphabetical
+        # order and as the intersection (or union) of the
+        # original gene sets.
         adata.var_names = genes
+        gene2idx = { gene: idx for idx, gene in
+                     zip(adatas[i].var.index,
+                         adatas[i].var_names.values) }
+        var_idx = [ gene2idx[gene] for gene in genes ]
+        adata.var = adatas[i].var.loc[var_idx]
+
+        adata.uns = adatas[i].uns
         new_adatas.append(adata)
 
     if 'return_dimred' in kwargs and kwargs['return_dimred']:
-        return datasets_dimred, new_adatas
-    else:
-        return new_adatas
+        for adata, X_dimred in zip(new_adatas, datasets_dimred):
+            adata.obsm['X_scanorama'] = X_dimred
+
+    return new_adatas
 
 # Integration with scanpy's AnnData object.
 def integrate_scanpy(adatas, **kwargs):
@@ -254,9 +272,7 @@ def integrate_scanpy(adatas, **kwargs):
 
     Returns
     -------
-    integrated
-        Returns a list of `np.ndarray` with integrated low-dimensional
-        embeddings.
+    None
     """
     datasets_dimred, genes = integrate(
         [adata.X for adata in adatas],
@@ -264,7 +280,8 @@ def integrate_scanpy(adatas, **kwargs):
         **kwargs
     )
 
-    return datasets_dimred
+    for adata, X_dimred in zip(adatas, datasets_dimred):
+        adata.obsm['X_scanorama'] = X_dimred
 
 # Visualize a scatter plot with cluster labels in the
 # `cluster' variable.
