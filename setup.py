@@ -5,7 +5,7 @@ setup(
     version='1.7',
     description='Panoramic stitching of heterogeneous single cell transcriptomic data',
     url='https://github.com/brianhie/scanorama',
-    download_url='https://github.com/brianhie/scanorama/archive/v1.6.tar.gz',
+    download_url='https://github.com/brianhie/scanorama/archive/v1.7.tar.gz',
     packages=find_packages(exclude=['bin', 'conf', 'data', 'target']),
     install_requires=[
         'annoy>=1.11.5',
