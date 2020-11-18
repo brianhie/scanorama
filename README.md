@@ -3,7 +3,7 @@
 - [API example usage](#api-example-usage)
 - [Full tutorial](#full-tutorial)
 - [Installation](#installation)
-- [Testing](#testinig)
+- [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
 
 ## Overview
