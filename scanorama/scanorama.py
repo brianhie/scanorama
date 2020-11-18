@@ -238,6 +238,10 @@ def correct_scanpy(adatas, **kwargs):
         adata.obs = adatas[i].obs
         adata.obsm = adatas[i].obsm
 
+        # Ensure that variables are in the right order,
+        # as Scanorama rearranges genes to be in alphabetical
+        # order and as the intersection (or union) of the
+        # original gene sets.
         adata.var_names = genes
         gene2idx = { gene: idx for idx, gene in
                      zip(adatas[i].var.index,
@@ -266,6 +270,9 @@ def integrate_scanpy(adatas, **kwargs):
         See documentation for the `integrate()` method for a full list of
         parameters to use for batch correction.
 
+    Returns
+    -------
+    None
     """
     datasets_dimred, genes = integrate(
         [adata.X for adata in adatas],

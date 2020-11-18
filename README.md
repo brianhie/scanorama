@@ -3,6 +3,7 @@
 - [API example usage](#api-example-usage)
 - [Full tutorial](#full-tutorial)
 - [Installation](#installation)
+- [Testing](#testinig)
 - [Troubleshooting](#troubleshooting)
 
 ## Overview
@@ -46,14 +47,16 @@ adatas = [ list of scanpy.AnnData ]
 import scanorama
 
 # Integration.
-integrated = scanorama.integrate_scanpy(adatas)
+scanorama.integrate_scanpy(adatas)
 
 # Batch correction.
 corrected = scanorama.correct_scanpy(adatas)
 
 # Integration and batch correction.
-integrated, corrected = scanorama.correct_scanpy(adatas, return_dimred=True)
+corrected = scanorama.correct_scanpy(adatas, return_dimred=True)
 ```
+The function `integrate_scanpy()` will simply add an entry into `adata.obsm` called `X_scanorama` for each `adata` in `adatas`.
+The function `correct_scanpy()` is a little more involved -- it will create new `AnnData` objects and replace `adata.X` with the Scanorama-transformed cell-by-gene matrix, while keeping the other metadata in `adata` as well.
 
 You can also call Scanorama from R using the [`reticulate`](https://rstudio.github.io/reticulate/) package (tested with R version 3.5.1 and reticulate version 1.10):
 
@@ -180,6 +183,14 @@ Scripts for performing additional analyses of the data are also available in the
 ## Scanorama implementation
 
 For those interested in the algorithm implementation, `scanorama/scanorama.py` is the main file that handles the mutual nearest neighbors-based matching, batch correction, and panorama assembly.
+
+## Testing
+
+Unit tests require using [pytest]() and can be run with the command
+```
+python -m pytest tests
+```
+from the top-level directory.
 
 ## Troubleshooting
 
