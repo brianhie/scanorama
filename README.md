@@ -186,7 +186,7 @@ For those interested in the algorithm implementation, `scanorama/scanorama.py` i
 
 ## Testing
 
-Unit tests require using [pytest]() and can be run with the command
+Unit tests require using [pytest](https://docs.pytest.org/en/latest/) and can be run with the command
 ```
 python -m pytest tests
 ```
