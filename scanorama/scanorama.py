@@ -503,7 +503,7 @@ def visualize(assembled, labels, namespace, data_names,
 # Exact nearest neighbors search.
 def nn(ds1, ds2, knn=KNN, metric_p=2):
     # Find nearest neighbors of first dataset.
-    nn_ = NearestNeighbors(knn, p=metric_p)
+    nn_ = NearestNeighbors(n_neighbors=knn, p=metric_p)
     nn_.fit(ds2)
     ind = nn_.kneighbors(ds1, return_distance=False)
 
