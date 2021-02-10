@@ -16,7 +16,7 @@ Tools for data sketching can also greatly accelerate Scanorama integration, as d
 
 ## API example usage
 
-**Scanorama is part of [Scanpy's external API](https://scanpy.readthedocs.io/en/stable/external/scanpy.external.pp.scanorama_integrate.html#scanpy.external.pp.scanorama_integrate).**
+**Scanorama is part of [Scanpy's external API](https://scanpy.readthedocs.io/en/stable/external/scanpy.external.pp.scanorama_integrate.html#scanpy.external.pp.scanorama_integrate).** Consider using this API for easy integration with Scanpy.
 
 Alternatively, parameter documentation using the base Scanorama package is provided in the Scanorama source code at the top of [`scanorama/scanorama.py`](scanorama/scanorama.py).
 
