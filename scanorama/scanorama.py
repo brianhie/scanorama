@@ -291,7 +291,7 @@ def plot_clusters(coords, clusters, s=1, colors=None):
             'Error: mismatch, {} cells, {} labels\n'
             .format(coords.shape[0], clusters.shape[0])
         )
-        exit(1)
+        sys.exit(1)
 
     if colors is None:
         colors = np.array(
@@ -335,7 +335,7 @@ def merge_datasets(datasets, genes, ds_names=None, verbose=True,
             print('After {}: {} genes'.format(ds_names[idx], len(keep_genes)))
         if len(keep_genes) == 0:
             print('Error: No genes found in all datasets, exiting...')
-            exit(1)
+            sys.exit(1)
     if verbose:
         print('Found {} genes among all datasets'
               .format(len(keep_genes)))
@@ -381,7 +381,7 @@ def check_datasets(datasets_full):
             sys.stderr.write('ERROR: Data sets must be numpy array or '
                              'scipy.sparse.csr_matrix, received type '
                              '{}.\n'.format(type(ds)))
-            exit(1)
+            sys.exit(1)
     return datasets_new
 
 # Randomized SVD.
