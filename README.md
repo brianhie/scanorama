@@ -121,7 +121,7 @@ conda install -c conda-forge python-annoy
 
 ### Dataset download
 
-All of the data used in our study (around 4 GB) can be downloaded from http://scanorama.csail.mit.edu/data.tar.gz. Download and unpack this data with the command:
+All of the data used in our study (around 4 GB) can be downloaded from http://cb.csail.mit.edu/cb/scanorama/data.tar.gz. Download and unpack this data with the command:
 
 ```
 wget http://cb.csail.mit.edu/cb/scanorama/data.tar.gz
