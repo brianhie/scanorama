@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='scanorama',
-    version='1.7.2',
+    version='1.7.3',
     description='Panoramic stitching of heterogeneous single cell transcriptomic data',
     url='https://github.com/brianhie/scanorama',
     packages=find_packages(exclude=['bin', 'conf', 'data', 'target']),
@@ -17,6 +17,6 @@ setup(
         'scikit-learn>=0.20rc1',
     ],
     author='Brian Hie',
-    author_email='brianhie@mit.edu',
+    author_email='brianhie@stanford.edu',
     license='MIT'
 )
