@@ -757,7 +757,7 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma=SIGMA, cn=False,
         bias = bias.toarray()
 
     with warnings.catch_warnings():
-        warnings.filterwarnings('error')
+        warnings.filterwarnings('error', category=RuntimeWarning)
         try:
             avg_bias = batch_bias(curr_ds, match_ds, bias, sigma=sigma,
                                   batch_size=batch_size)
