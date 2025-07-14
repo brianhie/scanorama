@@ -8,7 +8,7 @@
 
 ## Overview
 
-Scanorama enables batch-correction and integration of heterogeneous scRNA-seq datasets, which is described in the paper ["Efficient integration of heterogeneous single-cell transcriptomes using Scanorama"](https://www.nature.com/articles/s41587-019-0113-3) by Brian Hie, Bryan Bryson, and Bonnie Berger. This repository contains the Scanorama source code as well as scripts necessary for reproducing the results in the paper.
+Scanorama enables batch-correction and integration of heterogeneous scRNA-seq datasets, which is described in the paper ["Efficient integration of heterogeneous single-cell transcriptomes using Scanorama"](https://www.nature.com/articles/s41587-019-0113-3) by Brian Hie, Bryan Bryson, and Bonnie Berger. This repository contains the Scanorama source code as well as scripts necessary for reproducing the results in the paper. A detailed step-by-step protocol for Scanorama integration is described in the paper ["Scanorama: integrating large and diverse single-cell transcriptomic datasets"](https://www.nature.com/articles/s41596-024-00991-3).
 
 Scanorama is designed to be used in scRNA-seq pipelines downstream of noise-reduction methods, including those for imputation and highly-variable gene filtering. The results from Scanorama integration and batch correction can then be used as input to other tools for scRNA-seq clustering, visualization, and analysis.
 
@@ -87,6 +87,11 @@ Note that `reticulate` has trouble returning sparse matrices, so you should set 
 ## Full tutorial
 
 For step-by-step tutorials on how Scanorama can integrate into a full single-cell analysis pipeline, there are a few excellent resources made available by the community of Scanorama users.
+
+Here is a full protocol for running Scanorama integration: https://www.nature.com/articles/s41596-024-00991-3. This includes several Google Colab notebooks by Soochi Kim:
+- Colab notebook for small dataset (293T and Jurkat) integration: https://colab.research.google.com/drive/12hNry9nlMgZRu-bGUiXbz0Veqeh2WhcU?usp=sharing
+- Colab notebook for integrating 26 datasets: https://colab.research.google.com/drive/1OZrdeT1ob2FSSgTSK8Qa3hijoW1bb9Y3?usp=sharing
+- Colab notebook for integrating large Tabula Sapiens datasets: https://colab.research.google.com/drive/1X6ssJI9jTzqRJ9QQ44YffSvUhnlv2kR7?usp=sharing
 
 Here is a simple exercise for integrating three PBMC scRNA-seq datasets (by Åsa Björklund and Paulo Czarnewski):
 [https://nbisweden.github.io/workshop-scRNAseq/labs/compiled/scanpy/scanpy_03_integration.html](https://nbisweden.github.io/workshop-scRNAseq/labs/scanpy/scanpy_03_integration.html)
